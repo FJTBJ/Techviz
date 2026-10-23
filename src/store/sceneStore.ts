@@ -1,0 +1,477 @@
+import { create } from 'zustand';
+import { ASSET_LIBRARY, DEMO_SHOT, demoAssets } from '../data/mockData';
+import type {
+  AssetDef,
+  GizmoMode,
+  Measurement,
+  SceneAsset,
+  SetPlanFile,
+  ShotCamera,
+  StageDef,
+  Vec3,
+  ViewMode,
+  PrevizTimeline,
+} from '../types';
+
+let seq = 0;
+const uid = (prefix: string) => `${prefix}-${Date.now().toString(36)}-${seq++}`;
+
+/**
+ * gizmo 拖拽保护期：TransformControls 的 gizmo 不参与 R3F 事件系统，
+ * 松开 gizmo 后浏览器补发的 click 会被视作“点击空白/地面”而取消选中，
+ * 导致 gizmo 一碰就断。这里在拖拽结束时打一个时间戳，
+ * 让 Ground 点击 / onPointerMissed 在短暂保护期内忽略取消选中。
+ */
+let lastGizmoDragEnd = 0;
+export const markGizmoDragEnd = () => {
+  lastGizmoDragEnd = performance.now();
+};
+export const isGizmoActive = () => performance.now() - lastGizmoDragEnd < 200;
+
+/** 是否已从后端恢复过数据；恢复完成后才开启自动保存，避免用 demo 数据覆盖存档 */
+let hydrated = false;
+
+export interface Scenario {
+  version: 2;
+  savedAt: string;
+  currentStageId: string | null;
+  camera: ShotCamera;
+  assets: SceneAsset[];
+  measurements: Measurement[];
+  clearanceThreshold: number;
+}
+
+interface SceneState {
+  assets: SceneAsset[];
+  selectedId: string | null;
+  camera: ShotCamera;
+  mode: ViewMode;
+  gizmo: GizmoMode;
+  pendingPoint: Vec3 | null;
+  measurements: Measurement[];
+  clearanceThreshold: number;
+  showFrustum: boolean;
+  /** 棚清单（后端扫描 UE 工程得到），棚固定于原点，仅可切换 */
+  stages: StageDef[];
+  currentStageId: string | null;
+  /** 后端连接状态，用于顶栏提示 */
+  serverState: 'connecting' | 'online' | 'offline';
+  /** OIDC 模式下未登录（接口 401），顶栏显示登录入口 */
+  authRequired: boolean;
+  /** 布景方案（由预演相机动画 + 环屏几何推导，后端生成） */
+  setPlan: SetPlanFile | null;
+  planScene: string | null;
+  showSetPlan: boolean;
+
+  /** 预演播放时间线（master 时间码 + 相机关键帧） */
+  previz: PrevizTimeline | null;
+  /** 播放头位置，秒 */
+  timelineTime: number;
+  playing: boolean;
+  playbackSpeed: number;
+  /** 视口相机是否跟随预演机位 */
+  followPreviz: boolean;
+  togglePlayback: () => void;
+  setTimelineTime: (t: number) => void;
+  setPlaybackSpeed: (speed: number) => void;
+  toggleFollowPreviz: () => void;
+  seekShot: (shotId: string) => void;
+
+  initFromServer: () => Promise<void>;
+  /** 从后端拉取 UE 祈祷室场景快照并替换当前布景，返回错误信息（null 表示成功） */
+  importUeScene: () => Promise<string | null>;
+  loadSetPlan: () => Promise<string | null>;
+  setPlanScene: (scene: string) => void;
+  toggleSetPlan: () => void;
+  setStage: (id: string) => void;
+  addAssetFromLibrary: (def: AssetDef) => void;
+  addUploadedModel: (name: string, url: string) => void;
+  updateAsset: (id: string, patch: Partial<SceneAsset>) => void;
+  /** 批量显隐，一次 set 只触发一次自动保存 */
+  setAssetVisibility: (ids: string[], visible: boolean) => void;
+  removeAsset: (id: string) => void;
+  duplicateAsset: (id: string) => void;
+  selectAsset: (id: string | null) => void;
+  setMode: (mode: ViewMode) => void;
+  setGizmo: (gizmo: GizmoMode) => void;
+  patchCamera: (patch: Partial<ShotCamera>) => void;
+  addMeasurePoint: (point: Vec3) => void;
+  clearMeasurement: () => void;
+  removeMeasurement: (id: string) => void;
+  setClearanceThreshold: (value: number) => void;
+  toggleFrustum: () => void;
+  resetDemo: () => void;
+  loadScenario: (raw: unknown) => string | null;
+  buildScenario: () => Scenario;
+}
+
+/** 新资产放到布景左侧的暂存区，避免直接挡住当前机位 */
+function spawnPosition(index: number): Vec3 {
+  const col = index % 3;
+  const row = Math.floor(index / 3);
+  return [-9.5 - row * 2.6, 0, -3 + col * 2.6];
+}
+
+export const useScene = create<SceneState>((set, get) => ({
+  assets: demoAssets(),
+  selectedId: null,
+  camera: { ...DEMO_SHOT },
+  mode: 'orbit',
+  gizmo: 'translate',
+  pendingPoint: null,
+  measurements: [],
+  clearanceThreshold: 1,
+  showFrustum: true,
+  stages: [],
+  currentStageId: null,
+  serverState: 'connecting',
+  authRequired: false,
+  setPlan: null,
+  planScene: null,
+  showSetPlan: false,
+  previz: null,
+  timelineTime: 0,
+  playing: false,
+  playbackSpeed: 1,
+  followPreviz: false,
+
+  initFromServer: async () => {
+    try {
+      const [stagesRes, sceneRes] = await Promise.all([fetch('/api/stages'), fetch('/api/scene')]);
+      // OIDC 模式下未登录：接口 401，标记需要登录
+      if (stagesRes.status === 401 || sceneRes.status === 401) {
+        set({ serverState: 'offline', authRequired: true });
+        return;
+      }
+      const stagesJson = await stagesRes.json();
+      const sceneJson = await sceneRes.json();
+      const stages: StageDef[] = stagesJson?.data ?? [];
+      const saved = sceneJson?.data as Partial<Scenario> | null;
+      const patch: Partial<SceneState> = { stages, serverState: 'online' };
+      if (saved && Array.isArray(saved.assets)) {
+        patch.assets = saved.assets;
+        patch.camera = { ...DEMO_SHOT, ...saved.camera };
+        patch.measurements = Array.isArray(saved.measurements) ? saved.measurements : [];
+        patch.clearanceThreshold =
+          typeof saved.clearanceThreshold === 'number' ? saved.clearanceThreshold : 1;
+      }
+      // 恢复棚选择；无存档时默认第一个棚
+      const savedStage = saved?.currentStageId;
+      patch.currentStageId = stages.some((s) => s.id === savedStage)
+        ? (savedStage as string)
+        : (stages[0]?.id ?? null);
+      set(patch);
+      hydrated = true;
+      // 布景方案为可选数据：静默加载，缺失不影响工作台
+      try {
+        const planRes = await fetch('/api/setplan');
+        if (planRes.ok) {
+          const planJson = await planRes.json();
+          const plan = planJson?.data as SetPlanFile | null;
+          if (plan?.plans && Object.keys(plan.plans).length > 0) {
+            const first = Object.keys(plan.plans)[0];
+            const { planScene } = get();
+            set({
+              setPlan: plan,
+              planScene: planScene && plan.plans[planScene] ? planScene : first,
+              showSetPlan: true,
+            });
+          }
+        }
+      } catch {
+        /* 无布景方案时忽略 */
+      }
+      // 预演时间线为可选数据：有则启用底部播放条
+      try {
+        const tlRes = await fetch('/api/previz/timeline');
+        if (tlRes.ok) {
+          const tlJson = await tlRes.json();
+          const previz = tlJson?.data as PrevizTimeline | null;
+          if (previz?.shots?.length) set({ previz, timelineTime: 0 });
+        }
+      } catch {
+        /* 无预演时间线时忽略 */
+      }
+    } catch {
+      set({ serverState: 'offline' });
+    }
+  },
+
+  togglePlayback: () => {
+    const { playing, previz, timelineTime } = get();
+    if (!previz) return;
+    // 播放到末尾再按播放：从头开始
+    if (!playing && timelineTime >= previz.duration - 0.05) set({ timelineTime: 0, playing: true });
+    else set({ playing: !playing });
+  },
+
+  setTimelineTime: (t) => {
+    const { previz } = get();
+    const max = previz?.duration ?? 0;
+    set({ timelineTime: Math.max(0, Math.min(max, t)) });
+  },
+
+  setPlaybackSpeed: (speed) => set({ playbackSpeed: speed }),
+
+  toggleFollowPreviz: () => set((state) => ({ followPreviz: !state.followPreviz })),
+
+  seekShot: (shotId) => {
+    const shot = get().previz?.shots.find((s) => s.id === shotId);
+    if (shot) set({ timelineTime: shot.start });
+  },
+
+  importUeScene: async () => {
+    try {
+      const res = await fetch('/api/ue/prayer-room');
+      if (!res.ok) return `UE 场景数据不可用（HTTP ${res.status}）`;
+      const json = await res.json();
+      const data = json?.data as { assets?: SceneAsset[]; stageId?: string } | null;
+      if (!data || !Array.isArray(data.assets) || data.assets.length === 0) {
+        return 'UE 场景数据为空，请先在 UE 中打开祈祷室关卡后重新采集';
+      }
+      const { stages, currentStageId } = get();
+      const stageId =
+        data.stageId && stages.some((s) => s.id === data.stageId) ? data.stageId : currentStageId;
+      set({
+        assets: data.assets,
+        currentStageId: stageId,
+        selectedId: null,
+        measurements: [],
+        pendingPoint: null,
+        mode: 'orbit',
+      });
+      return null;
+    } catch {
+      return '导入失败：后端不可达';
+    }
+  },
+
+  setStage: (id) => set({ currentStageId: id }),
+
+  loadSetPlan: async () => {
+    try {
+      const res = await fetch('/api/setplan');
+      if (!res.ok) return `布景方案数据不可用（HTTP ${res.status}）`;
+      const json = await res.json();
+      const data = json?.data as SetPlanFile | null;
+      if (!data || !data.plans || Object.keys(data.plans).length === 0) {
+        return '尚无布景方案，请先在 UE 工程侧完成预演相机数据采集';
+      }
+      const scenes = Object.keys(data.plans);
+      const { planScene } = get();
+      const next = planScene && data.plans[planScene] ? planScene : scenes[0];
+      set({ setPlan: data, planScene: next, showSetPlan: true });
+      return null;
+    } catch {
+      return '布景方案加载失败：后端不可达';
+    }
+  },
+
+  setPlanScene: (scene) => set({ planScene: scene }),
+
+  toggleSetPlan: () => set((state) => ({ showSetPlan: !state.showSetPlan })),
+
+  addAssetFromLibrary: (def: AssetDef) => {
+    const { assets } = get();
+    const asset: SceneAsset = {
+      instanceId: uid('inst'),
+      assetId: def.assetId,
+      name: def.name,
+      code: def.code,
+      kind: def.kind,
+      size: def.size,
+      color: def.color,
+      position: spawnPosition(assets.length),
+      rotation: [0, 0, 0],
+      scale: [1, 1, 1],
+      visible: true,
+    };
+    set({ assets: [...assets, asset], selectedId: asset.instanceId, mode: 'orbit' });
+  },
+
+  addUploadedModel: (name: string, url: string) => {
+    const { assets } = get();
+    const asset: SceneAsset = {
+      instanceId: uid('glb'),
+      assetId: 'upload',
+      name,
+      code: 'GLB_UPLOAD',
+      kind: 'glb',
+      url,
+      size: [2, 2, 2],
+      color: '#8b9bb4',
+      position: spawnPosition(assets.length),
+      rotation: [0, 0, 0],
+      scale: [1, 1, 1],
+      visible: true,
+    };
+    set({ assets: [...assets, asset], selectedId: asset.instanceId, mode: 'orbit' });
+  },
+
+  updateAsset: (id, patch) =>
+    set((state) => ({
+      assets: state.assets.map((a) => (a.instanceId === id ? { ...a, ...patch } : a)),
+    })),
+
+  setAssetVisibility: (ids, visible) => {
+    const targets = new Set(ids);
+    set((state) => ({
+      assets: state.assets.map((a) => (targets.has(a.instanceId) ? { ...a, visible } : a)),
+    }));
+  },
+
+  removeAsset: (id) =>
+    set((state) => ({
+      assets: state.assets.filter((a) => a.instanceId !== id),
+      selectedId: state.selectedId === id ? null : state.selectedId,
+    })),
+
+  duplicateAsset: (id) => {
+    const { assets } = get();
+    const source = assets.find((a) => a.instanceId === id);
+    if (!source) return;
+    const copy: SceneAsset = {
+      ...source,
+      instanceId: uid('inst'),
+      name: `${source.name} 副本`,
+      position: [source.position[0] + 0.8, source.position[1], source.position[2] + 0.8],
+    };
+    set({ assets: [...assets, copy], selectedId: copy.instanceId });
+  },
+
+  selectAsset: (id) => set({ selectedId: id }),
+
+  setMode: (mode) =>
+    set({
+      mode,
+      pendingPoint: null,
+      ...(mode === 'measure' ? { selectedId: null } : {}),
+    }),
+
+  setGizmo: (gizmo) => set({ gizmo }),
+
+  patchCamera: (patch) => set((state) => ({ camera: { ...state.camera, ...patch } })),
+
+  addMeasurePoint: (point) => {
+    const { pendingPoint, measurements } = get();
+    if (!pendingPoint) {
+      set({ pendingPoint: point });
+      return;
+    }
+    const [ax, ay, az] = pendingPoint;
+    const [bx, by, bz] = point;
+    const measurement: Measurement = {
+      id: uid('m'),
+      a: pendingPoint,
+      b: point,
+      distance: Math.hypot(bx - ax, by - ay, bz - az),
+      deltaY: Math.abs(by - ay),
+      deltaXZ: Math.hypot(bx - ax, bz - az),
+    };
+    set({ measurements: [measurement, ...measurements].slice(0, 12), pendingPoint: null });
+  },
+
+  clearMeasurement: () => set({ pendingPoint: null, measurements: [] }),
+
+  removeMeasurement: (id) =>
+    set((state) => ({ measurements: state.measurements.filter((m) => m.id !== id) })),
+
+  setClearanceThreshold: (value) =>
+    set({ clearanceThreshold: Math.max(0, Math.min(10, value)) }),
+
+  toggleFrustum: () => set((state) => ({ showFrustum: !state.showFrustum })),
+
+  resetDemo: () =>
+    set({
+      assets: demoAssets(),
+      camera: { ...DEMO_SHOT },
+      selectedId: null,
+      measurements: [],
+      pendingPoint: null,
+      mode: 'orbit',
+    }),
+
+  buildScenario: () => {
+    const { camera, assets, measurements, clearanceThreshold, currentStageId } = get();
+    return {
+      version: 2,
+      savedAt: new Date().toISOString(),
+      currentStageId,
+      camera,
+      assets,
+      measurements,
+      clearanceThreshold,
+    };
+  },
+
+  loadScenario: (raw) => {
+    try {
+      const data = raw as Partial<Scenario>;
+      if (!data || !Array.isArray(data.assets) || !data.camera) {
+        return '文件格式不正确：缺少 assets 或 camera';
+      }
+      set({
+        assets: data.assets,
+        camera: { ...DEMO_SHOT, ...data.camera },
+        measurements: Array.isArray(data.measurements) ? data.measurements : [],
+        clearanceThreshold: typeof data.clearanceThreshold === 'number' ? data.clearanceThreshold : 1,
+        currentStageId:
+          typeof data.currentStageId === 'string' && get().stages.some((s) => s.id === data.currentStageId)
+            ? data.currentStageId
+            : get().currentStageId,
+        selectedId: null,
+        pendingPoint: null,
+      });
+      return null;
+    } catch {
+      return '解析失败：不是合法的 Techviz 方案文件';
+    }
+  },
+}));
+
+export const findAssetDef = (assetId: string): AssetDef | undefined =>
+  ASSET_LIBRARY.find((a) => a.assetId === assetId);
+
+/**
+ * 自动保存：任何数据变更后 800ms 落盘到后端（后端写 SQLite 持久化）。
+ * 只监听数据字段，忽略 selectedId/mode 等纯 UI 状态。
+ */
+let saveTimer: ReturnType<typeof setTimeout> | null = null;
+useScene.subscribe((state, prev) => {
+  if (!hydrated) return;
+  if (
+    state.assets === prev.assets &&
+    state.camera === prev.camera &&
+    state.measurements === prev.measurements &&
+    state.clearanceThreshold === prev.clearanceThreshold &&
+    state.currentStageId === prev.currentStageId
+  ) {
+    return;
+  }
+  if (saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    saveTimer = null;
+    const { camera, assets, measurements, clearanceThreshold, currentStageId } = useScene.getState();
+    fetch('/api/scene', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        version: 2,
+        currentStageId,
+        camera,
+        assets,
+        measurements,
+        clearanceThreshold,
+      }),
+    })
+      .then((res) => {
+        // OIDC 模式下会话过期：标记需要登录
+        if (res.status === 401) {
+          useScene.setState({ serverState: 'offline', authRequired: true });
+        }
+      })
+      .catch(() => {
+        useScene.setState({ serverState: 'offline' });
+      });
+  }, 800);
+});

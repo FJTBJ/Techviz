@@ -1,0 +1,4418 @@
+{
+ "source": "NDC_Led_01.uasset",
+ "sourcePath": "D:\\Ver_Launcher\\UnrealEngine\\5.8.1\\Windows\\Engine\\Plugins\\Ver\\LED\\VersatileNDisplay\\Content\\NDC\\Led_01\\NDC_Led_01.uasset",
+ "generatedAt": "2026-10-23T02:49:48.041Z",
+ "readOnly": true,
+ "schema": "nDisplay LED wall geometry (UE5.8 VersatileNDisplay)",
+ "units": {
+  "ue": "cm",
+  "derived": "m",
+  "angles": "deg (0=+X, CCW positive, Z-up)"
+ },
+ "config": {
+  "version": "5.00",
+  "embeddedJsonBytes": 40708,
+  "jsonOffset": 51206,
+  "nodes": 46,
+  "primaryNode": "h1_1",
+  "viewports": 46,
+  "projectionPolicies": [
+   "Mesh"
+  ],
+  "screens": {},
+  "cameras": [
+   "DefaultViewPoint"
+  ],
+  "hasDisplayDevicesField": false,
+  "searchedFields": {
+   "cluster.nodes": "found (46)",
+   "displayDevices": "not present in config JSON",
+   "AssignedScreens": "not present (scene.screens = {})",
+   "Size / Position / Transform": "not present in config; geometry comes from StaticMesh ExtendedBounds",
+   "BasicDisplayDevice": "only as a Blueprint component name in NDC_Led_01.uasset (export #143), no payload",
+   "StageGeometry": "only as a Blueprint component name (export #145)"
+  }
+ },
+ "cluster": {
+  "nodes": [
+   {
+    "id": "h1_1",
+    "host": "10.30.221.1",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "h1_1",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_h1_1",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "h1_3",
+    "host": "10.30.221.2",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "h1_3",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_h1_3",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "h1_5",
+    "host": "10.30.221.3",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "h1_5",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_h1_5",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "h1_7",
+    "host": "10.30.221.4",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "h1_7",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_h1_7",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "h2_1",
+    "host": "10.30.221.5",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "h2_1",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_h2_1",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "h2_3",
+    "host": "10.30.221.6",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "h2_3",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_h2_3",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "h2_5",
+    "host": "10.30.221.7",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "h2_5",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_h2_5",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "h2_7",
+    "host": "10.30.221.8",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "h2_7",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_h2_7",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "h3_1",
+    "host": "10.30.221.9",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "h3_1",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_h3_1",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "h3_3",
+    "host": "10.30.221.10",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "h3_3",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_h3_3",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "h3_5",
+    "host": "10.30.221.11",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "h3_5",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_h3_5",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "h3_7",
+    "host": "10.30.221.12",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "h3_7",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_h3_7",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "h4_1",
+    "host": "10.30.221.13",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "h4_1",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_h4_1",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "h4_3",
+    "host": "10.30.221.14",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "h4_3",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_h4_3",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "h4_5",
+    "host": "10.30.221.15",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "h4_5",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_h4_5",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "h4_7",
+    "host": "10.30.221.16",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "h4_7",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_h4_7",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "h5_1",
+    "host": "10.30.221.17",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "h5_1",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_h5_1",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "h5_3",
+    "host": "10.30.221.18",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "h5_3",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_h5_3",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "h5_5",
+    "host": "10.30.221.19",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "h5_5",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_h5_5",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "h5_7",
+    "host": "10.30.221.20",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "h5_7",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_h5_7",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "h6_1",
+    "host": "10.30.221.21",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "h6_1",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_h6_1",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "h6_3",
+    "host": "10.30.221.22",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "h6_3",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_h6_3",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "h6_5",
+    "host": "10.30.221.23",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "h6_5",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_h6_5",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "h6_7",
+    "host": "10.30.221.24",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "h6_7",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_h6_7",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "d1_1",
+    "host": "10.30.221.25",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "d1_1",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 608,
+       "w": 2432,
+       "h": 1824
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_d1_1",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "d2_1",
+    "host": "10.30.221.26",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "d2_1",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 608,
+       "w": 2432,
+       "h": 1824
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_d2_1",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "d3_1",
+    "host": "10.30.221.27",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "d3_1",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 608,
+       "w": 2432,
+       "h": 1824
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_d3_1",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "d4_1",
+    "host": "10.30.221.28",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "d4_1",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 608,
+       "w": 2432,
+       "h": 1824
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_d4_1",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "d5_1",
+    "host": "10.30.221.29",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "d5_1",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 608,
+       "w": 2432,
+       "h": 1824
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_d5_1",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "d1_3",
+    "host": "10.30.221.30",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "d1_3",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_d1_3",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "d2_3",
+    "host": "10.30.221.31",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "d2_3",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_d2_3",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "d3_3",
+    "host": "10.30.221.32",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "d3_3",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_d3_3",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "d4_3",
+    "host": "10.30.221.33",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "d4_3",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_d4_3",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "d5_3",
+    "host": "10.30.221.34",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "d5_3",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_d5_3",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "d1_5",
+    "host": "10.30.221.35",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "d1_5",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_d1_5",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "d2_5",
+    "host": "10.30.221.36",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "d2_5",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_d2_5",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "d3_5",
+    "host": "10.30.221.37",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "d3_5",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_d3_5",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "d4_5",
+    "host": "10.30.221.38",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "d4_5",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_d4_5",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "d5_5",
+    "host": "10.30.221.39",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "d5_5",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_d5_5",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "d1_7",
+    "host": "10.30.221.40",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "d1_7",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_d1_7",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "d2_7",
+    "host": "10.30.221.41",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "d2_7",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_d2_7",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "d3_7",
+    "host": "10.30.221.42",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "d3_7",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_d3_7",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "d4_7",
+    "host": "10.30.221.43",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "d4_7",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_d4_7",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "d5_7",
+    "host": "10.30.221.44",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 2432
+    },
+    "viewports": [
+     {
+      "id": "d5_7",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 2432
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_d5_7",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "d6_1",
+    "host": "10.30.221.45",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 4864,
+     "h": 1216
+    },
+    "viewports": [
+     {
+      "id": "d6_1",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 4864,
+       "h": 1216
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_d6_1",
+      "screenId": null
+     }
+    ]
+   },
+   {
+    "id": "d6_2",
+    "host": "10.30.221.46",
+    "window": {
+     "x": 0,
+     "y": 0,
+     "w": 2432,
+     "h": 1216
+    },
+    "viewports": [
+     {
+      "id": "d6_2",
+      "camera": "DefaultViewPoint",
+      "region": {
+       "x": 0,
+       "y": 0,
+       "w": 2432,
+       "h": 1216
+      },
+      "bufferRatio": 1,
+      "projection": "Mesh",
+      "meshComponent": "vp_d6_2",
+      "screenId": null
+     }
+    ]
+   }
+  ],
+  "allNodes": [
+   "h1_1",
+   "h1_3",
+   "h1_5",
+   "h1_7",
+   "h2_1",
+   "h2_3",
+   "h2_5",
+   "h2_7",
+   "h3_1",
+   "h3_3",
+   "h3_5",
+   "h3_7",
+   "h4_1",
+   "h4_3",
+   "h4_5",
+   "h4_7",
+   "h5_1",
+   "h5_3",
+   "h5_5",
+   "h5_7",
+   "h6_1",
+   "h6_3",
+   "h6_5",
+   "h6_7",
+   "d1_1",
+   "d2_1",
+   "d3_1",
+   "d4_1",
+   "d5_1",
+   "d1_3",
+   "d2_3",
+   "d3_3",
+   "d4_3",
+   "d5_3",
+   "d1_5",
+   "d2_5",
+   "d3_5",
+   "d4_5",
+   "d5_5",
+   "d1_7",
+   "d2_7",
+   "d3_7",
+   "d4_7",
+   "d5_7",
+   "d6_1",
+   "d6_2"
+  ],
+  "xforms": [
+   {
+    "id": "DisplayClusterXform",
+    "parentId": "",
+    "location": {
+     "x": 0,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_d1_1",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 19.5,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_h4_1",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 0,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_h4_3",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 0,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_h3_7",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 0,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_h4_5",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 0,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_h4_7",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 0,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_h5_1",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 0,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_h3_5",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 0,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_h2_3",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 0,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_h2_5",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 0,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_h2_7",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 0,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_h3_1",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 0,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_h3_3",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 0,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_h5_3",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 0,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_h6_7",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 0,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_h5_5",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 0,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_h5_7",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 0,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_h6_1",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 0,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_h6_3",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 0,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_h6_5",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 0,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_h2_1",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 0,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_d2_7",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 19.5,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_d3_1",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 19.5,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_d3_3",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 19.5,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_d4_1",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 19.5,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_d3_5",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 19.5,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_d3_7",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 19.5,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_d2_5",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 19.5,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_d1_3",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 19.5,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_d1_5",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 19.5,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_d1_7",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 19.5,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_d2_1",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 19.5,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_d2_3",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 19.5,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_d4_3",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 19.5,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_d6_1",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 19.5,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_d6_2",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 19.5,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_h1_1",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 0,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_h1_3",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 0,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_h1_5",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 0,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_h1_7",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 0,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_d5_7",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 19.5,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_d4_5",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 19.5,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_d4_7",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 19.5,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_d5_1",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 19.5,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_d5_3",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 19.5,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   },
+   {
+    "id": "vp_d5_5",
+    "parentId": "DisplayClusterXform",
+    "location": {
+     "x": 19.5,
+     "y": 0,
+     "z": 0
+    },
+    "rotation": {
+     "pitch": 0,
+     "yaw": 0,
+     "roll": 0
+    }
+   }
+  ]
+ },
+ "displayDevices": [
+  {
+   "name": "h1_1",
+   "node": "h1_1",
+   "host": "10.30.221.1",
+   "mesh": "vp_h1_1",
+   "size": {
+    "x": 3.813,
+    "y": 2.53,
+    "z": 4.608
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": -6.147,
+    "y": -9.263,
+    "z": 5.76
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": -123.38,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "h1_3",
+   "node": "h1_3",
+   "host": "10.30.221.2",
+   "mesh": "vp_h1_3",
+   "size": {
+    "x": 3.813,
+    "y": 2.53,
+    "z": 3.456
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": -6.147,
+    "y": -9.263,
+    "z": 1.728
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": -123.38,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "h1_5",
+   "node": "h1_5",
+   "host": "10.30.221.3",
+   "mesh": "vp_h1_5",
+   "size": {
+    "x": 4.502,
+    "y": 0.822,
+    "z": 4.608
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": -1.99,
+    "y": -10.939,
+    "z": 5.76
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": -100.13,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "h1_7",
+   "node": "h1_7",
+   "host": "10.30.221.4",
+   "mesh": "vp_h1_7",
+   "size": {
+    "x": 4.502,
+    "y": 0.822,
+    "z": 3.456
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": -1.99,
+    "y": -10.939,
+    "z": 1.728
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": -100.13,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "h2_1",
+   "node": "h2_1",
+   "host": "10.30.221.5",
+   "mesh": "vp_h2_1",
+   "size": {
+    "x": 4.46,
+    "y": 1.026,
+    "z": 4.608
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": 2.491,
+    "y": -10.834,
+    "z": 5.76
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": -76.91,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "h2_3",
+   "node": "h2_3",
+   "host": "10.30.221.6",
+   "mesh": "vp_h2_3",
+   "size": {
+    "x": 4.46,
+    "y": 1.026,
+    "z": 3.456
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": 2.491,
+    "y": -10.834,
+    "z": 1.728
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": -76.91,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "h2_5",
+   "node": "h2_5",
+   "host": "10.30.221.7",
+   "mesh": "vp_h2_5",
+   "size": {
+    "x": 3.692,
+    "y": 2.703,
+    "z": 4.608
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": 6.567,
+    "y": -8.97,
+    "z": 5.76
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": -53.72,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "h2_7",
+   "node": "h2_7",
+   "host": "10.30.221.8",
+   "mesh": "vp_h2_7",
+   "size": {
+    "x": 3.692,
+    "y": 2.703,
+    "z": 3.456
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": 6.567,
+    "y": -8.97,
+    "z": 1.728
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": -53.72,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "h3_1",
+   "node": "h3_1",
+   "host": "10.30.221.9",
+   "mesh": "vp_h3_1",
+   "size": {
+    "x": 2.325,
+    "y": 3.942,
+    "z": 4.608
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": 9.576,
+    "y": -5.647,
+    "z": 5.76
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": -30.53,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "h3_3",
+   "node": "h3_3",
+   "host": "10.30.221.10",
+   "mesh": "vp_h3_3",
+   "size": {
+    "x": 2.325,
+    "y": 3.942,
+    "z": 3.456
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": 9.576,
+    "y": -5.647,
+    "z": 1.728
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": -30.53,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "h3_5",
+   "node": "h3_5",
+   "host": "10.30.221.11",
+   "mesh": "vp_h3_5",
+   "size": {
+    "x": 0.612,
+    "y": 4.539,
+    "z": 4.608
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": 11.044,
+    "y": -1.407,
+    "z": 5.76
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": -7.34,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "h3_7",
+   "node": "h3_7",
+   "host": "10.30.221.12",
+   "mesh": "vp_h3_7",
+   "size": {
+    "x": 0.612,
+    "y": 4.539,
+    "z": 3.456
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": 11.044,
+    "y": -1.407,
+    "z": 1.728
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": -7.34,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "h4_1",
+   "node": "h4_1",
+   "host": "10.30.221.13",
+   "mesh": "vp_h4_1",
+   "size": {
+    "x": 1.261,
+    "y": 4.399,
+    "z": 4.608
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": 10.687,
+    "y": 3.063,
+    "z": 5.76
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": 15.85,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "h4_3",
+   "node": "h4_3",
+   "host": "10.30.221.14",
+   "mesh": "vp_h4_3",
+   "size": {
+    "x": 1.261,
+    "y": 4.399,
+    "z": 3.456
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": 10.687,
+    "y": 3.063,
+    "z": 1.728
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": 15.85,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "h4_5",
+   "node": "h4_5",
+   "host": "10.30.221.15",
+   "mesh": "vp_h4_5",
+   "size": {
+    "x": 2.895,
+    "y": 3.544,
+    "z": 4.608
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": 8.609,
+    "y": 7.034,
+    "z": 5.76
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": 39.07,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "h4_7",
+   "node": "h4_7",
+   "host": "10.30.221.16",
+   "mesh": "vp_h4_7",
+   "size": {
+    "x": 2.895,
+    "y": 3.544,
+    "z": 3.456
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": 8.609,
+    "y": 7.034,
+    "z": 1.728
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": 39.07,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "h5_1",
+   "node": "h5_1",
+   "host": "10.30.221.17",
+   "mesh": "vp_h5_1",
+   "size": {
+    "x": 4.06,
+    "y": 2.112,
+    "z": 4.608
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": 5.131,
+    "y": 9.862,
+    "z": 5.76
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": 62.32,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "h5_3",
+   "node": "h5_3",
+   "host": "10.30.221.18",
+   "mesh": "vp_h5_3",
+   "size": {
+    "x": 4.06,
+    "y": 2.112,
+    "z": 3.456
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": 5.131,
+    "y": 9.862,
+    "z": 1.728
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": 62.32,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "h5_5",
+   "node": "h5_5",
+   "host": "10.30.221.19",
+   "mesh": "vp_h5_5",
+   "size": {
+    "x": 4.564,
+    "y": 0.432,
+    "z": 4.608
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": 0.82,
+    "y": 11.134,
+    "z": 5.76
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": 85.62,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "h5_7",
+   "node": "h5_7",
+   "host": "10.30.221.20",
+   "mesh": "vp_h5_7",
+   "size": {
+    "x": 4.564,
+    "y": 0.432,
+    "z": 3.456
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": 0.82,
+    "y": 11.134,
+    "z": 1.728
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": 85.62,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "h6_1",
+   "node": "h6_1",
+   "host": "10.30.221.21",
+   "mesh": "vp_h6_1",
+   "size": {
+    "x": 4.326,
+    "y": 1.492,
+    "z": 4.608
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": -3.625,
+    "y": 10.509,
+    "z": 5.76
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": 108.91,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "h6_3",
+   "node": "h6_3",
+   "host": "10.30.221.22",
+   "mesh": "vp_h6_3",
+   "size": {
+    "x": 4.326,
+    "y": 1.492,
+    "z": 3.456
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": -3.625,
+    "y": 10.509,
+    "z": 1.728
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": 108.91,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "h6_5",
+   "node": "h6_5",
+   "host": "10.30.221.23",
+   "mesh": "vp_h6_5",
+   "size": {
+    "x": 2.265,
+    "y": 1.766,
+    "z": 4.608
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": -6.921,
+    "y": 8.88,
+    "z": 5.76
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": 127.87,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "h6_7",
+   "node": "h6_7",
+   "host": "10.30.221.24",
+   "mesh": "vp_h6_7",
+   "size": {
+    "x": 2.265,
+    "y": 1.766,
+    "z": 3.456
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": -6.921,
+    "y": 8.88,
+    "z": 1.728
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": 127.87,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "d1_1",
+   "node": "d1_1",
+   "host": "10.30.221.25",
+   "mesh": "vp_d1_1",
+   "size": {
+    "x": 3.456,
+    "y": 4.608,
+    "z": 0
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": -6.535,
+    "y": -9.216,
+    "z": 8.07
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": 0,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 608,
+    "w": 2432,
+    "h": 1824
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "d2_1",
+   "node": "d2_1",
+   "host": "10.30.221.26",
+   "mesh": "vp_d2_1",
+   "size": {
+    "x": 3.456,
+    "y": 4.608,
+    "z": 0
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": -6.535,
+    "y": -4.608,
+    "z": 8.07
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": 0,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 608,
+    "w": 2432,
+    "h": 1824
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "d3_1",
+   "node": "d3_1",
+   "host": "10.30.221.27",
+   "mesh": "vp_d3_1",
+   "size": {
+    "x": 3.456,
+    "y": 4.608,
+    "z": 0
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": -6.535,
+    "y": 0,
+    "z": 8.07
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": 0,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 608,
+    "w": 2432,
+    "h": 1824
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "d4_1",
+   "node": "d4_1",
+   "host": "10.30.221.28",
+   "mesh": "vp_d4_1",
+   "size": {
+    "x": 3.456,
+    "y": 4.608,
+    "z": 0
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": -6.535,
+    "y": 4.608,
+    "z": 8.07
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": 0,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 608,
+    "w": 2432,
+    "h": 1824
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "d5_1",
+   "node": "d5_1",
+   "host": "10.30.221.29",
+   "mesh": "vp_d5_1",
+   "size": {
+    "x": 3.456,
+    "y": 4.608,
+    "z": 0
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": -6.535,
+    "y": 9.216,
+    "z": 8.07
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": 0,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 608,
+    "w": 2432,
+    "h": 1824
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "d1_3",
+   "node": "d1_3",
+   "host": "10.30.221.30",
+   "mesh": "vp_d1_3",
+   "size": {
+    "x": 4.608,
+    "y": 4.608,
+    "z": 0
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": -2.503,
+    "y": -9.216,
+    "z": 8.07
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": 0,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "d2_3",
+   "node": "d2_3",
+   "host": "10.30.221.31",
+   "mesh": "vp_d2_3",
+   "size": {
+    "x": 4.608,
+    "y": 4.608,
+    "z": 0
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": -2.503,
+    "y": -4.608,
+    "z": 8.07
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": 0,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "d3_3",
+   "node": "d3_3",
+   "host": "10.30.221.32",
+   "mesh": "vp_d3_3",
+   "size": {
+    "x": 4.608,
+    "y": 4.608,
+    "z": 0
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": -2.503,
+    "y": 0,
+    "z": 8.07
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": 0,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "d4_3",
+   "node": "d4_3",
+   "host": "10.30.221.33",
+   "mesh": "vp_d4_3",
+   "size": {
+    "x": 4.608,
+    "y": 4.608,
+    "z": 0
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": -2.503,
+    "y": 4.608,
+    "z": 8.07
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": 0,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "d5_3",
+   "node": "d5_3",
+   "host": "10.30.221.34",
+   "mesh": "vp_d5_3",
+   "size": {
+    "x": 4.608,
+    "y": 4.608,
+    "z": 0
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": -2.503,
+    "y": 9.216,
+    "z": 8.07
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": 0,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "d1_5",
+   "node": "d1_5",
+   "host": "10.30.221.35",
+   "mesh": "vp_d1_5",
+   "size": {
+    "x": 4.608,
+    "y": 4.608,
+    "z": 0
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": 2.105,
+    "y": -9.216,
+    "z": 8.07
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": 0,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "d2_5",
+   "node": "d2_5",
+   "host": "10.30.221.36",
+   "mesh": "vp_d2_5",
+   "size": {
+    "x": 4.608,
+    "y": 4.608,
+    "z": 0
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": 2.105,
+    "y": -4.608,
+    "z": 8.07
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": 0,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "d3_5",
+   "node": "d3_5",
+   "host": "10.30.221.37",
+   "mesh": "vp_d3_5",
+   "size": {
+    "x": 4.608,
+    "y": 4.608,
+    "z": 0
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": 2.105,
+    "y": 0,
+    "z": 8.07
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": 0,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "d4_5",
+   "node": "d4_5",
+   "host": "10.30.221.38",
+   "mesh": "vp_d4_5",
+   "size": {
+    "x": 4.608,
+    "y": 4.608,
+    "z": 0
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": 2.105,
+    "y": 4.608,
+    "z": 8.07
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": 0,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "d5_5",
+   "node": "d5_5",
+   "host": "10.30.221.39",
+   "mesh": "vp_d5_5",
+   "size": {
+    "x": 4.608,
+    "y": 4.608,
+    "z": 0
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": 2.105,
+    "y": 9.216,
+    "z": 8.07
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": 0,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "d1_7",
+   "node": "d1_7",
+   "host": "10.30.221.40",
+   "mesh": "vp_d1_7",
+   "size": {
+    "x": 4.608,
+    "y": 4.608,
+    "z": 0
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": 6.713,
+    "y": -9.216,
+    "z": 8.07
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": 0,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "d2_7",
+   "node": "d2_7",
+   "host": "10.30.221.41",
+   "mesh": "vp_d2_7",
+   "size": {
+    "x": 4.608,
+    "y": 4.608,
+    "z": 0
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": 6.713,
+    "y": -4.608,
+    "z": 8.07
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": 0,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "d3_7",
+   "node": "d3_7",
+   "host": "10.30.221.42",
+   "mesh": "vp_d3_7",
+   "size": {
+    "x": 4.608,
+    "y": 4.608,
+    "z": 0
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": 6.713,
+    "y": 0,
+    "z": 8.07
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": 0,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "d4_7",
+   "node": "d4_7",
+   "host": "10.30.221.43",
+   "mesh": "vp_d4_7",
+   "size": {
+    "x": 4.608,
+    "y": 4.608,
+    "z": 0
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": 6.713,
+    "y": 4.608,
+    "z": 8.07
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": 0,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "d5_7",
+   "node": "d5_7",
+   "host": "10.30.221.44",
+   "mesh": "vp_d5_7",
+   "size": {
+    "x": 4.608,
+    "y": 4.608,
+    "z": 0
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": 6.713,
+    "y": 9.216,
+    "z": 8.07
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": 0,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 2432
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "d6_1",
+   "node": "d6_1",
+   "host": "10.30.221.45",
+   "mesh": "vp_d6_1",
+   "size": {
+    "x": 2.304,
+    "y": 9.216,
+    "z": 0
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": 10.169,
+    "y": -2.304,
+    "z": 8.07
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": 0,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 4864,
+    "h": 1216
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  },
+  {
+   "name": "d6_2",
+   "node": "d6_2",
+   "host": "10.30.221.46",
+   "mesh": "vp_d6_2",
+   "size": {
+    "x": 2.304,
+    "y": 4.608,
+    "z": 0
+   },
+   "sizeKind": "StaticMesh ExtendedBounds AABB (曲面斜置时取 derived.panelWidthM 作为真实板宽)",
+   "position": {
+    "x": 10.169,
+    "y": 4.608,
+    "z": 8.07
+   },
+   "rotation": {
+    "pitch": 0,
+    "yaw": 0,
+    "roll": 0
+   },
+   "assignedScreens": [],
+   "assignedCamera": "DefaultViewPoint",
+   "region": {
+    "x": 0,
+    "y": 0,
+    "w": 2432,
+    "h": 1216
+   },
+   "projectionPolicy": "Mesh",
+   "projected": "mesh_vp_exact"
+  }
+ ],
+ "derived": {
+  "radiusM": 11.142,
+  "diameterM": 22.285,
+  "arcDeg": 270.18,
+  "arcLengthM": 52.542,
+  "panelWidthM": [
+   2.872,
+   4.584
+  ],
+  "panelHeightM": [
+   3.456,
+   4.608
+  ],
+  "panelRows": 2,
+  "rowHeights": [
+   {
+    "zM": 1.728,
+    "panelHeightM": 3.456
+   },
+   {
+    "zM": 5.76,
+    "panelHeightM": 4.608
+   }
+  ],
+  "totalHeightM": 8.064,
+  "zRangeM": [
+   0,
+   8.064
+  ],
+  "originM": {
+   "x": -0.032,
+   "y": 0.02,
+   "z": 0
+  },
+  "columns": [
+   {
+    "id": "h1_1",
+    "angleDeg": -123.38,
+    "footprintDeg": [
+     -135.02,
+     -111.76
+    ],
+    "xyM": [
+     -6.147,
+     -9.263
+    ],
+    "files": [
+     "vp_h1_1",
+     "vp_h1_3"
+    ]
+   },
+   {
+    "id": "h1_5",
+    "angleDeg": -100.13,
+    "footprintDeg": [
+     -111.76,
+     -88.41
+    ],
+    "xyM": [
+     -1.99,
+     -10.939
+    ],
+    "files": [
+     "vp_h1_5",
+     "vp_h1_7"
+    ]
+   },
+   {
+    "id": "h2_1",
+    "angleDeg": -76.91,
+    "footprintDeg": [
+     -88.52,
+     -65.32
+    ],
+    "xyM": [
+     2.491,
+     -10.834
+    ],
+    "files": [
+     "vp_h2_1",
+     "vp_h2_3"
+    ]
+   },
+   {
+    "id": "h2_5",
+    "angleDeg": -53.72,
+    "footprintDeg": [
+     -65.32,
+     -42.13
+    ],
+    "xyM": [
+     6.567,
+     -8.97
+    ],
+    "files": [
+     "vp_h2_5",
+     "vp_h2_7"
+    ]
+   },
+   {
+    "id": "h3_1",
+    "angleDeg": -30.53,
+    "footprintDeg": [
+     -42.13,
+     -18.94
+    ],
+    "xyM": [
+     9.576,
+     -5.647
+    ],
+    "files": [
+     "vp_h3_1",
+     "vp_h3_3"
+    ]
+   },
+   {
+    "id": "h3_5",
+    "angleDeg": -7.34,
+    "footprintDeg": [
+     -18.94,
+     4.48
+    ],
+    "xyM": [
+     11.044,
+     -1.407
+    ],
+    "files": [
+     "vp_h3_5",
+     "vp_h3_7"
+    ]
+   },
+   {
+    "id": "h4_1",
+    "angleDeg": 15.85,
+    "footprintDeg": [
+     4.25,
+     27.46
+    ],
+    "xyM": [
+     10.687,
+     3.063
+    ],
+    "files": [
+     "vp_h4_1",
+     "vp_h4_3"
+    ]
+   },
+   {
+    "id": "h4_5",
+    "angleDeg": 39.07,
+    "footprintDeg": [
+     27.46,
+     50.7
+    ],
+    "xyM": [
+     8.609,
+     7.034
+    ],
+    "files": [
+     "vp_h4_5",
+     "vp_h4_7"
+    ]
+   },
+   {
+    "id": "h5_1",
+    "angleDeg": 62.32,
+    "footprintDeg": [
+     50.7,
+     73.96
+    ],
+    "xyM": [
+     5.131,
+     9.862
+    ],
+    "files": [
+     "vp_h5_1",
+     "vp_h5_3"
+    ]
+   },
+   {
+    "id": "h5_5",
+    "angleDeg": 85.62,
+    "footprintDeg": [
+     73.96,
+     97.48
+    ],
+    "xyM": [
+     0.82,
+     11.134
+    ],
+    "files": [
+     "vp_h5_5",
+     "vp_h5_7"
+    ]
+   },
+   {
+    "id": "h6_1",
+    "angleDeg": 108.91,
+    "footprintDeg": [
+     97.26,
+     120.58
+    ],
+    "xyM": [
+     -3.625,
+     10.509
+    ],
+    "files": [
+     "vp_h6_1",
+     "vp_h6_3"
+    ]
+   },
+   {
+    "id": "h6_5",
+    "angleDeg": 127.87,
+    "footprintDeg": [
+     120.58,
+     135.16
+    ],
+    "xyM": [
+     -6.921,
+     8.88
+    ],
+    "files": [
+     "vp_h6_5",
+     "vp_h6_7"
+    ]
+   }
+  ],
+  "spacingsDeg": [
+   23.25,
+   23.22,
+   23.19,
+   23.19,
+   23.19,
+   23.19,
+   23.22,
+   23.25,
+   23.3,
+   23.29,
+   18.96
+  ],
+  "maxGapDeg": 0,
+  "circleFitResidualCm": 8.15,
+  "ceiling": {
+   "zM": 8.07,
+   "tiles": 22,
+   "extentM": {
+    "minX": -8.263,
+    "maxX": 11.321,
+    "minY": -11.52,
+    "maxY": 11.52
+   }
+  },
+  "note": "nDisplay 配置(ConfigExport 内嵌 JSON)只保存节点/视口/投影(Mesh→vp_*)，不含 Size/Position；几何取自 Mesh/vp_*.uasset 的 ExtendedBounds.Origin/BoxExtent（UE cm，网格就地建模，已是环屏世界坐标）。12 个 h 立柱 AABB 中心做最小二乘圆拟合：圆心 (-3.158, 1.964) cm，半径 11.142 m，最大拟合残差 8.15 cm。直径 = 2R = 22.285 m；每列中心角 -123.38°…127.87°，相邻间隔 18.96~23.3°。面板角度跨度取每个 AABB 四角相对圆心的角度区间并集 = 270.18°（≈270°，缺 89.82° 开口）；弧长 = R×弧度 = 52.542 m。板宽(对角) 2.872~4.584 m；两排中心 z = 1.728 / 5.76 m，板高 3.456 / 4.608 m → 总高 8.064 m（底边 z=0 m，无重叠，上下排拼接）。原点/圆心 = (-0.032, 0.02, 0) m（UE Z-up，环屏底边 z=0 m，顶板 z=8.07 m）。",
+  "confidence": {
+   "level": "high",
+   "basis": "nDisplay ConfigExport JSON(46 节点/46 视口, projection=Mesh) + 46 个 vp_*.uasset 的 ExtendedBounds（Origin/BoxExtent）",
+   "items": {
+    "diameter": "由 12 个立面列中心做圆拟合，残差见 circleFitResidualCm",
+    "height": "由每块板 BoxExtent.Z×2 与上下两排中心 z 直接得出（非估算）",
+    "arc": "由各列 AABB 四角相对圆心的角度并集得出",
+    "origin": "圆拟合圆心（与网格原点一致，BP 组件相对位移仅 d 系列 X+0.195m）"
+   }
+  }
+ },
+ "meshes": {
+  "dir": "D:\\Ver_Launcher\\UnrealEngine\\5.8.1\\Windows\\Engine\\Plugins\\Ver\\LED\\VersatileNDisplay\\Content\\NDC\\Led_01\\Mesh",
+  "count": 46,
+  "wall": 24,
+  "ceiling": 22,
+  "groups": {
+   "d1": [
+    1,
+    3,
+    5,
+    7
+   ],
+   "d2": [
+    1,
+    3,
+    5,
+    7
+   ],
+   "d3": [
+    1,
+    3,
+    5,
+    7
+   ],
+   "d4": [
+    1,
+    3,
+    5,
+    7
+   ],
+   "d5": [
+    1,
+    3,
+    5,
+    7
+   ],
+   "d6": [
+    1,
+    2
+   ],
+   "h1": [
+    1,
+    3,
+    5,
+    7
+   ],
+   "h2": [
+    1,
+    3,
+    5,
+    7
+   ],
+   "h3": [
+    1,
+    3,
+    5,
+    7
+   ],
+   "h4": [
+    1,
+    3,
+    5,
+    7
+   ],
+   "h5": [
+    1,
+    3,
+    5,
+    7
+   ],
+   "h6": [
+    1,
+    3,
+    5,
+    7
+   ]
+  },
+  "rule": "vp_<h|d><group>_<index>.uasset：h=竖立环屏板（h1..h6，每组 1/3/5/7 共 4 块 = 2 列×上下 2 排，1、5 上排 z=5.76m，3、7 下排 z=1.728m），d=顶部水平封板（d1..d5 每组 4 块，沿 X 由 -6.535/-2.503/2.105/6.713m 排列；d6 仅 2 块，X=10.169m，沿 Y 补边）。共 46 个网格 = 24 立面 + 22 顶板。",
+  "parsed": 46,
+  "bounds": [
+   {
+    "file": "vp_d1_1.uasset",
+    "originCm": [
+     -653.5,
+     -921.6,
+     807
+    ],
+    "extentCm": [
+     172.8,
+     230.4,
+     0
+    ],
+    "sphereCm": 288
+   },
+   {
+    "file": "vp_d1_3.uasset",
+    "originCm": [
+     -250.3,
+     -921.6,
+     807
+    ],
+    "extentCm": [
+     230.4,
+     230.4,
+     0
+    ],
+    "sphereCm": 325.83
+   },
+   {
+    "file": "vp_d1_5.uasset",
+    "originCm": [
+     210.5,
+     -921.6,
+     807
+    ],
+    "extentCm": [
+     230.4,
+     230.4,
+     0
+    ],
+    "sphereCm": 325.83
+   },
+   {
+    "file": "vp_d1_7.uasset",
+    "originCm": [
+     671.3,
+     -921.6,
+     807
+    ],
+    "extentCm": [
+     230.4,
+     230.4,
+     0
+    ],
+    "sphereCm": 325.83
+   },
+   {
+    "file": "vp_d2_1.uasset",
+    "originCm": [
+     -653.5,
+     -460.8,
+     807
+    ],
+    "extentCm": [
+     172.8,
+     230.4,
+     0
+    ],
+    "sphereCm": 288
+   },
+   {
+    "file": "vp_d2_3.uasset",
+    "originCm": [
+     -250.3,
+     -460.8,
+     807
+    ],
+    "extentCm": [
+     230.4,
+     230.4,
+     0
+    ],
+    "sphereCm": 325.83
+   },
+   {
+    "file": "vp_d2_5.uasset",
+    "originCm": [
+     210.5,
+     -460.8,
+     807
+    ],
+    "extentCm": [
+     230.4,
+     230.4,
+     0
+    ],
+    "sphereCm": 325.83
+   },
+   {
+    "file": "vp_d2_7.uasset",
+    "originCm": [
+     671.3,
+     -460.8,
+     807
+    ],
+    "extentCm": [
+     230.4,
+     230.4,
+     0
+    ],
+    "sphereCm": 325.83
+   },
+   {
+    "file": "vp_d3_1.uasset",
+    "originCm": [
+     -653.5,
+     0,
+     807
+    ],
+    "extentCm": [
+     172.8,
+     230.4,
+     0
+    ],
+    "sphereCm": 288
+   },
+   {
+    "file": "vp_d3_3.uasset",
+    "originCm": [
+     -250.3,
+     0,
+     807
+    ],
+    "extentCm": [
+     230.4,
+     230.4,
+     0
+    ],
+    "sphereCm": 325.83
+   },
+   {
+    "file": "vp_d3_5.uasset",
+    "originCm": [
+     210.5,
+     0,
+     807
+    ],
+    "extentCm": [
+     230.4,
+     230.4,
+     0
+    ],
+    "sphereCm": 325.83
+   },
+   {
+    "file": "vp_d3_7.uasset",
+    "originCm": [
+     671.3,
+     0,
+     807
+    ],
+    "extentCm": [
+     230.4,
+     230.4,
+     0
+    ],
+    "sphereCm": 325.83
+   },
+   {
+    "file": "vp_d4_1.uasset",
+    "originCm": [
+     -653.5,
+     460.8,
+     807
+    ],
+    "extentCm": [
+     172.8,
+     230.4,
+     0
+    ],
+    "sphereCm": 288
+   },
+   {
+    "file": "vp_d4_3.uasset",
+    "originCm": [
+     -250.3,
+     460.8,
+     807
+    ],
+    "extentCm": [
+     230.4,
+     230.4,
+     0
+    ],
+    "sphereCm": 325.83
+   },
+   {
+    "file": "vp_d4_5.uasset",
+    "originCm": [
+     210.5,
+     460.8,
+     807
+    ],
+    "extentCm": [
+     230.4,
+     230.4,
+     0
+    ],
+    "sphereCm": 325.83
+   },
+   {
+    "file": "vp_d4_7.uasset",
+    "originCm": [
+     671.3,
+     460.8,
+     807
+    ],
+    "extentCm": [
+     230.4,
+     230.4,
+     0
+    ],
+    "sphereCm": 325.83
+   },
+   {
+    "file": "vp_d5_1.uasset",
+    "originCm": [
+     -653.5,
+     921.6,
+     807
+    ],
+    "extentCm": [
+     172.8,
+     230.4,
+     0
+    ],
+    "sphereCm": 288
+   },
+   {
+    "file": "vp_d5_3.uasset",
+    "originCm": [
+     -250.3,
+     921.6,
+     807
+    ],
+    "extentCm": [
+     230.4,
+     230.4,
+     0
+    ],
+    "sphereCm": 325.83
+   },
+   {
+    "file": "vp_d5_5.uasset",
+    "originCm": [
+     210.5,
+     921.6,
+     807
+    ],
+    "extentCm": [
+     230.4,
+     230.4,
+     0
+    ],
+    "sphereCm": 325.83
+   },
+   {
+    "file": "vp_d5_7.uasset",
+    "originCm": [
+     671.3,
+     921.6,
+     807
+    ],
+    "extentCm": [
+     230.4,
+     230.4,
+     0
+    ],
+    "sphereCm": 325.83
+   },
+   {
+    "file": "vp_d6_1.uasset",
+    "originCm": [
+     1016.9,
+     -230.4,
+     807
+    ],
+    "extentCm": [
+     115.2,
+     460.8,
+     0
+    ],
+    "sphereCm": 474.98
+   },
+   {
+    "file": "vp_d6_2.uasset",
+    "originCm": [
+     1016.9,
+     460.8,
+     807
+    ],
+    "extentCm": [
+     115.2,
+     230.4,
+     0
+    ],
+    "sphereCm": 257.6
+   },
+   {
+    "file": "vp_h1_1.uasset",
+    "originCm": [
+     -614.72,
+     -926.28,
+     576
+    ],
+    "extentCm": [
+     190.65,
+     126.52,
+     230.4
+    ],
+    "sphereCm": 324.71
+   },
+   {
+    "file": "vp_h1_3.uasset",
+    "originCm": [
+     -614.72,
+     -926.28,
+     172.8
+    ],
+    "extentCm": [
+     190.65,
+     126.52,
+     172.8
+    ],
+    "sphereCm": 286.73
+   },
+   {
+    "file": "vp_h1_5.uasset",
+    "originCm": [
+     -198.96,
+     -1093.9,
+     576
+    ],
+    "extentCm": [
+     225.11,
+     41.1,
+     230.4
+    ],
+    "sphereCm": 324.73
+   },
+   {
+    "file": "vp_h1_7.uasset",
+    "originCm": [
+     -198.96,
+     -1093.9,
+     172.8
+    ],
+    "extentCm": [
+     225.11,
+     41.1,
+     172.8
+    ],
+    "sphereCm": 286.75
+   },
+   {
+    "file": "vp_h2_1.uasset",
+    "originCm": [
+     249.14,
+     -1083.42,
+     576
+    ],
+    "extentCm": [
+     222.99,
+     51.28,
+     230.4
+    ],
+    "sphereCm": 324.71
+   },
+   {
+    "file": "vp_h2_3.uasset",
+    "originCm": [
+     249.14,
+     -1083.42,
+     172.8
+    ],
+    "extentCm": [
+     222.99,
+     51.28,
+     172.8
+    ],
+    "sphereCm": 286.73
+   },
+   {
+    "file": "vp_h2_5.uasset",
+    "originCm": [
+     656.74,
+     -896.97,
+     576
+    ],
+    "extentCm": [
+     184.61,
+     135.17,
+     230.4
+    ],
+    "sphereCm": 324.71
+   },
+   {
+    "file": "vp_h2_7.uasset",
+    "originCm": [
+     656.74,
+     -896.97,
+     172.8
+    ],
+    "extentCm": [
+     184.61,
+     135.17,
+     172.8
+    ],
+    "sphereCm": 286.73
+   },
+   {
+    "file": "vp_h3_1.uasset",
+    "originCm": [
+     957.59,
+     -564.71,
+     576
+    ],
+    "extentCm": [
+     116.23,
+     197.09,
+     230.4
+    ],
+    "sphereCm": 324.71
+   },
+   {
+    "file": "vp_h3_3.uasset",
+    "originCm": [
+     957.59,
+     -564.71,
+     172.8
+    ],
+    "extentCm": [
+     116.23,
+     197.09,
+     172.8
+    ],
+    "sphereCm": 286.73
+   },
+   {
+    "file": "vp_h3_5.uasset",
+    "originCm": [
+     1104.41,
+     -140.66,
+     576
+    ],
+    "extentCm": [
+     30.59,
+     226.97,
+     230.4
+    ],
+    "sphereCm": 324.86
+   },
+   {
+    "file": "vp_h3_7.uasset",
+    "originCm": [
+     1104.41,
+     -140.66,
+     172.8
+    ],
+    "extentCm": [
+     30.59,
+     226.97,
+     172.8
+    ],
+    "sphereCm": 286.9
+   },
+   {
+    "file": "vp_h4_1.uasset",
+    "originCm": [
+     1068.68,
+     306.27,
+     576
+    ],
+    "extentCm": [
+     63.03,
+     219.95,
+     230.4
+    ],
+    "sphereCm": 324.71
+   },
+   {
+    "file": "vp_h4_3.uasset",
+    "originCm": [
+     1068.68,
+     306.27,
+     172.8
+    ],
+    "extentCm": [
+     63.03,
+     219.95,
+     172.8
+    ],
+    "sphereCm": 286.73
+   },
+   {
+    "file": "vp_h4_5.uasset",
+    "originCm": [
+     860.87,
+     703.4,
+     576
+    ],
+    "extentCm": [
+     144.77,
+     177.18,
+     230.4
+    ],
+    "sphereCm": 324.71
+   },
+   {
+    "file": "vp_h4_7.uasset",
+    "originCm": [
+     860.87,
+     703.4,
+     172.8
+    ],
+    "extentCm": [
+     144.77,
+     177.18,
+     172.8
+    ],
+    "sphereCm": 286.73
+   },
+   {
+    "file": "vp_h5_1.uasset",
+    "originCm": [
+     513.12,
+     986.19,
+     576
+    ],
+    "extentCm": [
+     202.98,
+     105.61,
+     230.4
+    ],
+    "sphereCm": 324.71
+   },
+   {
+    "file": "vp_h5_3.uasset",
+    "originCm": [
+     513.12,
+     986.19,
+     172.8
+    ],
+    "extentCm": [
+     202.98,
+     105.61,
+     172.8
+    ],
+    "sphereCm": 286.73
+   },
+   {
+    "file": "vp_h5_5.uasset",
+    "originCm": [
+     81.96,
+     1113.4,
+     576
+    ],
+    "extentCm": [
+     228.18,
+     21.6,
+     230.4
+    ],
+    "sphereCm": 324.99
+   },
+   {
+    "file": "vp_h5_7.uasset",
+    "originCm": [
+     81.96,
+     1113.4,
+     172.8
+    ],
+    "extentCm": [
+     228.18,
+     21.6,
+     172.8
+    ],
+    "sphereCm": 287.04
+   },
+   {
+    "file": "vp_h6_1.uasset",
+    "originCm": [
+     -362.53,
+     1050.93,
+     576
+    ],
+    "extentCm": [
+     216.3,
+     74.61,
+     230.4
+    ],
+    "sphereCm": 324.71
+   },
+   {
+    "file": "vp_h6_3.uasset",
+    "originCm": [
+     -362.53,
+     1050.93,
+     172.8
+    ],
+    "extentCm": [
+     216.3,
+     74.61,
+     172.8
+    ],
+    "sphereCm": 286.73
+   },
+   {
+    "file": "vp_h6_5.uasset",
+    "originCm": [
+     -692.09,
+     888.04,
+     576
+    ],
+    "extentCm": [
+     113.27,
+     88.28,
+     230.4
+    ],
+    "sphereCm": 271.49
+   },
+   {
+    "file": "vp_h6_7.uasset",
+    "originCm": [
+     -692.09,
+     888.04,
+     172.8
+    ],
+    "extentCm": [
+     113.27,
+     88.28,
+     172.8
+    ],
+    "sphereCm": 224.68
+   }
+  ]
+ },
+ "assets": {
+  "ndc": "D:\\Ver_Launcher\\UnrealEngine\\5.8.1\\Windows\\Engine\\Plugins\\Ver\\LED\\VersatileNDisplay\\Content\\NDC\\Led_01\\NDC_Led_01.uasset",
+  "da": "D:\\Ver_Launcher\\UnrealEngine\\5.8.1\\Windows\\Engine\\Plugins\\Ver\\LED\\VersatileNDisplay\\Content\\NDC\\Led_01\\DA_Led_01.uasset",
+  "daNote": "DA_Led_01.uasset 仅 2 个导出/25 个名字：LedStaticMesh(SoftObject)、LedBackground、LedPosition、LedDebug + VersatileNDisplayConfig，无几何字段（payload 129B，tag 链未完整解出，legacy=-8）",
+  "projectContentNdcDir": {
+   "path": "D:/Ver_Projects/P4_Projects/PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A/Content/NDC",
+   "exists": false
+  }
+ }
+}

@@ -1,0 +1,831 @@
+{
+ "source": "D:/Ver_Projects/P4_Projects/PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A/Saved/TechvizAutomation/objects/5fe58ad1389e51529d6228bf0a829938ff94def42e933762b73e307f54421004.json",
+ "fps": 24,
+ "sequence": "/Game/XML/Techviz/TEV-10777-8e9e33e650b5.TEV-10777-8e9e33e650b5",
+ "shotCount": 60,
+ "uniqueSequences": 31,
+ "shots": [
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_16:MovieSceneCameraCutSection_0",
+   "masterStart": 0,
+   "masterEnd": 24.375,
+   "sequence": "/Game/Cinematics/Takes/MAP_s079a/A/2026-09-08/c_s079a_b01_01a_a_02.c_s079a_b01_01a_a_02",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s079a\\A\\2026-09-08\\c_s079a_b01_01a_a_02.uasset",
+   "sourceSeconds": 33275.166666666664,
+   "binding": "FD50AB4A46091508897A048BBEFBEC74"
+  },
+  {
+   "shotKey": "gap",
+   "masterStart": 24.375,
+   "masterEnd": 24.416666666666668,
+   "sequence": null,
+   "asset": null,
+   "sourceSeconds": null,
+   "binding": null
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_0:MovieSceneCameraCutSection_0",
+   "masterStart": 24.416666666666668,
+   "masterEnd": 85.66666666666667,
+   "sequence": "/Game/Previz/Shoot/Cinematics/Takes/MAP_s001/A/2026-09-08/c_s001_b02_05a_a_04.c_s001_b02_05a_a_04",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Previz\\Shoot\\Cinematics\\Takes\\MAP_s001\\A\\2026-09-08\\c_s001_b02_05a_a_04.uasset",
+   "sourceSeconds": 14676.166666666666,
+   "binding": "0C1C7078428BFF897EDFCF9E2499777B"
+  },
+  {
+   "shotKey": "gap",
+   "masterStart": 85.66666666666667,
+   "masterEnd": 85.75,
+   "sequence": null,
+   "asset": null,
+   "sourceSeconds": null,
+   "binding": null
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_11:MovieSceneCameraCutSection_0",
+   "masterStart": 85.75,
+   "masterEnd": 138.58333333333331,
+   "sequence": "/Game/Cinematics/Takes/MAP_s015/A/2026-09-08/c_s015_b01_01a_a_05.c_s015_b01_01a_a_05",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s015\\A\\2026-09-08\\c_s015_b01_01a_a_05.uasset",
+   "sourceSeconds": 27233.75,
+   "binding": "3CFF2AF644A54DDA57EF138EEEA3BDA5"
+  },
+  {
+   "shotKey": "gap",
+   "masterStart": 138.58333333333334,
+   "masterEnd": 138.625,
+   "sequence": null,
+   "asset": null,
+   "sourceSeconds": null,
+   "binding": null
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_19:MovieSceneCameraCutSection_0",
+   "masterStart": 138.625,
+   "masterEnd": 190,
+   "sequence": "/Game/Cinematics/Takes/MAP_s136/B/2026-09-08/c_s136_b01_02a_b_02.c_s136_b01_02a_b_02",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s136\\B\\2026-09-08\\c_s136_b01_02a_b_02.uasset",
+   "sourceSeconds": 35215.833333333336,
+   "binding": "69C72BE8465C67F89117AF9A7486FAD7"
+  },
+  {
+   "shotKey": "gap",
+   "masterStart": 190,
+   "masterEnd": 190.04166666666666,
+   "sequence": null,
+   "asset": null,
+   "sourceSeconds": null,
+   "binding": null
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_12:MovieSceneCameraCutSection_0",
+   "masterStart": 190.04166666666666,
+   "masterEnd": 241,
+   "sequence": "/Game/Cinematics/Takes/MAP_s015/A/2026-09-08/c_s015_b01_01a_a_03.c_s015_b01_01a_a_03",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s015\\A\\2026-09-08\\c_s015_b01_01a_a_03.uasset",
+   "sourceSeconds": 26958.708333333332,
+   "binding": "87D740C74B46939CE90221821BA89A13"
+  },
+  {
+   "shotKey": "gap",
+   "masterStart": 241,
+   "masterEnd": 241.04166666666666,
+   "sequence": null,
+   "asset": null,
+   "sourceSeconds": null,
+   "binding": null
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_22:MovieSceneCameraCutSection_0",
+   "masterStart": 241.04166666666666,
+   "masterEnd": 312.33333333333337,
+   "sequence": "/Game/Cinematics/Takes/MAP_s138/A/2026-09-08/c_s138_b02_02a_a_21.c_s138_b02_02a_a_21",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s138\\A\\2026-09-08\\c_s138_b02_02a_a_21.uasset",
+   "sourceSeconds": 41007.583333333336,
+   "binding": "9B5F4A9B4E61D340D7FE249D7C745486"
+  },
+  {
+   "shotKey": "gap",
+   "masterStart": 312.3333333333333,
+   "masterEnd": 312.4166666666667,
+   "sequence": null,
+   "asset": null,
+   "sourceSeconds": null,
+   "binding": null
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_1:MovieSceneCameraCutSection_0",
+   "masterStart": 312.4166666666667,
+   "masterEnd": 472.75,
+   "sequence": "/Game/Cinematics/Takes/MAP_s001/B/2026-09-08/c_s001_b02_04b_b_06.c_s001_b02_04b_b_06",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s001\\B\\2026-09-08\\c_s001_b02_04b_b_06.uasset",
+   "sourceSeconds": 20414.416666666668,
+   "binding": "B94D27CA49208C90A184A3BB571F6274"
+  },
+  {
+   "shotKey": "gap",
+   "masterStart": 472.75,
+   "masterEnd": 472.83333333333337,
+   "sequence": null,
+   "asset": null,
+   "sourceSeconds": null,
+   "binding": null
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_14:MovieSceneCameraCutSection_0",
+   "masterStart": 472.8333333333333,
+   "masterEnd": 495.2916666666667,
+   "sequence": "/Game/Cinematics/Takes/MAP_s057/B/2026-09-08/c_s057_b01_02a_b_06.c_s057_b01_02a_b_06",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s057\\B\\2026-09-08\\c_s057_b01_02a_b_06.uasset",
+   "sourceSeconds": 31920.166666666668,
+   "binding": "2374B7D24404385D63798789876A96E7"
+  },
+  {
+   "shotKey": "gap",
+   "masterStart": 495.2916666666667,
+   "masterEnd": 495.33333333333337,
+   "sequence": null,
+   "asset": null,
+   "sourceSeconds": null,
+   "binding": null
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_15:MovieSceneCameraCutSection_0",
+   "masterStart": 495.3333333333333,
+   "masterEnd": 519,
+   "sequence": "/Game/Cinematics/Takes/MAP_s057/B/2026-09-08/c_s057_b01_02a_b_03.c_s057_b01_02a_b_03",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s057\\B\\2026-09-08\\c_s057_b01_02a_b_03.uasset",
+   "sourceSeconds": 31547.125,
+   "binding": "7A7759FA4EE292A6FE0456AC5521917E"
+  },
+  {
+   "shotKey": "gap",
+   "masterStart": 519,
+   "masterEnd": 519.0416666666666,
+   "sequence": null,
+   "asset": null,
+   "sourceSeconds": null,
+   "binding": null
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_20:MovieSceneCameraCutSection_0",
+   "masterStart": 519.0416666666666,
+   "masterEnd": 563.2916666666666,
+   "sequence": "/Game/Cinematics/Takes/MAP_s136/B/2026-09-08/c_s136_b01_02a_b_07.c_s136_b01_02a_b_07",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s136\\B\\2026-09-08\\c_s136_b01_02a_b_07.uasset",
+   "sourceSeconds": 36026.416666666664,
+   "binding": "1FF4C32245F4360C4F4D629B0243CCD9"
+  },
+  {
+   "shotKey": "gap",
+   "masterStart": 563.2916666666666,
+   "masterEnd": 563.3333333333333,
+   "sequence": null,
+   "asset": null,
+   "sourceSeconds": null,
+   "binding": null
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_13:MovieSceneCameraCutSection_0",
+   "masterStart": 563.3333333333334,
+   "masterEnd": 615.3333333333333,
+   "sequence": "/Game/Cinematics/Takes/MAP_s015/A/2026-09-08/c_s015_b01_01a_a_06.c_s015_b01_01a_a_06",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s015\\A\\2026-09-08\\c_s015_b01_01a_a_06.uasset",
+   "sourceSeconds": 27422.666666666668,
+   "binding": "713376C44076B5F0DFB5EEA1AE19B6C2"
+  },
+  {
+   "shotKey": "gap",
+   "masterStart": 615.3333333333334,
+   "masterEnd": 615.4166666666666,
+   "sequence": null,
+   "asset": null,
+   "sourceSeconds": null,
+   "binding": null
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_21:MovieSceneCameraCutSection_0",
+   "masterStart": 615.4166666666666,
+   "masterEnd": 666.0416666666666,
+   "sequence": "/Game/Cinematics/Takes/MAP_s136/B/2026-09-08/c_s136_b01_02a_b_05.c_s136_b01_02a_b_05",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s136\\B\\2026-09-08\\c_s136_b01_02a_b_05.uasset",
+   "sourceSeconds": 35760,
+   "binding": "BD00B5CE40F60B1DCE0C3EA5CFF720D5"
+  },
+  {
+   "shotKey": "gap",
+   "masterStart": 666.0416666666666,
+   "masterEnd": 666.0833333333333,
+   "sequence": null,
+   "asset": null,
+   "sourceSeconds": null,
+   "binding": null
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_17:MovieSceneCameraCutSection_0",
+   "masterStart": 666.0833333333334,
+   "masterEnd": 691.7083333333333,
+   "sequence": "/Game/Cinematics/Takes/MAP_s079a/A/2026-09-08/c_s079a_b01_01a_a_04.c_s079a_b01_01a_a_04",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s079a\\A\\2026-09-08\\c_s079a_b01_01a_a_04.uasset",
+   "sourceSeconds": 33670,
+   "binding": "B911C32040264AE60BE5D587D6D7B9E5"
+  },
+  {
+   "shotKey": "gap",
+   "masterStart": 691.7083333333334,
+   "masterEnd": 700.6666666666666,
+   "sequence": null,
+   "asset": null,
+   "sourceSeconds": null,
+   "binding": null
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_18:MovieSceneCameraCutSection_0",
+   "masterStart": 700.6666666666666,
+   "masterEnd": 726.125,
+   "sequence": "/Game/Cinematics/Takes/MAP_s079a/A/2026-09-08/c_s079a_b01_01a_a_03.c_s079a_b01_01a_a_03",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s079a\\A\\2026-09-08\\c_s079a_b01_01a_a_03.uasset",
+   "sourceSeconds": 33516.416666666664,
+   "binding": "593D8D8A4B4D9E22FAF3C08190D6E667"
+  },
+  {
+   "shotKey": "gap",
+   "masterStart": 726.125,
+   "masterEnd": 726.1666666666666,
+   "sequence": null,
+   "asset": null,
+   "sourceSeconds": null,
+   "binding": null
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_2:MovieSceneCameraCutSection_0",
+   "masterStart": 726.1666666666666,
+   "masterEnd": 755.5833333333333,
+   "sequence": "/Game/Previz/Shoot/Cinematics/Takes/MAP_s001/A/2026-09-08/c_s001_b02_05a_a_07.c_s001_b02_05a_a_07",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Previz\\Shoot\\Cinematics\\Takes\\MAP_s001\\A\\2026-09-08\\c_s001_b02_05a_a_07.uasset",
+   "sourceSeconds": 15024.916666666666,
+   "binding": "AE198500462FAF2BB121C6944F327731"
+  },
+  {
+   "shotKey": "gap",
+   "masterStart": 755.5833333333334,
+   "masterEnd": 755.6666666666666,
+   "sequence": null,
+   "asset": null,
+   "sourceSeconds": null,
+   "binding": null
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_3:MovieSceneCameraCutSection_0",
+   "masterStart": 755.6666666666666,
+   "masterEnd": 877.375,
+   "sequence": "/Game/Cinematics/Takes/MAP_s001/B/2026-09-08/c_s001_b02_04b_b_02.c_s001_b02_04b_b_02",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s001\\B\\2026-09-08\\c_s001_b02_04b_b_02.uasset",
+   "sourceSeconds": 19533.958333333332,
+   "binding": "8750591B4D4E88B658E03596DBAE7161"
+  },
+  {
+   "shotKey": "gap",
+   "masterStart": 877.375,
+   "masterEnd": 877.4166666666666,
+   "sequence": null,
+   "asset": null,
+   "sourceSeconds": null,
+   "binding": null
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_4:MovieSceneCameraCutSection_0",
+   "masterStart": 877.4166666666666,
+   "masterEnd": 1029.375,
+   "sequence": "/Game/Cinematics/Takes/MAP_s001/B/2026-09-08/c_s001_b02_04b_b_01.c_s001_b02_04b_b_01",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s001\\B\\2026-09-08\\c_s001_b02_04b_b_01.uasset",
+   "sourceSeconds": 19246.75,
+   "binding": "F2DC389B48245EA55079A486DCD4E34B"
+  },
+  {
+   "shotKey": "gap",
+   "masterStart": 1029.375,
+   "masterEnd": 1029.4166666666667,
+   "sequence": null,
+   "asset": null,
+   "sourceSeconds": null,
+   "binding": null
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_5:MovieSceneCameraCutSection_0",
+   "masterStart": 1029.4166666666667,
+   "masterEnd": 1058.5833333333335,
+   "sequence": "/Game/Cinematics/Takes/MAP_s001/B/2026-09-08/c_s001_b02_04b_b_05.c_s001_b02_04b_b_05",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s001\\B\\2026-09-08\\c_s001_b02_04b_b_05.uasset",
+   "sourceSeconds": 20180.25,
+   "binding": "EB9ECC5840FBE00539CA038EA5A7DC3D"
+  },
+  {
+   "shotKey": "gap",
+   "masterStart": 1058.5833333333333,
+   "masterEnd": 1058.625,
+   "sequence": null,
+   "asset": null,
+   "sourceSeconds": null,
+   "binding": null
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_6:MovieSceneCameraCutSection_0",
+   "masterStart": 1058.625,
+   "masterEnd": 1218.5416666666667,
+   "sequence": "/Game/Cinematics/Takes/MAP_s001/B/2026-09-08/c_s001_b02_04b_b_04.c_s001_b02_04b_b_04",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s001\\B\\2026-09-08\\c_s001_b02_04b_b_04.uasset",
+   "sourceSeconds": 19867.291666666668,
+   "binding": "AFFCF7544532D3FCAE1390A115F9B061"
+  },
+  {
+   "shotKey": "gap",
+   "masterStart": 1218.5416666666667,
+   "masterEnd": 1218.5833333333335,
+   "sequence": null,
+   "asset": null,
+   "sourceSeconds": null,
+   "binding": null
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_7:MovieSceneCameraCutSection_0",
+   "masterStart": 1218.5833333333333,
+   "masterEnd": 1256.0833333333335,
+   "sequence": "/Game/Cinematics/Takes/MAP_s001/B/2026-09-08/c_s001_b02_04b_b_11.c_s001_b02_04b_b_11",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s001\\B\\2026-09-08\\c_s001_b02_04b_b_11.uasset",
+   "sourceSeconds": 21321.25,
+   "binding": "F813E36742C080DC12AE11971738176A"
+  },
+  {
+   "shotKey": "gap",
+   "masterStart": 1256.0833333333333,
+   "masterEnd": 1256.125,
+   "sequence": null,
+   "asset": null,
+   "sourceSeconds": null,
+   "binding": null
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_8:MovieSceneCameraCutSection_0",
+   "masterStart": 1256.125,
+   "masterEnd": 1416,
+   "sequence": "/Game/Cinematics/Takes/MAP_s001/B/2026-09-08/c_s001_b02_04a_b_02.c_s001_b02_04a_b_02",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s001\\B\\2026-09-08\\c_s001_b02_04a_b_02.uasset",
+   "sourceSeconds": 18762,
+   "binding": "7029DE7448265E0FA95B428C763A31A9"
+  },
+  {
+   "shotKey": "gap",
+   "masterStart": 1416,
+   "masterEnd": 1416.0833333333335,
+   "sequence": null,
+   "asset": null,
+   "sourceSeconds": null,
+   "binding": null
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_9:MovieSceneCameraCutSection_0",
+   "masterStart": 1416.0833333333333,
+   "masterEnd": 1455,
+   "sequence": "/Game/Previz/Shoot/Cinematics/Takes/MAP_s001/A/2026-09-08/c_s001_b02_05b_a_01.c_s001_b02_05b_a_01",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Previz\\Shoot\\Cinematics\\Takes\\MAP_s001\\A\\2026-09-08\\c_s001_b02_05b_a_01.uasset",
+   "sourceSeconds": 15560.916666666666,
+   "binding": "F1453F8E44EBE57BAA382AA16680BB3A"
+  },
+  {
+   "shotKey": "gap",
+   "masterStart": 1455,
+   "masterEnd": 1455.0416666666667,
+   "sequence": null,
+   "asset": null,
+   "sourceSeconds": null,
+   "binding": null
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_23:MovieSceneCameraCutSection_0",
+   "masterStart": 1455.0416666666667,
+   "masterEnd": 1522.75,
+   "sequence": "/Game/Cinematics/Takes/MAP_s138/A/2026-09-08/c_s138_b02_02a_a_07.c_s138_b02_02a_a_07",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s138\\A\\2026-09-08\\c_s138_b02_02a_a_07.uasset",
+   "sourceSeconds": 39547.291666666664,
+   "binding": "6947661A4C42DB0F74432C93BA9566AC"
+  },
+  {
+   "shotKey": "gap",
+   "masterStart": 1522.75,
+   "masterEnd": 1522.8333333333335,
+   "sequence": null,
+   "asset": null,
+   "sourceSeconds": null,
+   "binding": null
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_24:MovieSceneCameraCutSection_0",
+   "masterStart": 1522.8333333333333,
+   "masterEnd": 1592.8333333333335,
+   "sequence": "/Game/Cinematics/Takes/MAP_s138/A/2026-09-08/c_s138_b02_02a_a_04.c_s138_b02_02a_a_04",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s138\\A\\2026-09-08\\c_s138_b02_02a_a_04.uasset",
+   "sourceSeconds": 39247.958333333336,
+   "binding": "91DEAEF54954F96B97F3ED9681A8FFFD"
+  },
+  {
+   "shotKey": "gap",
+   "masterStart": 1592.8333333333333,
+   "masterEnd": 1592.9166666666667,
+   "sequence": null,
+   "asset": null,
+   "sourceSeconds": null,
+   "binding": null
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_25:MovieSceneCameraCutSection_0",
+   "masterStart": 1592.9166666666667,
+   "masterEnd": 1705.5,
+   "sequence": "/Game/Cinematics/Takes/MAP_s138/A/2026-09-08/c_s138_b02_02a_a_02.c_s138_b02_02a_a_02",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s138\\A\\2026-09-08\\c_s138_b02_02a_a_02.uasset",
+   "sourceSeconds": 38238.416666666664,
+   "binding": "B70B582B4ABCB80CBF32FA8C4DAE0F77"
+  },
+  {
+   "shotKey": "gap",
+   "masterStart": 1705.5,
+   "masterEnd": 1705.5833333333335,
+   "sequence": null,
+   "asset": null,
+   "sourceSeconds": null,
+   "binding": null
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_26:MovieSceneCameraCutSection_0",
+   "masterStart": 1705.5833333333333,
+   "masterEnd": 1775.875,
+   "sequence": "/Game/Cinematics/Takes/MAP_s138/A/2026-09-08/c_s138_b02_02a_a_10.c_s138_b02_02a_a_10",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s138\\A\\2026-09-08\\c_s138_b02_02a_a_10.uasset",
+   "sourceSeconds": 39913.208333333336,
+   "binding": "ED11581A4119DDA14197BF8B6AB0FE0D"
+  },
+  {
+   "shotKey": "gap",
+   "masterStart": 1775.875,
+   "masterEnd": 1775.9583333333335,
+   "sequence": null,
+   "asset": null,
+   "sourceSeconds": null,
+   "binding": null
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_27:MovieSceneCameraCutSection_0",
+   "masterStart": 1775.9583333333333,
+   "masterEnd": 1829.2083333333335,
+   "sequence": "/Game/Cinematics/Takes/MAP_s138/A/2026-09-08/c_s138_b02_02a_a_18.c_s138_b02_02a_a_18",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s138\\A\\2026-09-08\\c_s138_b02_02a_a_18.uasset",
+   "sourceSeconds": 40591.041666666664,
+   "binding": "CAFC91ED41A8AF1925FA539F7A6B51A4"
+  },
+  {
+   "shotKey": "gap",
+   "masterStart": 1829.2083333333333,
+   "masterEnd": 1829.25,
+   "sequence": null,
+   "asset": null,
+   "sourceSeconds": null,
+   "binding": null
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_28:MovieSceneCameraCutSection_0",
+   "masterStart": 1829.25,
+   "masterEnd": 1851.7083333333335,
+   "sequence": "/Game/Cinematics/Takes/MAP_s138/A/2026-09-08/c_s138_b02_02a_a_12.c_s138_b02_02a_a_12",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s138\\A\\2026-09-08\\c_s138_b02_02a_a_12.uasset",
+   "sourceSeconds": 40103.708333333336,
+   "binding": "B075236A4CDF9AEA4B3060907C8C8EC0"
+  },
+  {
+   "shotKey": "gap",
+   "masterStart": 1851.7083333333333,
+   "masterEnd": 1851.7916666666667,
+   "sequence": null,
+   "asset": null,
+   "sourceSeconds": null,
+   "binding": null
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_29:MovieSceneCameraCutSection_0",
+   "masterStart": 1851.7916666666667,
+   "masterEnd": 1860.875,
+   "sequence": "/Game/Previz/Shoot/Cinematics/Takes/MAP_s138/A/2026-09-08/c_s138_b01_02b_a_05.c_s138_b01_02b_a_05",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Previz\\Shoot\\Cinematics\\Takes\\MAP_s138\\A\\2026-09-08\\c_s138_b01_02b_a_05.uasset",
+   "sourceSeconds": 11279.291666666666,
+   "binding": "52995A7D4FE0580FA91E078963A81EE1"
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_10:MovieSceneCameraCutSection_0",
+   "masterStart": 1860.875,
+   "masterEnd": 1886.5416666666667,
+   "sequence": "/Game/Cinematics/PostData/Copy/c_s001_b02_04b_b_10a.c_s001_b02_04b_b_10a",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\PostData\\Copy\\c_s001_b02_04b_b_10a.uasset",
+   "sourceSeconds": 21158.333333333332,
+   "binding": "2520A5934632452291BFA4B2CD15B224"
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_30:MovieSceneCameraCutSection_0",
+   "masterStart": 1886.5416666666667,
+   "masterEnd": 1926.875,
+   "sequence": "/Game/Cinematics/PostData/Copy/c_s138_b01_02b_a_05a.c_s138_b01_02b_a_05a",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\PostData\\Copy\\c_s138_b01_02b_a_05a.uasset",
+   "sourceSeconds": 11269.625,
+   "binding": "52995A7D4FE0580FA91E078963A81EE1"
+  },
+  {
+   "shotKey": "gap",
+   "masterStart": 1926.875,
+   "masterEnd": 1926.9166666666667,
+   "sequence": null,
+   "asset": null,
+   "sourceSeconds": null,
+   "binding": null
+  }
+ ],
+ "takes": [
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_16:MovieSceneCameraCutSection_0",
+   "masterStart": 0,
+   "masterEnd": 24.375,
+   "sequence": "/Game/Cinematics/Takes/MAP_s079a/A/2026-09-08/c_s079a_b01_01a_a_02.c_s079a_b01_01a_a_02",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s079a\\A\\2026-09-08\\c_s079a_b01_01a_a_02.uasset",
+   "sourceSeconds": 33275.166666666664,
+   "binding": "FD50AB4A46091508897A048BBEFBEC74"
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_0:MovieSceneCameraCutSection_0",
+   "masterStart": 24.416666666666668,
+   "masterEnd": 85.66666666666667,
+   "sequence": "/Game/Previz/Shoot/Cinematics/Takes/MAP_s001/A/2026-09-08/c_s001_b02_05a_a_04.c_s001_b02_05a_a_04",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Previz\\Shoot\\Cinematics\\Takes\\MAP_s001\\A\\2026-09-08\\c_s001_b02_05a_a_04.uasset",
+   "sourceSeconds": 14676.166666666666,
+   "binding": "0C1C7078428BFF897EDFCF9E2499777B"
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_11:MovieSceneCameraCutSection_0",
+   "masterStart": 85.75,
+   "masterEnd": 138.58333333333331,
+   "sequence": "/Game/Cinematics/Takes/MAP_s015/A/2026-09-08/c_s015_b01_01a_a_05.c_s015_b01_01a_a_05",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s015\\A\\2026-09-08\\c_s015_b01_01a_a_05.uasset",
+   "sourceSeconds": 27233.75,
+   "binding": "3CFF2AF644A54DDA57EF138EEEA3BDA5"
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_19:MovieSceneCameraCutSection_0",
+   "masterStart": 138.625,
+   "masterEnd": 190,
+   "sequence": "/Game/Cinematics/Takes/MAP_s136/B/2026-09-08/c_s136_b01_02a_b_02.c_s136_b01_02a_b_02",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s136\\B\\2026-09-08\\c_s136_b01_02a_b_02.uasset",
+   "sourceSeconds": 35215.833333333336,
+   "binding": "69C72BE8465C67F89117AF9A7486FAD7"
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_12:MovieSceneCameraCutSection_0",
+   "masterStart": 190.04166666666666,
+   "masterEnd": 241,
+   "sequence": "/Game/Cinematics/Takes/MAP_s015/A/2026-09-08/c_s015_b01_01a_a_03.c_s015_b01_01a_a_03",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s015\\A\\2026-09-08\\c_s015_b01_01a_a_03.uasset",
+   "sourceSeconds": 26958.708333333332,
+   "binding": "87D740C74B46939CE90221821BA89A13"
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_22:MovieSceneCameraCutSection_0",
+   "masterStart": 241.04166666666666,
+   "masterEnd": 312.33333333333337,
+   "sequence": "/Game/Cinematics/Takes/MAP_s138/A/2026-09-08/c_s138_b02_02a_a_21.c_s138_b02_02a_a_21",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s138\\A\\2026-09-08\\c_s138_b02_02a_a_21.uasset",
+   "sourceSeconds": 41007.583333333336,
+   "binding": "9B5F4A9B4E61D340D7FE249D7C745486"
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_1:MovieSceneCameraCutSection_0",
+   "masterStart": 312.4166666666667,
+   "masterEnd": 472.75,
+   "sequence": "/Game/Cinematics/Takes/MAP_s001/B/2026-09-08/c_s001_b02_04b_b_06.c_s001_b02_04b_b_06",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s001\\B\\2026-09-08\\c_s001_b02_04b_b_06.uasset",
+   "sourceSeconds": 20414.416666666668,
+   "binding": "B94D27CA49208C90A184A3BB571F6274"
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_14:MovieSceneCameraCutSection_0",
+   "masterStart": 472.8333333333333,
+   "masterEnd": 495.2916666666667,
+   "sequence": "/Game/Cinematics/Takes/MAP_s057/B/2026-09-08/c_s057_b01_02a_b_06.c_s057_b01_02a_b_06",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s057\\B\\2026-09-08\\c_s057_b01_02a_b_06.uasset",
+   "sourceSeconds": 31920.166666666668,
+   "binding": "2374B7D24404385D63798789876A96E7"
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_15:MovieSceneCameraCutSection_0",
+   "masterStart": 495.3333333333333,
+   "masterEnd": 519,
+   "sequence": "/Game/Cinematics/Takes/MAP_s057/B/2026-09-08/c_s057_b01_02a_b_03.c_s057_b01_02a_b_03",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s057\\B\\2026-09-08\\c_s057_b01_02a_b_03.uasset",
+   "sourceSeconds": 31547.125,
+   "binding": "7A7759FA4EE292A6FE0456AC5521917E"
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_20:MovieSceneCameraCutSection_0",
+   "masterStart": 519.0416666666666,
+   "masterEnd": 563.2916666666666,
+   "sequence": "/Game/Cinematics/Takes/MAP_s136/B/2026-09-08/c_s136_b01_02a_b_07.c_s136_b01_02a_b_07",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s136\\B\\2026-09-08\\c_s136_b01_02a_b_07.uasset",
+   "sourceSeconds": 36026.416666666664,
+   "binding": "1FF4C32245F4360C4F4D629B0243CCD9"
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_13:MovieSceneCameraCutSection_0",
+   "masterStart": 563.3333333333334,
+   "masterEnd": 615.3333333333333,
+   "sequence": "/Game/Cinematics/Takes/MAP_s015/A/2026-09-08/c_s015_b01_01a_a_06.c_s015_b01_01a_a_06",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s015\\A\\2026-09-08\\c_s015_b01_01a_a_06.uasset",
+   "sourceSeconds": 27422.666666666668,
+   "binding": "713376C44076B5F0DFB5EEA1AE19B6C2"
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_21:MovieSceneCameraCutSection_0",
+   "masterStart": 615.4166666666666,
+   "masterEnd": 666.0416666666666,
+   "sequence": "/Game/Cinematics/Takes/MAP_s136/B/2026-09-08/c_s136_b01_02a_b_05.c_s136_b01_02a_b_05",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s136\\B\\2026-09-08\\c_s136_b01_02a_b_05.uasset",
+   "sourceSeconds": 35760,
+   "binding": "BD00B5CE40F60B1DCE0C3EA5CFF720D5"
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_17:MovieSceneCameraCutSection_0",
+   "masterStart": 666.0833333333334,
+   "masterEnd": 691.7083333333333,
+   "sequence": "/Game/Cinematics/Takes/MAP_s079a/A/2026-09-08/c_s079a_b01_01a_a_04.c_s079a_b01_01a_a_04",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s079a\\A\\2026-09-08\\c_s079a_b01_01a_a_04.uasset",
+   "sourceSeconds": 33670,
+   "binding": "B911C32040264AE60BE5D587D6D7B9E5"
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_18:MovieSceneCameraCutSection_0",
+   "masterStart": 700.6666666666666,
+   "masterEnd": 726.125,
+   "sequence": "/Game/Cinematics/Takes/MAP_s079a/A/2026-09-08/c_s079a_b01_01a_a_03.c_s079a_b01_01a_a_03",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s079a\\A\\2026-09-08\\c_s079a_b01_01a_a_03.uasset",
+   "sourceSeconds": 33516.416666666664,
+   "binding": "593D8D8A4B4D9E22FAF3C08190D6E667"
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_2:MovieSceneCameraCutSection_0",
+   "masterStart": 726.1666666666666,
+   "masterEnd": 755.5833333333333,
+   "sequence": "/Game/Previz/Shoot/Cinematics/Takes/MAP_s001/A/2026-09-08/c_s001_b02_05a_a_07.c_s001_b02_05a_a_07",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Previz\\Shoot\\Cinematics\\Takes\\MAP_s001\\A\\2026-09-08\\c_s001_b02_05a_a_07.uasset",
+   "sourceSeconds": 15024.916666666666,
+   "binding": "AE198500462FAF2BB121C6944F327731"
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_3:MovieSceneCameraCutSection_0",
+   "masterStart": 755.6666666666666,
+   "masterEnd": 877.375,
+   "sequence": "/Game/Cinematics/Takes/MAP_s001/B/2026-09-08/c_s001_b02_04b_b_02.c_s001_b02_04b_b_02",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s001\\B\\2026-09-08\\c_s001_b02_04b_b_02.uasset",
+   "sourceSeconds": 19533.958333333332,
+   "binding": "8750591B4D4E88B658E03596DBAE7161"
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_4:MovieSceneCameraCutSection_0",
+   "masterStart": 877.4166666666666,
+   "masterEnd": 1029.375,
+   "sequence": "/Game/Cinematics/Takes/MAP_s001/B/2026-09-08/c_s001_b02_04b_b_01.c_s001_b02_04b_b_01",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s001\\B\\2026-09-08\\c_s001_b02_04b_b_01.uasset",
+   "sourceSeconds": 19246.75,
+   "binding": "F2DC389B48245EA55079A486DCD4E34B"
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_5:MovieSceneCameraCutSection_0",
+   "masterStart": 1029.4166666666667,
+   "masterEnd": 1058.5833333333335,
+   "sequence": "/Game/Cinematics/Takes/MAP_s001/B/2026-09-08/c_s001_b02_04b_b_05.c_s001_b02_04b_b_05",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s001\\B\\2026-09-08\\c_s001_b02_04b_b_05.uasset",
+   "sourceSeconds": 20180.25,
+   "binding": "EB9ECC5840FBE00539CA038EA5A7DC3D"
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_6:MovieSceneCameraCutSection_0",
+   "masterStart": 1058.625,
+   "masterEnd": 1218.5416666666667,
+   "sequence": "/Game/Cinematics/Takes/MAP_s001/B/2026-09-08/c_s001_b02_04b_b_04.c_s001_b02_04b_b_04",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s001\\B\\2026-09-08\\c_s001_b02_04b_b_04.uasset",
+   "sourceSeconds": 19867.291666666668,
+   "binding": "AFFCF7544532D3FCAE1390A115F9B061"
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_7:MovieSceneCameraCutSection_0",
+   "masterStart": 1218.5833333333333,
+   "masterEnd": 1256.0833333333335,
+   "sequence": "/Game/Cinematics/Takes/MAP_s001/B/2026-09-08/c_s001_b02_04b_b_11.c_s001_b02_04b_b_11",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s001\\B\\2026-09-08\\c_s001_b02_04b_b_11.uasset",
+   "sourceSeconds": 21321.25,
+   "binding": "F813E36742C080DC12AE11971738176A"
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_8:MovieSceneCameraCutSection_0",
+   "masterStart": 1256.125,
+   "masterEnd": 1416,
+   "sequence": "/Game/Cinematics/Takes/MAP_s001/B/2026-09-08/c_s001_b02_04a_b_02.c_s001_b02_04a_b_02",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s001\\B\\2026-09-08\\c_s001_b02_04a_b_02.uasset",
+   "sourceSeconds": 18762,
+   "binding": "7029DE7448265E0FA95B428C763A31A9"
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_9:MovieSceneCameraCutSection_0",
+   "masterStart": 1416.0833333333333,
+   "masterEnd": 1455,
+   "sequence": "/Game/Previz/Shoot/Cinematics/Takes/MAP_s001/A/2026-09-08/c_s001_b02_05b_a_01.c_s001_b02_05b_a_01",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Previz\\Shoot\\Cinematics\\Takes\\MAP_s001\\A\\2026-09-08\\c_s001_b02_05b_a_01.uasset",
+   "sourceSeconds": 15560.916666666666,
+   "binding": "F1453F8E44EBE57BAA382AA16680BB3A"
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_23:MovieSceneCameraCutSection_0",
+   "masterStart": 1455.0416666666667,
+   "masterEnd": 1522.75,
+   "sequence": "/Game/Cinematics/Takes/MAP_s138/A/2026-09-08/c_s138_b02_02a_a_07.c_s138_b02_02a_a_07",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s138\\A\\2026-09-08\\c_s138_b02_02a_a_07.uasset",
+   "sourceSeconds": 39547.291666666664,
+   "binding": "6947661A4C42DB0F74432C93BA9566AC"
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_24:MovieSceneCameraCutSection_0",
+   "masterStart": 1522.8333333333333,
+   "masterEnd": 1592.8333333333335,
+   "sequence": "/Game/Cinematics/Takes/MAP_s138/A/2026-09-08/c_s138_b02_02a_a_04.c_s138_b02_02a_a_04",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s138\\A\\2026-09-08\\c_s138_b02_02a_a_04.uasset",
+   "sourceSeconds": 39247.958333333336,
+   "binding": "91DEAEF54954F96B97F3ED9681A8FFFD"
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_25:MovieSceneCameraCutSection_0",
+   "masterStart": 1592.9166666666667,
+   "masterEnd": 1705.5,
+   "sequence": "/Game/Cinematics/Takes/MAP_s138/A/2026-09-08/c_s138_b02_02a_a_02.c_s138_b02_02a_a_02",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s138\\A\\2026-09-08\\c_s138_b02_02a_a_02.uasset",
+   "sourceSeconds": 38238.416666666664,
+   "binding": "B70B582B4ABCB80CBF32FA8C4DAE0F77"
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_26:MovieSceneCameraCutSection_0",
+   "masterStart": 1705.5833333333333,
+   "masterEnd": 1775.875,
+   "sequence": "/Game/Cinematics/Takes/MAP_s138/A/2026-09-08/c_s138_b02_02a_a_10.c_s138_b02_02a_a_10",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s138\\A\\2026-09-08\\c_s138_b02_02a_a_10.uasset",
+   "sourceSeconds": 39913.208333333336,
+   "binding": "ED11581A4119DDA14197BF8B6AB0FE0D"
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_27:MovieSceneCameraCutSection_0",
+   "masterStart": 1775.9583333333333,
+   "masterEnd": 1829.2083333333335,
+   "sequence": "/Game/Cinematics/Takes/MAP_s138/A/2026-09-08/c_s138_b02_02a_a_18.c_s138_b02_02a_a_18",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s138\\A\\2026-09-08\\c_s138_b02_02a_a_18.uasset",
+   "sourceSeconds": 40591.041666666664,
+   "binding": "CAFC91ED41A8AF1925FA539F7A6B51A4"
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_28:MovieSceneCameraCutSection_0",
+   "masterStart": 1829.25,
+   "masterEnd": 1851.7083333333335,
+   "sequence": "/Game/Cinematics/Takes/MAP_s138/A/2026-09-08/c_s138_b02_02a_a_12.c_s138_b02_02a_a_12",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\Takes\\MAP_s138\\A\\2026-09-08\\c_s138_b02_02a_a_12.uasset",
+   "sourceSeconds": 40103.708333333336,
+   "binding": "B075236A4CDF9AEA4B3060907C8C8EC0"
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_29:MovieSceneCameraCutSection_0",
+   "masterStart": 1851.7916666666667,
+   "masterEnd": 1860.875,
+   "sequence": "/Game/Previz/Shoot/Cinematics/Takes/MAP_s138/A/2026-09-08/c_s138_b01_02b_a_05.c_s138_b01_02b_a_05",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Previz\\Shoot\\Cinematics\\Takes\\MAP_s138\\A\\2026-09-08\\c_s138_b01_02b_a_05.uasset",
+   "sourceSeconds": 11279.291666666666,
+   "binding": "52995A7D4FE0580FA91E078963A81EE1"
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_10:MovieSceneCameraCutSection_0",
+   "masterStart": 1860.875,
+   "masterEnd": 1886.5416666666667,
+   "sequence": "/Game/Cinematics/PostData/Copy/c_s001_b02_04b_b_10a.c_s001_b02_04b_b_10a",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\PostData\\Copy\\c_s001_b02_04b_b_10a.uasset",
+   "sourceSeconds": 21158.333333333332,
+   "binding": "2520A5934632452291BFA4B2CD15B224"
+  },
+  {
+   "shotKey": "root/MovieSceneCinematicShotTrack_0.MovieSceneCinematicShotSection_30:MovieSceneCameraCutSection_0",
+   "masterStart": 1886.5416666666667,
+   "masterEnd": 1926.875,
+   "sequence": "/Game/Cinematics/PostData/Copy/c_s138_b01_02b_a_05a.c_s138_b01_02b_a_05a",
+   "asset": "D:\\Ver_Projects\\P4_Projects\\PROJ_THEHAKIMDYXNPS_0806_QiDaoShi_A000A\\Content\\Cinematics\\PostData\\Copy\\c_s138_b01_02b_a_05a.uasset",
+   "sourceSeconds": 11269.625,
+   "binding": "52995A7D4FE0580FA91E078963A81EE1"
+  }
+ ],
+ "missing": []
+}

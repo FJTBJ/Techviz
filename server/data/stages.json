@@ -1,0 +1,42 @@
+[
+  {
+    "id": "Led_01",
+    "no": 1,
+    "diameter": 22.285,
+    "height": 8.064,
+    "arc": 270.18,
+    "gapCenterDeg": 0,
+    "name": "LED环屏棚 #1 · 22m",
+    "code": "STAGE_LED_B_24M",
+    "panels": 46,
+    "umap": "Led_01Stage.umap",
+    "uePath": "D:\\Ver_Launcher\\UnrealEngine\\5.8.1\\Windows\\Engine\\Plugins\\Ver\\LED\\VersatileNDisplay\\Content\\NDC\\Led_01",
+    "updatedAt": "2026-10-20T10:06:06.014Z"
+  },
+  {
+    "id": "Led_05",
+    "no": 5,
+    "diameter": 36,
+    "height": 7.5,
+    "arc": 250,
+    "name": "LED环屏棚 #5 · 36m",
+    "code": "STAGE_LED_C_36M",
+    "panels": 46,
+    "umap": "Led_05Stage.umap",
+    "uePath": "D:\\Ver_Launcher\\UnrealEngine\\5.8.1\\Windows\\Engine\\Plugins\\Ver\\LED\\VersatileNDisplay\\Content\\NDC\\Led_05",
+    "updatedAt": "2026-10-20T10:06:06.045Z"
+  },
+  {
+    "id": "Led_07",
+    "no": 7,
+    "diameter": 50,
+    "height": 9,
+    "arc": 270,
+    "name": "LED环屏棚 #7 · 50m",
+    "code": "STAGE_LED_D_50M",
+    "panels": 57,
+    "umap": "Led_07Stage.umap",
+    "uePath": "D:\\Ver_Launcher\\UnrealEngine\\5.8.1\\Windows\\Engine\\Plugins\\Ver\\LED\\VersatileNDisplay\\Content\\NDC\\Led_07",
+    "updatedAt": "2026-10-20T10:35:23.786Z"
+  }
+]

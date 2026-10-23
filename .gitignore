@@ -1,0 +1,23 @@
+# 依赖
+node_modules/
+
+# 构建缓存
+*.tsbuildinfo
+
+# 运行时数据（部署时保留服务器自己的库）
+server/data/techviz.db
+server/data/techviz.db-shm
+server/data/techviz.db-wal
+server/data/*.db
+server/data/*.db-shm
+server/data/*.db-wal
+
+# 环境变量
+.env
+.env.*
+!.env.example
+
+# 日志与系统文件
+*.log
+.DS_Store
+Thumbs.db

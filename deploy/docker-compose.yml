@@ -1,0 +1,42 @@
+# Web3D 技术预演 · 服务器位置 /opt/web3d
+#
+# 与 VerPD / LeyoSite 相同的接入方式：
+#   宿主 80/443 由 tmm-nginx 独占，这里不映射任何宿主端口，
+#   只加入外部网络 edge，由 tmm-nginx 按域名反代到 web3d-nginx:80。
+#
+# 数据：./data 绑定挂载到容器的 server/data（SQLite + 离线快照 JSON）
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: web3d-app
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    environment:
+      PORT: "8787"
+    volumes:
+      - ./data:/app/server/data
+    networks:
+      edge:
+        aliases:
+          - web3d-app
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: web3d-nginx
+    restart: unless-stopped
+    depends_on:
+      - app
+    volumes:
+      - ./nginx/web3d.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./dist:/usr/share/nginx/html:ro
+    networks:
+      edge:
+        aliases:
+          - web3d-nginx
+
+networks:
+  edge:
+    external: true
