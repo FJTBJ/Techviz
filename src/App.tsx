@@ -9,7 +9,16 @@ import { MeasurePanel } from './components/MeasurePanel';
 import { SetPlanPanel } from './components/SetPlanPanel';
 import { ExportPanel } from './components/ExportPanel';
 import { Timeline } from './components/Timeline';
+import { LoginView } from './components/LoginView';
 import { GizmoMode, ViewMode } from './types';
+import { clearAuth, getStoredUser, getToken, toAuthUser, type AuthUser } from './lib/auth';
+import { setUnauthorizedHandler } from './lib/api';
+import {
+  fetchAuthPublicConfig,
+  fetchCurrentUser,
+  markExplicitLogout,
+  requestLogout,
+} from './lib/oidc';
 
 /** 棚切换器：数据来自后端扫描 UE 工程，棚固定于原点 */
 function StageSwitcher() {
@@ -68,44 +77,25 @@ const MODES: { key: ViewMode; label: string }[] = [
   { key: 'measure', label: '测量' },
 ];
 
-/** 顶栏用户区：已登录显示用户名+退出；OIDC 模式未登录（401）时显示登录入口；后端不可达时不打扰 */
-function UserBadge() {
-  const [user, setUser] = useState<{ name: string; role: string } | null>(null);
-  const [needLogin, setNeedLogin] = useState(false);
-
-  useEffect(() => {
-    fetch('/api/auth/me')
-      .then(async (res) => {
-        if (res.ok) {
-          const payload: { user?: { name?: string; role?: string } } = await res.json();
-          setUser({ name: payload?.user?.name ?? '已登录', role: payload?.user?.role ?? '' });
-        } else if (res.status === 401) {
-          setNeedLogin(true);
-        }
-      })
-      .catch(() => {
-        /* 后端不可达时不显示登录入口 */
-      });
-  }, []);
-
-  const logout = () => {
-    fetch('/api/auth/logout', { method: 'POST' }).finally(() => window.location.reload());
-  };
-
-  if (needLogin) {
-    return (
-      <button className="user-badge login" onClick={() => (window.location.href = '/api/auth/login')}>
-        登录
-      </button>
-    );
-  }
+/** 顶栏用户区：显示当前登录人；需登录模式下提供退出 */
+function UserBadge({
+  user,
+  canLogout,
+  onLogout,
+}: {
+  user: AuthUser | null;
+  canLogout: boolean;
+  onLogout: () => void;
+}) {
   if (!user) return null;
   return (
     <span className="user-badge" title={user.role || undefined}>
-      <span className="user-name">{user.name}</span>
-      <button className="user-logout" onClick={logout}>
-        退出
-      </button>
+      <span className="user-name">{user.displayName}</span>
+      {canLogout && (
+        <button className="user-logout" onClick={onLogout}>
+          退出
+        </button>
+      )}
     </span>
   );
 }
@@ -142,10 +132,103 @@ export default function App() {
     if (mode === 'measure') setTab('measure');
   }, [mode]);
 
-  // 启动即从后端恢复数据（后端从 UE 工程取棚清单）
+  // 登录态：本地缓存仅作初始值，启动时向后端校验一次
+  const [auth, setAuth] = useState<{ loading: boolean; required: boolean; user: AuthUser | null }>(
+    () => ({ loading: true, required: false, user: getStoredUser() }),
+  );
+
+  // 任意接口返回 401：清掉登录态并回到登录页
   useEffect(() => {
+    setUnauthorizedHandler(() => {
+      setAuth((state) => (state.required ? { ...state, user: null } : state));
+    });
+    return () => setUnauthorizedHandler(null);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const bootstrap = async () => {
+      let required = false;
+      try {
+        const config = await fetchAuthPublicConfig();
+        required = config.login_required;
+      } catch (error) {
+        console.warn('读取登录配置失败，按免登录模式继续：', error);
+      }
+      if (cancelled) return;
+
+      if (!required) {
+        // 免登录（本地开发）模式：取后端注入的匿名用户用于展示
+        let user = getStoredUser();
+        try {
+          const result = await fetchCurrentUser();
+          user = toAuthUser(result.user_info);
+        } catch {
+          /* 后端不可达时保持空用户 */
+        }
+        if (!cancelled) setAuth({ loading: false, required: false, user });
+        return;
+      }
+
+      if (getToken()) {
+        try {
+          const result = await fetchCurrentUser();
+          if (!cancelled) {
+            setAuth({ loading: false, required: true, user: toAuthUser(result.user_info) });
+          }
+          return;
+        } catch (error) {
+          console.warn('本地登录态已失效：', error);
+          clearAuth();
+        }
+      }
+      if (!cancelled) setAuth({ loading: false, required: true, user: null });
+    };
+
+    void bootstrap();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // 登录态就绪后才拉业务数据，避免未登录时产生大量 401
+  const sessionReady = !auth.loading && (!auth.required || Boolean(auth.user));
+
+  useEffect(() => {
+    if (!sessionReady) return;
     void initFromServer();
-  }, [initFromServer]);
+  }, [sessionReady, initFromServer]);
+
+  const handleLogout = async () => {
+    markExplicitLogout();
+    let logoutUrl: string | null = null;
+    try {
+      logoutUrl = await requestLogout();
+    } catch (error) {
+      console.warn('服务端会话注销失败，仅清理本地登录态：', error);
+    }
+    clearAuth();
+    window.location.replace(logoutUrl || new URL('/', window.location.origin).toString());
+  };
+
+  if (auth.loading) {
+    return (
+      <div className="login-screen">
+        <div className="login-hint">正在校验登录态…</div>
+      </div>
+    );
+  }
+
+  if (auth.required && !auth.user) {
+    return (
+      <LoginView
+        onAuthenticated={(info) =>
+          setAuth({ loading: false, required: true, user: toAuthUser(info) })
+        }
+      />
+    );
+  }
 
   return (
     <div className="app">
@@ -212,7 +295,7 @@ export default function App() {
         >
           {serverState === 'online' ? '● 已持久化' : serverState === 'connecting' ? '○ 连接中' : '○ 离线'}
         </span>
-        <UserBadge />
+        <UserBadge user={auth.user} canLogout={auth.required} onLogout={handleLogout} />
         <span className="dept">{PROJECT_INFO.department}</span>
       </header>
 

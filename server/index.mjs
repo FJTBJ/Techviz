@@ -2,13 +2,14 @@ import express from 'express';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { devMode, mountAuthRoutes, requireAuth, OIDC_ISSUER } from './auth.mjs';
+import { mountAuthRoutes, requireAuth, logAuthConfigSummary } from './auth.mjs';
 import {
   getScene,
   upsertScene,
   listScenes,
   getCurrentSceneName,
   setCurrentScene,
+  seedUserScenes,
 } from './db.mjs';
 import { getUeStatus, getUeLevel, getUeActors } from './ue.mjs';
 
@@ -108,6 +109,8 @@ app.get('/api/stages', (_req, res) => {
 
 /** 当前方案（当前用户正在使用的方案，默认「默认方案」） */
 app.get('/api/scene', (req, res) => {
+  // 老用户（或首次登录未触发模板复制）没有方案时，先用模板补一份
+  seedUserScenes(req.user.id);
   const row = getScene(req.user.id, getCurrentSceneName(req.user.id));
   if (!row) return res.status(404).json({ code: 1, data: null });
   let data = null;
@@ -236,8 +239,6 @@ app.get('/api/ue/actors', async (_req, res) => {
 const PORT = Number(process.env.PORT) || 8787;
 app.listen(PORT, () => {
   console.log(`[techviz-server] http://localhost:${PORT}`);
-  console.log(
-    `[techviz-server] 认证模式：${devMode ? '开发模式（匿名 dev 用户 / admin）' : `OIDC（${OIDC_ISSUER}）`}`,
-  );
+  logAuthConfigSummary();
   console.log(`[techviz-server] UE stages source: ${UE_NDC_DIRS[0]}`);
 });

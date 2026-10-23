@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { ASSET_LIBRARY, DEMO_SHOT, demoAssets } from '../data/mockData';
+import { apiFetch } from '../lib/api';
 import type {
   AssetDef,
   GizmoMode,
@@ -56,8 +57,6 @@ interface SceneState {
   currentStageId: string | null;
   /** 后端连接状态，用于顶栏提示 */
   serverState: 'connecting' | 'online' | 'offline';
-  /** OIDC 模式下未登录（接口 401），顶栏显示登录入口 */
-  authRequired: boolean;
   /** 布景方案（由预演相机动画 + 环屏几何推导，后端生成） */
   setPlan: SetPlanFile | null;
   planScene: string | null;
@@ -125,7 +124,6 @@ export const useScene = create<SceneState>((set, get) => ({
   stages: [],
   currentStageId: null,
   serverState: 'connecting',
-  authRequired: false,
   setPlan: null,
   planScene: null,
   showSetPlan: false,
@@ -137,10 +135,13 @@ export const useScene = create<SceneState>((set, get) => ({
 
   initFromServer: async () => {
     try {
-      const [stagesRes, sceneRes] = await Promise.all([fetch('/api/stages'), fetch('/api/scene')]);
-      // OIDC 模式下未登录：接口 401，标记需要登录
+      const [stagesRes, sceneRes] = await Promise.all([
+        apiFetch('/api/stages'),
+        apiFetch('/api/scene'),
+      ]);
+      // 未登录的 401 由 apiFetch 统一处理（清理登录态并回到登录页）
       if (stagesRes.status === 401 || sceneRes.status === 401) {
-        set({ serverState: 'offline', authRequired: true });
+        set({ serverState: 'offline' });
         return;
       }
       const stagesJson = await stagesRes.json();
@@ -164,7 +165,7 @@ export const useScene = create<SceneState>((set, get) => ({
       hydrated = true;
       // 布景方案为可选数据：静默加载，缺失不影响工作台
       try {
-        const planRes = await fetch('/api/setplan');
+        const planRes = await apiFetch('/api/setplan');
         if (planRes.ok) {
           const planJson = await planRes.json();
           const plan = planJson?.data as SetPlanFile | null;
@@ -183,7 +184,7 @@ export const useScene = create<SceneState>((set, get) => ({
       }
       // 预演时间线为可选数据：有则启用底部播放条
       try {
-        const tlRes = await fetch('/api/previz/timeline');
+        const tlRes = await apiFetch('/api/previz/timeline');
         if (tlRes.ok) {
           const tlJson = await tlRes.json();
           const previz = tlJson?.data as PrevizTimeline | null;
@@ -222,7 +223,7 @@ export const useScene = create<SceneState>((set, get) => ({
 
   importUeScene: async () => {
     try {
-      const res = await fetch('/api/ue/prayer-room');
+      const res = await apiFetch('/api/ue/prayer-room');
       if (!res.ok) return `UE 场景数据不可用（HTTP ${res.status}）`;
       const json = await res.json();
       const data = json?.data as { assets?: SceneAsset[]; stageId?: string } | null;
@@ -250,7 +251,7 @@ export const useScene = create<SceneState>((set, get) => ({
 
   loadSetPlan: async () => {
     try {
-      const res = await fetch('/api/setplan');
+      const res = await apiFetch('/api/setplan');
       if (!res.ok) return `布景方案数据不可用（HTTP ${res.status}）`;
       const json = await res.json();
       const data = json?.data as SetPlanFile | null;
@@ -452,7 +453,7 @@ useScene.subscribe((state, prev) => {
   saveTimer = setTimeout(() => {
     saveTimer = null;
     const { camera, assets, measurements, clearanceThreshold, currentStageId } = useScene.getState();
-    fetch('/api/scene', {
+    apiFetch('/api/scene', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -464,11 +465,8 @@ useScene.subscribe((state, prev) => {
         clearanceThreshold,
       }),
     })
-      .then((res) => {
-        // OIDC 模式下会话过期：标记需要登录
-        if (res.status === 401) {
-          useScene.setState({ serverState: 'offline', authRequired: true });
-        }
+      .then(() => {
+        /* 401 由 apiFetch 统一处理 */
       })
       .catch(() => {
         useScene.setState({ serverState: 'offline' });
