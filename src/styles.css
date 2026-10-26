@@ -912,6 +912,25 @@ textarea {
   color: var(--muted);
 }
 
+/* 镜头人物名称牌 */
+.person-tag {
+  padding: 2px 7px;
+  border-radius: 5px;
+  border: 1px solid rgba(120, 190, 255, 0.5);
+  background: rgba(9, 13, 18, 0.78);
+  color: var(--text);
+  font-size: 10.5px;
+  line-height: 1.5;
+  white-space: nowrap;
+  backdrop-filter: blur(6px);
+  pointer-events: none;
+  user-select: none;
+}
+
+.person-tag b {
+  font-weight: 600;
+}
+
 .readout-main {
   display: flex;
   align-items: baseline;
@@ -1438,6 +1457,33 @@ textarea {
 .plan-new {
   display: flex;
   gap: 6px;
+}
+
+.revision-list {
+  max-height: 200px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #0b1118;
+}
+
+.revision-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.revision-time {
+  flex: 1;
+  min-width: 0;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .plan-new select {

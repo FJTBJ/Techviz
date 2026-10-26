@@ -11,6 +11,9 @@ import {
   getCurrentSceneName,
   setCurrentScene,
   seedUserScenes,
+  addSceneRevision,
+  listSceneRevisions,
+  getSceneRevision,
 } from './db.mjs';
 import { getUeStatus, getUeLevel, getUeActors } from './ue.mjs';
 
@@ -138,13 +141,43 @@ app.get('/api/scene', (req, res) => {
 app.put('/api/scene', (req, res) => {
   try {
     const scene = { ...req.body, savedAt: new Date().toISOString() };
-    upsertScene(
-      req.user.id,
-      getCurrentSceneName(req.user.id),
-      JSON.stringify(scene),
-      scene.sceneKey ?? null,
-    );
+    const name = getCurrentSceneName(req.user.id);
+    const payload = JSON.stringify(scene);
+    upsertScene(req.user.id, name, payload, scene.sceneKey ?? null);
+    addSceneRevision(req.user.id, name, payload);
     res.json({ code: 0, data: { savedAt: scene.savedAt } });
+  } catch (err) {
+    res.status(500).json({ code: 1, message: String(err) });
+  }
+});
+
+/** 当前方案的历史版本列表（仅元信息，不含正文） */
+app.get('/api/scene/revisions', (req, res) => {
+  const limit = Math.min(Math.max(Number(req.query.limit) || 30, 1), 100);
+  res.json({
+    code: 0,
+    data: listSceneRevisions(req.user.id, getCurrentSceneName(req.user.id), limit),
+  });
+});
+
+/** 恢复到指定历史版本：恢复前先把当前状态存一条，避免二次误操作丢数据 */
+app.post('/api/scene/revisions/:id/restore', (req, res) => {
+  try {
+    const name = getCurrentSceneName(req.user.id);
+    const revision = getSceneRevision(req.user.id, name, Number(req.params.id));
+    if (!revision) return res.status(404).json({ code: 1, message: '版本不存在' });
+
+    let data;
+    try {
+      data = JSON.parse(revision.data);
+    } catch {
+      return res.status(400).json({ code: 1, message: '该版本数据损坏，无法恢复' });
+    }
+
+    const current = getScene(req.user.id, name);
+    if (current) addSceneRevision(req.user.id, name, current.data, 'restore-checkpoint');
+    upsertScene(req.user.id, name, revision.data, data?.sceneKey ?? null);
+    res.json({ code: 0, data });
   } catch (err) {
     res.status(500).json({ code: 1, message: String(err) });
   }
@@ -309,11 +342,33 @@ app.get('/api/previz/shot-aim', (_req, res) => {
   }
 });
 
+/**
+ * 人物动画：从 UE take 关联的 PostData 镜头序列里抽取的 actor 位移，
+ * 由 previz/build-ue-people.mjs 生成。带 ?shot=<take 名> 时只返回该镜头。
+ */
+const UE_PEOPLE_FILE = path.join(DATA_DIR, 'ue-people.json');
+
+app.get('/api/ue-people', (req, res) => {
+  try {
+    if (!fs.existsSync(UE_PEOPLE_FILE)) {
+      return res.status(404).json({ code: 1, message: '尚未生成人物动画数据' });
+    }
+    const data = JSON.parse(fs.readFileSync(UE_PEOPLE_FILE, 'utf8'));
+    const shot = typeof req.query.shot === 'string' ? req.query.shot : null;
+    if (shot) {
+      const one = data.shots?.[shot] ?? null;
+      return res.json({ code: 0, data: { generatedAt: data.generatedAt, fps: data.fps, shots: one ? { [shot]: one } : {} } });
+    }
+    res.json({ code: 0, data });
+  } catch (err) {
+    res.status(500).json({ code: 1, message: String(err) });
+  }
+});
+
 /** UE 当前关卡（World）信息 */
 app.get('/api/ue/level', async (_req, res) => {
   res.json({ code: 0, data: await getUeLevel() });
 });
-
 /** UE 当前关卡 Actor 清单（函数调用被安全设置挡住时返回开启提示） */
 app.get('/api/ue/actors', async (_req, res) => {
   res.json({ code: 0, data: await getUeActors() });

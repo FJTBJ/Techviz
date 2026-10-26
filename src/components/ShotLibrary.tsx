@@ -20,10 +20,14 @@ export function ShotLibrary() {
   const createPlan = useScene((s) => s.createPlan);
   const switchPlan = useScene((s) => s.switchPlan);
   const deletePlan = useScene((s) => s.deletePlan);
+  const revisions = useScene((s) => s.revisions);
+  const loadRevisions = useScene((s) => s.loadRevisions);
+  const restoreRevision = useScene((s) => s.restoreRevision);
 
   const [newScene, setNewScene] = useState('');
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   const sceneList = previz?.scenes ?? [];
   /** 已被方案占用的场次不再列出（一个场次只建一个方案） */
@@ -101,6 +105,45 @@ export function ShotLibrary() {
         >
           删除当前方案
         </button>
+
+        <button
+          className="btn ghost block"
+          disabled={busy}
+          onClick={() => {
+            const next = !historyOpen;
+            setHistoryOpen(next);
+            if (next) void loadRevisions();
+          }}
+        >
+          {historyOpen ? '收起历史版本' : `历史版本 · ${revisions.length}`}
+        </button>
+
+        {historyOpen && (
+          <div className="revision-list">
+            {revisions.length === 0 ? (
+              <p className="hint">暂无历史版本，改动后会自动生成</p>
+            ) : (
+              revisions.map((rev) => (
+                <div className="revision-row" key={rev.id}>
+                  <span className="revision-time">
+                    {new Date(rev.createdAt).toLocaleString('zh-CN', { hour12: false })}
+                  </span>
+                  <span className="hint">{Math.max(1, Math.round(rev.size / 1024))} KB</span>
+                  <button
+                    className="btn tiny"
+                    disabled={busy}
+                    onClick={() => {
+                      if (!window.confirm('恢复到该版本？当前状态会先存为一条历史版本。')) return;
+                      void run(() => restoreRevision(rev.id), '已恢复到该版本');
+                    }}
+                  >
+                    恢复
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
+        )}
 
         {msg && <p className={msg.startsWith('已') ? 'ok' : 'alert'}>{msg}</p>}
         <p className="hint">一个场次对应一个方案，新方案复制当前布景数据。</p>

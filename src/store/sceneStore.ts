@@ -34,6 +34,18 @@ export const isGizmoActive = () => performance.now() - lastGizmoDragEnd < 200;
 /** 是否已从后端恢复过数据；恢复完成后才开启自动保存，避免用 demo 数据覆盖存档 */
 let hydrated = false;
 
+/** 自动保存定时器；恢复历史版本后短暂抑制保存，避免回退动作本身又生成一条重复快照 */
+let saveTimer: ReturnType<typeof setTimeout> | null = null;
+let suppressSaveUntil = 0;
+
+/** 方案历史版本（只含元信息，正文在后端） */
+export interface SceneRevision {
+  id: number;
+  source: string;
+  createdAt: string;
+  size: number;
+}
+
 export interface Scenario {
   version: 2;
   savedAt: string;
@@ -79,6 +91,10 @@ interface SceneState {
   switchPlan: (name: string) => Promise<string | null>;
   deletePlan: (name: string) => Promise<string | null>;
   loadCurrentScene: () => Promise<void>;
+  /** 方案历史版本（每次自动保存生成一条，可回退） */
+  revisions: SceneRevision[];
+  loadRevisions: () => Promise<string | null>;
+  restoreRevision: (id: number) => Promise<string | null>;
 
   /** 镜头库：activeShotId 为 null 表示「完整场景」 */
   activeShotId: string | null;
@@ -162,6 +178,7 @@ export const useScene = create<SceneState>((set, get) => ({
   plans: [],
   planName: null,
   sceneKey: null,
+  revisions: [],
   activeShotId: null,
   activeShotUsedIds: null,
   takeVisible: true,
@@ -293,6 +310,36 @@ export const useScene = create<SceneState>((set, get) => ({
       });
     } catch {
       /* 后端不可达时保留当前数据 */
+    }
+  },
+
+  loadRevisions: async () => {
+    try {
+      const res = await apiFetch('/api/scene/revisions');
+      if (!res.ok) return '历史版本加载失败';
+      const json = await res.json();
+      set({ revisions: (json?.data ?? []) as SceneRevision[] });
+      return null;
+    } catch {
+      return '历史版本加载失败：后端不可达';
+    }
+  },
+
+  restoreRevision: async (id) => {
+    try {
+      const res = await apiFetch(`/api/scene/revisions/${id}/restore`, { method: 'POST' });
+      if (!res.ok) {
+        const json = await res.json().catch(() => null);
+        return json?.message ?? '恢复失败';
+      }
+      // 回退后短时间内不自动保存：后端已写入该版本，避免又多生成一条相同快照
+      if (saveTimer) clearTimeout(saveTimer);
+      suppressSaveUntil = Date.now() + 2000;
+      await get().loadCurrentScene();
+      await get().loadRevisions();
+      return null;
+    } catch {
+      return '恢复失败：后端不可达';
     }
   },
 
@@ -612,9 +659,9 @@ export const useScene = create<SceneState>((set, get) => ({
  * 自动保存：任何数据变更后 800ms 落盘到后端（后端写 SQLite 持久化）。
  * 只监听数据字段，忽略 selectedId/mode 等纯 UI 状态。
  */
-let saveTimer: ReturnType<typeof setTimeout> | null = null;
 useScene.subscribe((state, prev) => {
   if (!hydrated) return;
+  if (Date.now() < suppressSaveUntil) return;
   if (
     state.assets === prev.assets &&
     state.camera === prev.camera &&

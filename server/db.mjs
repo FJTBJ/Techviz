@@ -47,6 +47,15 @@ CREATE TABLE IF NOT EXISTS user_current (
   user_id TEXT PRIMARY KEY,
   scene_name TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS scene_revisions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id TEXT NOT NULL,
+  scene_name TEXT NOT NULL,
+  data TEXT NOT NULL,
+  source TEXT NOT NULL DEFAULT 'auto',
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_scene_rev ON scene_revisions (user_id, scene_name, id DESC);
 `);
 
 /** 老库补列：登录字段随 OIDC 接入逐步扩展，避免删库重建 */
@@ -212,9 +221,64 @@ export function listScenes(userId) {
     .all(userId);
 }
 
+// ---------- 方案历史版本（每次自动保存追加一条快照） ----------
+
+/** 每个方案保留的最近版本数 */
+const REVISION_KEEP = 30;
+
+/**
+ * 追加一条方案快照。与最新一条内容完全相同时跳过，避免无意义重复。
+ * 超出保留数量的旧版本自动清理。
+ */
+export function addSceneRevision(userId, name, data, source = 'auto') {
+  const latest = db
+    .prepare(
+      'SELECT data FROM scene_revisions WHERE user_id = ? AND scene_name = ? ORDER BY id DESC LIMIT 1',
+    )
+    .get(userId, name);
+  if (latest && latest.data === data) return null;
+
+  const info = db
+    .prepare(
+      'INSERT INTO scene_revisions (user_id, scene_name, data, source, created_at) VALUES (?, ?, ?, ?, ?)',
+    )
+    .run(userId, name, data, source, new Date().toISOString());
+
+  db.prepare(
+    `DELETE FROM scene_revisions
+     WHERE user_id = ? AND scene_name = ? AND id NOT IN (
+       SELECT id FROM scene_revisions
+       WHERE user_id = ? AND scene_name = ? ORDER BY id DESC LIMIT ?
+     )`,
+  ).run(userId, name, userId, name, REVISION_KEEP);
+
+  return Number(info.lastInsertRowid);
+}
+
+/** 版本列表（不含正文，只给前端展示时间与大小） */
+export function listSceneRevisions(userId, name, limit = REVISION_KEEP) {
+  return db
+    .prepare(
+      `SELECT id, source, created_at AS createdAt, LENGTH(data) AS size
+       FROM scene_revisions WHERE user_id = ? AND scene_name = ?
+       ORDER BY id DESC LIMIT ?`,
+    )
+    .all(userId, name, limit);
+}
+
+export function getSceneRevision(userId, name, id) {
+  return db
+    .prepare(
+      `SELECT id, data, source, created_at AS createdAt
+       FROM scene_revisions WHERE user_id = ? AND scene_name = ? AND id = ?`,
+    )
+    .get(userId, name, id);
+}
+
 /** 删除方案；返回剩余方案（调用方负责维护「当前方案」） */
 export function deleteScene(userId, name) {
   db.prepare('DELETE FROM scenes WHERE user_id = ? AND name = ?').run(userId, name);
+  db.prepare('DELETE FROM scene_revisions WHERE user_id = ? AND scene_name = ?').run(userId, name);
   return listScenes(userId);
 }
 
