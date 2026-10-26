@@ -1,7 +1,7 @@
 import { Suspense, useCallback, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { TransformControls, useGLTF } from '@react-three/drei';
-import type { ThreeEvent } from '@react-three/fiber';
+import { useFrame, type ThreeEvent } from '@react-three/fiber';
 import { useScene, markGizmoDragEnd } from '../../store/sceneStore';
 import type { SceneAsset } from '../../types';
 
@@ -165,17 +165,58 @@ function ProxyMesh({ asset }: { asset: SceneAsset }) {
   }
 }
 
-export function SceneObject({ asset }: { asset: SceneAsset }) {
+export function SceneObject({
+  asset,
+  forceVisible = false,
+}: {
+  asset: SceneAsset;
+  /** 镜头库选中镜头时：本镜头用到的元素一律显示，不受场景大纲里的手工隐藏影响 */
+  forceVisible?: boolean;
+}) {
   const selectedId = useScene((s) => s.selectedId);
   const mode = useScene((s) => s.mode);
   const gizmo = useScene((s) => s.gizmo);
   const selectAsset = useScene((s) => s.selectAsset);
   const updateAsset = useScene((s) => s.updateAsset);
   const addMeasurePoint = useScene((s) => s.addMeasurePoint);
+  const followPreviz = useScene((s) => s.followPreviz);
 
   const groupRef = useRef<THREE.Group | null>(null);
   const [object, setObject] = useState<THREE.Group | null>(null);
   const [dragging, setDragging] = useState(false);
+
+  // 预演机位常贴着甚至钻进 UE 体块的包围盒（包围盒比真实网格粗），
+  // 这时该体块的内壁阴影会把整个画面糊黑，跟随时隐藏包住相机的那一块。
+  useFrame(({ camera }) => {
+    const node = groupRef.current;
+    if (!node) return;
+    const p = camera.position;
+    const [ox, oy, oz] = asset.offset ?? [0, 0, 0];
+    const [sx, sy, sz] = asset.scale;
+    const cx = asset.position[0] + ox * sx;
+    const cy = asset.position[1] + oy * sy;
+    const cz = asset.position[2] + oz * sz;
+    let hide = false;
+    if (followPreviz) {
+      if (/ZHUZI/i.test(asset.code)) {
+        const r = Math.max(asset.size[0] * sx, asset.size[2] * sz) / 2;
+        hide =
+          (p.x - cx) ** 2 + (p.z - cz) ** 2 <= r * r &&
+          Math.abs(p.y - cy) <= Math.abs(asset.size[1] * sy) / 2;
+      } else {
+        const dx = p.x - cx;
+        const dz = p.z - cz;
+        const cos = Math.cos(-asset.rotation[1]);
+        const sin = Math.sin(-asset.rotation[1]);
+        hide =
+          Math.abs(dx * cos - dz * sin) <= Math.abs(asset.size[0] * sx) / 2 &&
+          Math.abs(p.y - cy) <= Math.abs(asset.size[1] * sy) / 2 &&
+          Math.abs(dx * sin + dz * cos) <= Math.abs(asset.size[2] * sz) / 2;
+      }
+    }
+    const next = (asset.visible || forceVisible) && !hide;
+    if (node.visible !== next) node.visible = next;
+  });
 
   const attach = useCallback((node: THREE.Group | null) => {
     groupRef.current = node;
@@ -228,7 +269,7 @@ export function SceneObject({ asset }: { asset: SceneAsset }) {
         position={asset.position}
         rotation={asset.rotation}
         scale={asset.scale}
-        visible={asset.visible}
+        visible={asset.visible || forceVisible}
         onClick={handleClick}
       >
         <ProxyMesh asset={asset} />
@@ -240,7 +281,7 @@ export function SceneObject({ asset }: { asset: SceneAsset }) {
         )}
       </group>
       {/* gizmo 独立挂载，不再包裹 children，attach 目标始终是同一个 group 节点 */}
-      {selected && object && mode !== 'measure' && asset.visible && (
+      {selected && object && mode !== 'measure' && (asset.visible || forceVisible) && (
         <TransformControls
           object={object}
           mode={gizmo}

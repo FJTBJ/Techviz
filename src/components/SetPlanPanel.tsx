@@ -19,11 +19,18 @@ export function SetPlanPanel() {
   const loadSetPlan = useScene((s) => s.loadSetPlan);
   const setPlanScene = useScene((s) => s.setPlanScene);
   const toggleSetPlan = useScene((s) => s.toggleSetPlan);
+  const shotAim = useScene((s) => s.shotAim);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
   const scenes = useMemo(() => (setPlan ? Object.keys(setPlan.plans) : []), [setPlan]);
   const current = planScene ? (setPlan?.plans[planScene] ?? null) : null;
+
+  /** 本场次的机位朝向计算（计算前 / 计算后两组数据） */
+  const aimShots = useMemo(
+    () => (shotAim && planScene ? shotAim.shots.filter((row) => row.scene === planScene) : []),
+    [shotAim, planScene],
+  );
 
   const run = async () => {
     setBusy(true);
@@ -130,6 +137,35 @@ export function SetPlanPanel() {
               </div>
             ))}
           </div>
+
+          {aimShots.length > 0 && (
+            <>
+              <h3 className="sub-head">机位朝向（计算前 / 计算后）</h3>
+              <div className="setplan-table">
+                <div className="setplan-row aim head">
+                  <span>镜号</span>
+                  <span className="mono">计算前</span>
+                  <span className="mono">Δ</span>
+                  <span className="mono">计算后</span>
+                </div>
+                {aimShots.map((row) => (
+                  <div
+                    key={row.id}
+                    className="setplan-row aim"
+                    title={shotAim?.note ?? '缺口固定朝机位一侧，把视线摆向环屏'}
+                  >
+                    <span className="name">{row.name}</span>
+                    <span className="mono dim">{pct(row.before.led)}</span>
+                    <span className="mono dim">+{row.deltaDeg}°</span>
+                    <span className="mono">{pct(row.after.led)}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="setplan-meta mono">
+                缺口固定朝机位一侧；计算后每个 take 只加固定偏航角，把视线摆向环屏
+              </p>
+            </>
+          )}
 
           <p className="setplan-meta mono">
             生成于 {new Date(current.generatedAt).toLocaleString('zh-CN')}

@@ -189,6 +189,46 @@ export interface PrevizTimeline {
   shots: PrevizShot[];
 }
 
+/** 机位朝向计算：单个镜头计算前 / 计算后 */
+export interface ShotAim {
+  id: string;
+  name: string;
+  scene: string | null;
+  start: number;
+  end: number;
+  focal: number;
+  before: { led: number; ground: number; open: number };
+  /** 整条 take 的偏航修正角，度 */
+  deltaDeg: number;
+  after: { led: number; ground: number; open: number };
+}
+
+export interface ShotAimSummary {
+  shots: number;
+  led: number;
+  ground: number;
+  open: number;
+  zeroLed: number;
+}
+
+export interface ShotAimFile {
+  generatedAt: string;
+  mode: 'aim-at-led';
+  ring: { diameter: number; height: number; arc: number; gapCenterDeg: number };
+  note?: string;
+  summary: { before: ShotAimSummary; after: ShotAimSummary };
+  scenes: Record<
+    string,
+    {
+      shots: number;
+      before: { led: number; open: number; zeroLed: number };
+      after: { led: number; open: number; zeroLed: number };
+      maxDeltaDeg: number;
+    }
+  >;
+  shots: ShotAim[];
+}
+
 /** 方案管理：一个场次场景对应一个方案 */
 export interface PlanMeta {
   name: string;

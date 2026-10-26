@@ -291,6 +291,20 @@ app.get('/api/previz/timeline', (_req, res) => {
   }
 });
 
+/** 机位朝向计算：计算前 / 计算后两组数据，由 previz/aim-shots.mjs 生成 */
+const SHOT_AIM_FILE = path.join(DATA_DIR, 'shot-aim.json');
+
+app.get('/api/previz/shot-aim', (_req, res) => {
+  try {
+    if (!fs.existsSync(SHOT_AIM_FILE)) {
+      return res.status(404).json({ code: 1, message: '尚未计算机位朝向' });
+    }
+    res.json({ code: 0, data: JSON.parse(fs.readFileSync(SHOT_AIM_FILE, 'utf8')) });
+  } catch (err) {
+    res.status(500).json({ code: 1, message: String(err) });
+  }
+});
+
 /** UE 当前关卡（World）信息 */
 app.get('/api/ue/level', async (_req, res) => {
   res.json({ code: 0, data: await getUeLevel() });

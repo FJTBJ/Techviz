@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber';
-import { Grid, OrbitControls } from '@react-three/drei';
+import { Grid, OrbitControls, Line } from '@react-three/drei';
 import { useScene, isGizmoActive } from '../store/sceneStore';
 import { SceneObject, LedRing } from './scene/SceneObject';
 import { CameraRig } from './scene/CameraRig';
@@ -83,6 +83,7 @@ function CameraDriver() {
 function PrevizPlayback() {
   const follow = useScene((s) => s.followPreviz);
   const mode = useScene((s) => s.mode);
+  const aimMode = useScene((s) => s.aimMode);
   const camera = useThree((s) => s.camera) as THREE.PerspectiveCamera;
   const size = useThree((s) => s.size);
   const saved = useRef<{ position: THREE.Vector3; quaternion: THREE.Quaternion; fov: number } | null>(null);
@@ -91,7 +92,9 @@ function PrevizPlayback() {
   useFrame(() => {
     const shouldFollow = follow && mode !== 'camera';
     if (!shouldFollow) {
-      if (active.current && saved.current) {
+      // 高空视角由 AerialRig 接管相机，这里不能把相机恢复成进入跟随前的旧位置
+      const aerial = useScene.getState().aerialView;
+      if (!aerial && active.current && saved.current) {
         camera.position.copy(saved.current.position);
         camera.quaternion.copy(saved.current.quaternion);
         camera.fov = saved.current.fov;
@@ -113,11 +116,15 @@ function PrevizPlayback() {
     const pose = sampleShot(shot, st.timelineTime);
     if (!pose) return;
 
+    // 计算后：整条 take 加固定偏航角，把视线摆向 LED 环屏（缺口位置不动）
+    const aim = aimMode === 'led' ? st.shotAim?.shots.find((row) => row.id === shot.id) : null;
+    const yaw = pose.yaw + (aim?.deltaDeg ?? 0);
+
     camera.position.set(...pose.position);
     camera.rotation.order = 'YXZ';
     camera.rotation.set(
       THREE.MathUtils.degToRad(pose.pitch),
-      THREE.MathUtils.degToRad(pose.yaw),
+      THREE.MathUtils.degToRad(yaw),
       0,
     );
 
@@ -132,6 +139,80 @@ function PrevizPlayback() {
   });
 
   return null;
+}
+
+/** 高空视角：切到场景上方俯视，便于观察机位怎么运转 */
+function AerialRig() {
+  const aerial = useScene((s) => s.aerialView);
+  const camera = useThree((s) => s.camera) as THREE.PerspectiveCamera;
+  const controls = useThree((s) => s.controls) as
+    | { target: THREE.Vector3; update: () => void }
+    | null;
+
+  useEffect(() => {
+    if (!aerial) return;
+    camera.position.set(0, 34, 30);
+    camera.fov = 48;
+    camera.updateProjectionMatrix();
+    camera.lookAt(0, 1, 0);
+    if (controls) {
+      controls.target.set(0, 1, 0);
+      controls.update();
+    }
+  }, [aerial, camera, controls]);
+
+  return null;
+}
+
+/** 高空视角下显示当前镜头机位：黄色轨迹 + 随时间移动的机位标记与视锥 */
+function PrevizCameraMarker() {
+  const aerial = useScene((s) => s.aerialView);
+  const previz = useScene((s) => s.previz);
+  const activeShotId = useScene((s) => s.activeShotId);
+  const ref = useRef<THREE.Group>(null);
+
+  const shot = useMemo(
+    () => (activeShotId ? (previz?.shots.find((s) => s.id === activeShotId) ?? null) : null),
+    [previz, activeShotId],
+  );
+  const trail = useMemo(
+    () => (shot ? shot.keys.map((k) => new THREE.Vector3(...k.position)) : []),
+    [shot],
+  );
+
+  useFrame(() => {
+    const group = ref.current;
+    if (!group || !shot) return;
+    const pose = sampleShot(shot, useScene.getState().timelineTime);
+    if (!pose) return;
+    group.position.set(...pose.position);
+    group.rotation.order = 'YXZ';
+    group.rotation.set(
+      THREE.MathUtils.degToRad(pose.pitch),
+      THREE.MathUtils.degToRad(pose.yaw),
+      0,
+    );
+  });
+
+  if (!aerial || !shot) return null;
+
+  return (
+    <>
+      {trail.length > 1 && (
+        <Line points={trail} color="#ffb020" lineWidth={2} dashed dashSize={0.8} gapSize={0.5} />
+      )}
+      <group ref={ref}>
+        <mesh>
+          <boxGeometry args={[0.5, 0.36, 0.8]} />
+          <meshStandardMaterial color="#ffb020" emissive="#ffb020" emissiveIntensity={0.45} />
+        </mesh>
+        <mesh position={[0, 0, -1.6]} rotation={[-Math.PI / 2, 0, 0]}>
+          <coneGeometry args={[0.55, 2.6, 4, 1, true]} />
+          <meshBasicMaterial color="#ffb020" wireframe transparent opacity={0.5} />
+        </mesh>
+      </group>
+    </>
+  );
 }
 
 function Ground() {
@@ -162,13 +243,14 @@ function Ground() {
 function SceneContent() {
   const assets = useScene((s) => s.assets);
   const usedIds = useScene((s) => s.activeShotUsedIds);
+  const aerial = useScene((s) => s.aerialView);
   const mode = useScene((s) => s.mode);
   const follow = useScene((s) => s.followPreviz);
   const stages = useScene((s) => s.stages);
   const currentStageId = useScene((s) => s.currentStageId);
   const stage = stages.find((s) => s.id === currentStageId);
 
-  // 镜头库选中某个镜头时，只渲染该镜头视锥内用到的元素
+  // 镜头库选中某个镜头时，只渲染该镜头视锥内用到的元素（高空视角也一样，便于只看本镜头布景与机位运动）
   const visibleAssets = useMemo(() => {
     if (!usedIds) return assets;
     const used = new Set(usedIds);
@@ -219,18 +301,24 @@ function SceneContent() {
         raycast={() => null}
       />
       {visibleAssets.map((asset) => (
-        <SceneObject key={asset.instanceId} asset={asset} />
+        <SceneObject
+          key={asset.instanceId}
+          asset={asset}
+          forceVisible={Boolean(usedIds)}
+        />
       ))}
       <MeasurementLayer />
       <SetPlanLayer />
       <CameraRig />
       <CameraDriver />
       <PrevizPlayback />
+      <AerialRig />
+      <PrevizCameraMarker />
       <Bridge />
       <OrbitControls
         enabled={mode !== 'camera' && !follow}
         makeDefault
-        target={[0, 1, 0]}
+        target={aerial ? [0, 1, 0] : [0, 3, -1]}
         enableDamping
         dampingFactor={0.08}
         maxPolarAngle={Math.PI / 2 - 0.02}
@@ -308,6 +396,8 @@ function Readout() {
 
 export function Viewport() {
   const mode = useScene((s) => s.mode);
+  const aerial = useScene((s) => s.aerialView);
+  const toggleAerialView = useScene((s) => s.toggleAerialView);
   const selectAsset = useScene((s) => s.selectAsset);
   const activeShotId = useScene((s) => s.activeShotId);
   const usedIds = useScene((s) => s.activeShotUsedIds);
@@ -323,7 +413,7 @@ export function Viewport() {
         shadows
         dpr={[1, 2]}
         gl={{ antialias: true, preserveDrawingBuffer: true }}
-        camera={{ position: [28, 12, 3], fov: 48, near: 0.1, far: 400 }}
+        camera={{ position: [0, 10, 17], fov: 48, near: 0.1, far: 400 }}
         onPointerMissed={() => {
           if (!isGizmoActive()) selectAsset(null);
         }}
@@ -333,7 +423,13 @@ export function Viewport() {
       {mode === 'camera' && <FrameOverlay />}
       <Readout />
       <TakePlayer />
-      {activeShot && usedIds && (
+      {aerial && (
+        <div className="shot-filter-badge">
+          <b>高空视角</b>
+          <span>俯视观察机位运动 · 黄色虚线为机位轨迹</span>
+        </div>
+      )}
+      {!aerial && activeShot && usedIds && (
         <div className="shot-filter-badge">
           <b>{shotLabel(activeShot)}</b>
           <span>
@@ -342,7 +438,22 @@ export function Viewport() {
         </div>
       )}
       <div className={`mode-badge ${mode}`}>
-        {mode === 'orbit' ? '自由视角' : mode === 'camera' ? '机位取景' : '测量模式'}
+        {aerial
+          ? '高空视角'
+          : mode === 'orbit'
+            ? '自由视角'
+            : mode === 'camera'
+              ? '机位取景'
+              : '测量模式'}
+      </div>
+      <div className="viewport-actions">
+        <button
+          className={`aerial-toggle ${aerial ? 'active' : ''}`}
+          onClick={toggleAerialView}
+          title="不跟随镜头，从场景上方俯视观察机位怎么运动（黄色虚线为机位轨迹）"
+        >
+          {aerial ? '退出高空视角' : '高空视角'}
+        </button>
       </div>
     </div>
   );

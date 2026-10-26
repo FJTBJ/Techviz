@@ -13,6 +13,7 @@ import type {
   Vec3,
   ViewMode,
   PrevizTimeline,
+  ShotAimFile,
 } from '../types';
 
 let seq = 0;
@@ -85,8 +86,17 @@ interface SceneState {
   takeVisible: boolean;
   toggleTake: () => void;
 
+  /** 高空俯视视角：播放时从场景上方观察机位如何运动 */
+  aerialView: boolean;
+  toggleAerialView: () => void;
+
   /** 预演播放时间线（master 时间码 + 相机关键帧） */
   previz: PrevizTimeline | null;
+  /** 机位朝向计算：计算前 / 计算后两组数据（缺口固定朝机位一侧，把视线摆向环屏） */
+  shotAim: ShotAimFile | null;
+  /** 机位朝向模式：raw = UE 原始数据，led = 摆向环屏（应用每镜修正角 Δ） */
+  aimMode: 'raw' | 'led';
+  toggleAimMode: () => void;
   /** 播放头位置，秒 */
   timelineTime: number;
   playing: boolean;
@@ -148,7 +158,10 @@ export const useScene = create<SceneState>((set, get) => ({
   activeShotId: null,
   activeShotUsedIds: null,
   takeVisible: true,
+  aerialView: false,
   previz: null,
+  shotAim: null,
+  aimMode: 'raw',
   timelineTime: 0,
   playing: false,
   playbackSpeed: 1,
@@ -214,6 +227,17 @@ export const useScene = create<SceneState>((set, get) => ({
         }
       } catch {
         /* 无预演时间线时忽略 */
+      }
+      // 机位朝向计算（可选）：提供计算前 / 计算后两组覆盖率
+      try {
+        const aimRes = await apiFetch('/api/previz/shot-aim');
+        if (aimRes.ok) {
+          const aimJson = await aimRes.json();
+          const shotAim = aimJson?.data as ShotAimFile | null;
+          if (shotAim?.shots?.length) set({ shotAim });
+        }
+      } catch {
+        /* 无机位朝向数据时忽略 */
       }
       // 方案列表：与场次关联，供左侧方案管理使用
       await get().refreshPlans();
@@ -342,6 +366,17 @@ export const useScene = create<SceneState>((set, get) => ({
 
   toggleTake: () => set((state) => ({ takeVisible: !state.takeVisible })),
 
+  toggleAerialView: () =>
+    set((state) => ({
+      aerialView: !state.aerialView,
+      // 高空视角不跟随镜头，且必须处于自由视角才能操作相机
+      followPreviz: false,
+      mode: state.aerialView ? state.mode : 'orbit',
+    })),
+
+  toggleAimMode: () =>
+    set((state) => ({ aimMode: state.aimMode === 'raw' ? 'led' : 'raw' })),
+
   togglePlayback: () => {
     const { playing, previz, timelineTime, activeShotId } = get();
     if (!previz) return;
@@ -352,7 +387,12 @@ export const useScene = create<SceneState>((set, get) => ({
         set({ playing: false, followPreviz: false });
       } else {
         const atEnd = timelineTime < shot.start || timelineTime >= shot.end - 0.05;
-        set({ timelineTime: atEnd ? shot.start : timelineTime, playing: true, followPreviz: true });
+        // 高空视角下播放不抢相机，保持俯视观察机位运动
+        set({
+          timelineTime: atEnd ? shot.start : timelineTime,
+          playing: true,
+          followPreviz: !get().aerialView,
+        });
       }
       return;
     }
@@ -369,7 +409,12 @@ export const useScene = create<SceneState>((set, get) => ({
 
   setPlaybackSpeed: (speed) => set({ playbackSpeed: speed }),
 
-  toggleFollowPreviz: () => set((state) => ({ followPreviz: !state.followPreviz })),
+  toggleFollowPreviz: () =>
+    set((state) => {
+      const followPreviz = !state.followPreviz;
+      // 跟随机位与高空视角互斥
+      return { followPreviz, aerialView: followPreviz ? false : state.aerialView };
+    }),
 
   seekShot: (shotId) => {
     const shot = get().previz?.shots.find((s) => s.id === shotId);

@@ -29,6 +29,10 @@ const FLOOR_Y = 0;
 /** 单个镜头最多送入方案的相机采样点（buildSetPlan 内部还会再抽 5 帧） */
 const MAX_KEYS_PER_SHOT = 60;
 
+/** 主预演画幅：S35 传感器裁 2.39:1（覆盖率必须按实际画幅算，不能用 4:3 全画幅高度） */
+const SENSOR_W = 24.89;
+const SENSOR_H = 24.89 / 2.39;
+
 const round2 = (n) => Math.round(n * 100) / 100;
 const readJson = (f) => JSON.parse(fs.readFileSync(f, 'utf8'));
 
@@ -115,6 +119,8 @@ function main() {
       position: first.position,
       yaw: first.yaw,
       pitch: first.pitch,
+      sensorWidth: SENSOR_W,
+      sensorHeight: SENSOR_H,
       keys,
     };
     if (!byScene.has(scene)) byScene.set(scene, []);

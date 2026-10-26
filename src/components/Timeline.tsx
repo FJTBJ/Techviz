@@ -20,6 +20,11 @@ export function Timeline() {
   const setTimelineTime = useScene((s) => s.setTimelineTime);
   const setSpeed = useScene((s) => s.setPlaybackSpeed);
   const toggleFollow = useScene((s) => s.toggleFollowPreviz);
+  const aerialView = useScene((s) => s.aerialView);
+  const toggleAerialView = useScene((s) => s.toggleAerialView);
+  const shotAim = useScene((s) => s.shotAim);
+  const aimMode = useScene((s) => s.aimMode);
+  const toggleAimMode = useScene((s) => s.toggleAimMode);
   const selectShot = useScene((s) => s.selectShot);
   const trackRef = useRef<HTMLDivElement>(null);
 
@@ -105,6 +110,8 @@ export function Timeline() {
   };
 
   const label = shotLabel(shot);
+  // 本镜头的机位朝向计算（计算前 / 计算后）
+  const aim = shotAim?.shots.find((row) => row.id === shot.id) ?? null;
 
   return (
     <div className="timeline">
@@ -152,12 +159,37 @@ export function Timeline() {
           {label}
         </span>
         <span className="tl-dur mono">{fmtDur(duration)}</span>
+        {aim && (
+          <button
+            className={`tl-follow ${aimMode === 'led' ? 'active' : ''}`}
+            onClick={toggleAimMode}
+            title={
+              aimMode === 'led'
+                ? `计算后：整条 take 偏航 +${aim.deltaDeg}°，视线摆向 LED 屏（缺口位置不动）`
+                : `计算前：UE 原始机位朝向，LED 覆盖 ${Math.round(aim.before.led)}% → 计算后 ${Math.round(aim.after.led)}%`
+            }
+          >
+            {aimMode === 'led' ? `朝环屏 +${aim.deltaDeg}°` : '原始机位'}
+          </button>
+        )}
+        {aim && (
+          <span className="tl-aim mono" title="画面落在 LED 环屏上的比例（计算前 → 计算后）">
+            LED {Math.round(aim.before.led)}→{Math.round(aim.after.led)}%
+          </span>
+        )}
         <button
           className={`tl-follow ${follow ? 'active' : ''}`}
           onClick={toggleFollow}
           title="视口相机跟随本镜头机位"
         >
           跟随机位
+        </button>
+        <button
+          className={`tl-follow ${aerialView ? 'active' : ''}`}
+          onClick={toggleAerialView}
+          title="高空俯视：不跟随镜头，从场景上方观察机位怎么运动（黄色轨迹）"
+        >
+          高空视角
         </button>
         <select
           className="tl-speed"
