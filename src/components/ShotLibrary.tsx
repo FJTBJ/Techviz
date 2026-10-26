@@ -149,7 +149,7 @@ export function ShotLibrary() {
         {!previz && <p className="empty">后端无预演时间线数据</p>}
         {previz && shots.length === 0 && <p className="empty">该场次没有镜头</p>}
         <p className="hint">
-          点击镜头：只渲染该镜头视锥内用到的 UE 元素，并切到该镜头机位与画幅。
+          点击镜头：只渲染该镜头视锥内用到的 UE 元素；环屏与视角操作不受影响。
         </p>
       </Panel>
     </aside>

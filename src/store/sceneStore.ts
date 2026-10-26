@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { DEMO_SHOT, demoAssets } from '../data/mockData';
 import { apiFetch } from '../lib/api';
-import { DEFAULT_FOCAL, buildBoxes, poseAtFraction, usedAssetIds } from '../lib/shotFilter';
+import { buildBoxes, usedAssetIds } from '../lib/shotFilter';
 import type {
   GizmoMode,
   Measurement,
@@ -312,36 +312,17 @@ export const useScene = create<SceneState>((set, get) => ({
   },
 
   selectShot: (shotId) => {
-    const { previz, assets, camera } = get();
+    const { previz, assets } = get();
     if (!shotId) {
-      set({ activeShotId: null, activeShotUsedIds: null, mode: 'orbit' });
+      set({ activeShotId: null, activeShotUsedIds: null });
       return;
     }
     const shot = previz?.shots.find((s) => s.id === shotId);
     if (!shot) return;
-    const focal = shot.focal ?? DEFAULT_FOCAL;
-    // 本镜头用到的元素：24 帧采样视锥并集，其余元素不渲染
+    // 本镜头用到的元素：24 帧采样视锥并集，其余元素不渲染。
+    // 只做元素剔除，不改机位/操作模式，环屏与场景操作保持可用。
     const ids = usedAssetIds(buildBoxes(assets), shot);
-    const pose = poseAtFraction(shot, 0);
-    set({
-      activeShotId: shot.id,
-      activeShotUsedIds: ids,
-      timelineTime: shot.start,
-      playing: false,
-      followPreviz: false,
-      mode: 'camera',
-      ...(pose
-        ? {
-            camera: {
-              ...camera,
-              position: pose.position,
-              yaw: pose.yaw,
-              pitch: pose.pitch,
-              focal,
-            },
-          }
-        : {}),
-    });
+    set({ activeShotId: shot.id, activeShotUsedIds: ids });
   },
 
   togglePlayback: () => {
