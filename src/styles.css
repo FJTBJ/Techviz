@@ -856,7 +856,8 @@ textarea {
 
 .viewport-readout {
   position: absolute;
-  right: 16px;
+  left: 16px;
+  right: auto;
   bottom: 16px;
   display: flex;
   flex-direction: column;
@@ -945,6 +946,110 @@ textarea {
 .mode-badge.measure {
   color: var(--good);
   border-color: rgba(61, 220, 151, 0.45);
+}
+
+/* ---------- 右下角 take 视频小窗 ---------- */
+.take-player {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  width: 320px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(9, 13, 18, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+}
+
+.take-player header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px 6px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.take-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--text);
+}
+
+.take-title i {
+  font-style: normal;
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid rgba(255, 176, 32, 0.5);
+  border-radius: 3px;
+  padding: 0 4px;
+}
+
+.take-hide {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.take-hide:hover {
+  color: var(--text);
+}
+
+.take-player video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+}
+
+.take-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 24px 12px;
+  text-align: center;
+}
+
+.take-empty strong {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.take-empty span {
+  font-size: 10px;
+  color: var(--muted-2);
+  word-break: break-all;
+}
+
+.take-reopen {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 176, 32, 0.45);
+  background: rgba(9, 13, 18, 0.82);
+  color: var(--accent);
+  font-size: 11px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+}
+
+.take-reopen:hover {
+  background: rgba(255, 176, 32, 0.14);
 }
 
 /* ---------- 画幅遮罩 ---------- */

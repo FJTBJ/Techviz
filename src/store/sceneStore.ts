@@ -81,6 +81,9 @@ interface SceneState {
   /** 当前镜头用到的资产 id（视锥剔除结果），null 表示不过滤 */
   activeShotUsedIds: string[] | null;
   selectShot: (shotId: string | null) => void;
+  /** 右下角 take 视频小窗是否展开 */
+  takeVisible: boolean;
+  toggleTake: () => void;
 
   /** 预演播放时间线（master 时间码 + 相机关键帧） */
   previz: PrevizTimeline | null;
@@ -144,6 +147,7 @@ export const useScene = create<SceneState>((set, get) => ({
   sceneKey: null,
   activeShotId: null,
   activeShotUsedIds: null,
+  takeVisible: true,
   previz: null,
   timelineTime: 0,
   playing: false,
@@ -314,7 +318,12 @@ export const useScene = create<SceneState>((set, get) => ({
   selectShot: (shotId) => {
     const { previz, assets } = get();
     if (!shotId) {
-      set({ activeShotId: null, activeShotUsedIds: null });
+      set({
+        activeShotId: null,
+        activeShotUsedIds: null,
+        playing: false,
+        followPreviz: false,
+      });
       return;
     }
     const shot = previz?.shots.find((s) => s.id === shotId);
@@ -322,12 +331,31 @@ export const useScene = create<SceneState>((set, get) => ({
     // 本镜头用到的元素：24 帧采样视锥并集，其余元素不渲染。
     // 只做元素剔除，不改机位/操作模式，环屏与场景操作保持可用。
     const ids = usedAssetIds(buildBoxes(assets), shot);
-    set({ activeShotId: shot.id, activeShotUsedIds: ids });
+    set({
+      activeShotId: shot.id,
+      activeShotUsedIds: ids,
+      timelineTime: shot.start,
+      playing: false,
+      followPreviz: false,
+    });
   },
 
+  toggleTake: () => set((state) => ({ takeVisible: !state.takeVisible })),
+
   togglePlayback: () => {
-    const { playing, previz, timelineTime } = get();
+    const { playing, previz, timelineTime, activeShotId } = get();
     if (!previz) return;
+    const shot = activeShotId ? previz.shots.find((s) => s.id === activeShotId) : null;
+    if (shot) {
+      // 镜头内播放：播完回到本镜头入点；播放时跟随机位，暂停回到自由视角
+      if (playing) {
+        set({ playing: false, followPreviz: false });
+      } else {
+        const atEnd = timelineTime < shot.start || timelineTime >= shot.end - 0.05;
+        set({ timelineTime: atEnd ? shot.start : timelineTime, playing: true, followPreviz: true });
+      }
+      return;
+    }
     // 播放到末尾再按播放：从头开始
     if (!playing && timelineTime >= previz.duration - 0.05) set({ timelineTime: 0, playing: true });
     else set({ playing: !playing });

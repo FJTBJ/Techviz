@@ -125,6 +125,7 @@ export default function App() {
   const toggleFrustum = useScene((s) => s.toggleFrustum);
   const serverState = useScene((s) => s.serverState);
   const initFromServer = useScene((s) => s.initFromServer);
+  const activeShotId = useScene((s) => s.activeShotId);
   const [tab, setTab] = useState<TabKey>('shot');
   const [sidebarHidden, setSidebarHidden] = useState(false);
 
@@ -324,7 +325,8 @@ export default function App() {
         </aside>
       </main>
 
-      <Timeline />
+      {/* 时间线只服务单个镜头；完整场景不显示 */}
+      {activeShotId && <Timeline />}
     </div>
   );
 }

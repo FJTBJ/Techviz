@@ -58,6 +58,14 @@ export function sampleShot(shot: PrevizShot, time: number): PrevizPose | null {
   };
 }
 
+/** 镜头短名：场次 + 同场次内的镜号，例如「S079A · 第 2 镜」 */
+export function shotShortName(shot: PrevizShot, shots: PrevizShot[]): string {
+  const scene = (shot.scene ?? '—').toUpperCase();
+  const siblings = shots.filter((item) => (item.scene ?? '') === (shot.scene ?? ''));
+  const index = siblings.findIndex((item) => item.id === shot.id) + 1;
+  return `${scene} · 第 ${index > 0 ? index : 1} 镜`;
+}
+
 /** 时间码 00:00:00:00（时:分:秒:帧） */
 export function timecode(seconds: number, fps: number): string {
   const total = Math.max(0, seconds);

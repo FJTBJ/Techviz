@@ -7,9 +7,10 @@ import { SceneObject, LedRing } from './scene/SceneObject';
 import { CameraRig } from './scene/CameraRig';
 import { SetPlanLayer } from './scene/SetPlanLayer';
 import { MeasurementLayer } from './scene/MeasurementLayer';
+import { TakePlayer } from './TakePlayer';
 import { ASPECTS } from '../types';
 import { frameFractions, lensMath } from '../lib/lens';
-import { shotAt, sampleShot } from '../lib/previz';
+import { shotAt, sampleShot, shotShortName } from '../lib/previz';
 import { viewportBridge } from '../lib/viewportBridge';
 
 function Bridge() {
@@ -331,9 +332,10 @@ export function Viewport() {
       </Canvas>
       {mode === 'camera' && <FrameOverlay />}
       <Readout />
+      <TakePlayer />
       {activeShot && usedIds && (
         <div className="shot-filter-badge">
-          <b>{activeShot.name}</b>
+          <b>{previz ? shotShortName(activeShot, previz.shots) : activeShot.name}</b>
           <span>
             本镜头元素 {usedIds.length} / {assets.length} · 其余已按视锥剔除
           </span>
