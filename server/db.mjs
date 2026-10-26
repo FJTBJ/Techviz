@@ -61,6 +61,8 @@ function ensureColumn(table, column, ddl) {
 ensureColumn('users', 'username', 'username TEXT');
 ensureColumn('users', 'avatar_url', "avatar_url TEXT DEFAULT ''");
 ensureColumn('sessions', 'oidc_id_token', 'oidc_id_token TEXT');
+/** 方案关联的场次（一个场次一个方案） */
+ensureColumn('scenes', 'scene', 'scene TEXT');
 
 /** 统一用户行 → 业务对象（列名 snake_case 只在 SQL 层出现） */
 function toUser(row) {
@@ -191,21 +193,29 @@ export function getScene(userId, name) {
   return db.prepare('SELECT * FROM scenes WHERE user_id = ? AND name = ?').get(userId, name);
 }
 
-export function upsertScene(userId, name, data) {
+export function upsertScene(userId, name, data, scene = null) {
   const now = new Date().toISOString();
   db.prepare(
-    `INSERT INTO scenes (user_id, name, data, updated_at) VALUES (?, ?, ?, ?)
-     ON CONFLICT(user_id, name) DO UPDATE SET data = excluded.data, updated_at = excluded.updated_at`,
-  ).run(userId, name, data, now);
+    `INSERT INTO scenes (user_id, name, data, scene, updated_at) VALUES (?, ?, ?, ?, ?)
+     ON CONFLICT(user_id, name) DO UPDATE SET
+       data = excluded.data, scene = excluded.scene, updated_at = excluded.updated_at`,
+  ).run(userId, name, data, scene, now);
   return getScene(userId, name);
 }
 
 export function listScenes(userId) {
   return db
     .prepare(
-      'SELECT name, updated_at AS updatedAt FROM scenes WHERE user_id = ? ORDER BY updated_at DESC',
+      `SELECT name, scene, updated_at AS updatedAt FROM scenes
+       WHERE user_id = ? ORDER BY updated_at DESC`,
     )
     .all(userId);
+}
+
+/** 删除方案；返回剩余方案（调用方负责维护「当前方案」） */
+export function deleteScene(userId, name) {
+  db.prepare('DELETE FROM scenes WHERE user_id = ? AND name = ?').run(userId, name);
+  return listScenes(userId);
 }
 
 /** 用户当前方案名（未设置过时为「默认方案」） */
@@ -235,7 +245,7 @@ export function seedUserScenes(userId) {
     db.prepare('SELECT * FROM scenes ORDER BY updated_at DESC LIMIT 1').get();
   if (!template) return false;
 
-  upsertScene(userId, DEFAULT_SCENE_NAME, template.data);
+  upsertScene(userId, DEFAULT_SCENE_NAME, template.data, template.scene ?? null);
   setCurrentScene(userId, DEFAULT_SCENE_NAME);
   return true;
 }

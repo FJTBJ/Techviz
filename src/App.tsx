@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { PROJECT_INFO } from './data/mockData';
 import { useScene } from './store/sceneStore';
-import { AssetLibrary } from './components/AssetLibrary';
+import { ShotLibrary } from './components/ShotLibrary';
 import { Viewport } from './components/Viewport';
 import { ShotPanel } from './components/ShotPanel';
 import { SceneOutline } from './components/SceneOutline';
@@ -277,7 +277,7 @@ export default function App() {
           <button
             className={`sidebar-toggle ${sidebarHidden ? 'on' : ''}`}
             onClick={() => setSidebarHidden((v) => !v)}
-            title={sidebarHidden ? '显示资产库侧栏' : '隐藏资产库侧栏'}
+            title={sidebarHidden ? '显示镜头库侧栏' : '隐藏镜头库侧栏'}
           >
             {sidebarHidden ? '▏▏ 侧栏' : '▕ 隐藏侧栏'}
           </button>
@@ -300,7 +300,7 @@ export default function App() {
       </header>
 
       <main className={`layout ${sidebarHidden ? 'no-sidebar' : ''}`}>
-        {!sidebarHidden && <AssetLibrary />}
+        {!sidebarHidden && <ShotLibrary />}
         <Viewport />
         <aside className="inspector">
           <div className="tabbar">

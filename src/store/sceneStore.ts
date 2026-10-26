@@ -1,10 +1,11 @@
 import { create } from 'zustand';
-import { ASSET_LIBRARY, DEMO_SHOT, demoAssets } from '../data/mockData';
+import { DEMO_SHOT, demoAssets } from '../data/mockData';
 import { apiFetch } from '../lib/api';
+import { DEFAULT_FOCAL, buildBoxes, poseAtFraction, usedAssetIds } from '../lib/shotFilter';
 import type {
-  AssetDef,
   GizmoMode,
   Measurement,
+  PlanMeta,
   SceneAsset,
   SetPlanFile,
   ShotCamera,
@@ -36,6 +37,8 @@ export interface Scenario {
   version: 2;
   savedAt: string;
   currentStageId: string | null;
+  /** 方案关联的场次场景（一个场次一个方案） */
+  sceneKey: string | null;
   camera: ShotCamera;
   assets: SceneAsset[];
   measurements: Measurement[];
@@ -62,6 +65,23 @@ interface SceneState {
   planScene: string | null;
   showSetPlan: boolean;
 
+  /** 方案管理：后端按用户隔离的方案列表、当前方案、关联场次 */
+  plans: PlanMeta[];
+  planName: string | null;
+  sceneKey: string | null;
+  refreshPlans: () => Promise<void>;
+  /** 以场次新建方案（同名/同场次已存在时返回错误信息） */
+  createPlan: (scene: string) => Promise<string | null>;
+  switchPlan: (name: string) => Promise<string | null>;
+  deletePlan: (name: string) => Promise<string | null>;
+  loadCurrentScene: () => Promise<void>;
+
+  /** 镜头库：activeShotId 为 null 表示「完整场景」 */
+  activeShotId: string | null;
+  /** 当前镜头用到的资产 id（视锥剔除结果），null 表示不过滤 */
+  activeShotUsedIds: string[] | null;
+  selectShot: (shotId: string | null) => void;
+
   /** 预演播放时间线（master 时间码 + 相机关键帧） */
   previz: PrevizTimeline | null;
   /** 播放头位置，秒 */
@@ -83,8 +103,6 @@ interface SceneState {
   setPlanScene: (scene: string) => void;
   toggleSetPlan: () => void;
   setStage: (id: string) => void;
-  addAssetFromLibrary: (def: AssetDef) => void;
-  addUploadedModel: (name: string, url: string) => void;
   updateAsset: (id: string, patch: Partial<SceneAsset>) => void;
   /** 批量显隐，一次 set 只触发一次自动保存 */
   setAssetVisibility: (ids: string[], visible: boolean) => void;
@@ -104,12 +122,6 @@ interface SceneState {
   buildScenario: () => Scenario;
 }
 
-/** 新资产放到布景左侧的暂存区，避免直接挡住当前机位 */
-function spawnPosition(index: number): Vec3 {
-  const col = index % 3;
-  const row = Math.floor(index / 3);
-  return [-9.5 - row * 2.6, 0, -3 + col * 2.6];
-}
 
 export const useScene = create<SceneState>((set, get) => ({
   assets: demoAssets(),
@@ -127,6 +139,11 @@ export const useScene = create<SceneState>((set, get) => ({
   setPlan: null,
   planScene: null,
   showSetPlan: false,
+  plans: [],
+  planName: null,
+  sceneKey: null,
+  activeShotId: null,
+  activeShotUsedIds: null,
   previz: null,
   timelineTime: 0,
   playing: false,
@@ -149,6 +166,7 @@ export const useScene = create<SceneState>((set, get) => ({
       const stages: StageDef[] = stagesJson?.data ?? [];
       const saved = sceneJson?.data as Partial<Scenario> | null;
       const patch: Partial<SceneState> = { stages, serverState: 'online' };
+      patch.sceneKey = saved?.sceneKey ?? null;
       if (saved && Array.isArray(saved.assets)) {
         patch.assets = saved.assets;
         patch.camera = { ...DEMO_SHOT, ...saved.camera };
@@ -193,9 +211,137 @@ export const useScene = create<SceneState>((set, get) => ({
       } catch {
         /* 无预演时间线时忽略 */
       }
+      // 方案列表：与场次关联，供左侧方案管理使用
+      await get().refreshPlans();
     } catch {
       set({ serverState: 'offline' });
     }
+  },
+
+  refreshPlans: async () => {
+    try {
+      const res = await apiFetch('/api/scenes');
+      if (!res.ok) return;
+      const json = await res.json();
+      set({
+        plans: (json?.data ?? []) as PlanMeta[],
+        planName: typeof json?.current === 'string' ? json.current : get().planName,
+      });
+    } catch {
+      /* 后端不可达时保留现有列表 */
+    }
+  },
+
+  loadCurrentScene: async () => {
+    try {
+      const res = await apiFetch('/api/scene');
+      if (!res.ok) return;
+      const json = await res.json();
+      const saved = json?.data as Partial<Scenario> | null;
+      if (!saved || !Array.isArray(saved.assets)) return;
+      set({
+        assets: saved.assets,
+        camera: { ...DEMO_SHOT, ...saved.camera },
+        measurements: Array.isArray(saved.measurements) ? saved.measurements : [],
+        clearanceThreshold:
+          typeof saved.clearanceThreshold === 'number' ? saved.clearanceThreshold : 1,
+        currentStageId: saved.currentStageId ?? get().currentStageId,
+        sceneKey: saved.sceneKey ?? null,
+        selectedId: null,
+        pendingPoint: null,
+        activeShotId: null,
+        activeShotUsedIds: null,
+        playing: false,
+        followPreviz: false,
+        mode: 'orbit',
+      });
+    } catch {
+      /* 后端不可达时保留当前数据 */
+    }
+  },
+
+  createPlan: async (scene) => {
+    try {
+      const res = await apiFetch('/api/scenes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scene }),
+      });
+      const json = await res.json().catch(() => null);
+      if (!res.ok) return json?.message ?? '新建方案失败';
+      await get().loadCurrentScene();
+      await get().refreshPlans();
+      return null;
+    } catch {
+      return '新建方案失败：后端不可达';
+    }
+  },
+
+  switchPlan: async (name) => {
+    try {
+      const res = await apiFetch('/api/scenes/current', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+      });
+      if (!res.ok) {
+        const json = await res.json().catch(() => null);
+        return json?.message ?? '切换方案失败';
+      }
+      await get().loadCurrentScene();
+      await get().refreshPlans();
+      return null;
+    } catch {
+      return '切换方案失败：后端不可达';
+    }
+  },
+
+  deletePlan: async (name) => {
+    try {
+      const res = await apiFetch(`/api/scenes/${encodeURIComponent(name)}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const json = await res.json().catch(() => null);
+        return json?.message ?? '删除方案失败';
+      }
+      await get().loadCurrentScene();
+      await get().refreshPlans();
+      return null;
+    } catch {
+      return '删除方案失败：后端不可达';
+    }
+  },
+
+  selectShot: (shotId) => {
+    const { previz, assets, camera } = get();
+    if (!shotId) {
+      set({ activeShotId: null, activeShotUsedIds: null, mode: 'orbit' });
+      return;
+    }
+    const shot = previz?.shots.find((s) => s.id === shotId);
+    if (!shot) return;
+    const focal = shot.focal ?? DEFAULT_FOCAL;
+    // 本镜头用到的元素：24 帧采样视锥并集，其余元素不渲染
+    const ids = usedAssetIds(buildBoxes(assets), shot);
+    const pose = poseAtFraction(shot, 0);
+    set({
+      activeShotId: shot.id,
+      activeShotUsedIds: ids,
+      timelineTime: shot.start,
+      playing: false,
+      followPreviz: false,
+      mode: 'camera',
+      ...(pose
+        ? {
+            camera: {
+              ...camera,
+              position: pose.position,
+              yaw: pose.yaw,
+              pitch: pose.pitch,
+              focal,
+            },
+          }
+        : {}),
+    });
   },
 
   togglePlayback: () => {
@@ -239,6 +385,8 @@ export const useScene = create<SceneState>((set, get) => ({
         selectedId: null,
         measurements: [],
         pendingPoint: null,
+        activeShotId: null,
+        activeShotUsedIds: null,
         mode: 'orbit',
       });
       return null;
@@ -271,43 +419,6 @@ export const useScene = create<SceneState>((set, get) => ({
   setPlanScene: (scene) => set({ planScene: scene }),
 
   toggleSetPlan: () => set((state) => ({ showSetPlan: !state.showSetPlan })),
-
-  addAssetFromLibrary: (def: AssetDef) => {
-    const { assets } = get();
-    const asset: SceneAsset = {
-      instanceId: uid('inst'),
-      assetId: def.assetId,
-      name: def.name,
-      code: def.code,
-      kind: def.kind,
-      size: def.size,
-      color: def.color,
-      position: spawnPosition(assets.length),
-      rotation: [0, 0, 0],
-      scale: [1, 1, 1],
-      visible: true,
-    };
-    set({ assets: [...assets, asset], selectedId: asset.instanceId, mode: 'orbit' });
-  },
-
-  addUploadedModel: (name: string, url: string) => {
-    const { assets } = get();
-    const asset: SceneAsset = {
-      instanceId: uid('glb'),
-      assetId: 'upload',
-      name,
-      code: 'GLB_UPLOAD',
-      kind: 'glb',
-      url,
-      size: [2, 2, 2],
-      color: '#8b9bb4',
-      position: spawnPosition(assets.length),
-      rotation: [0, 0, 0],
-      scale: [1, 1, 1],
-      visible: true,
-    };
-    set({ assets: [...assets, asset], selectedId: asset.instanceId, mode: 'orbit' });
-  },
 
   updateAsset: (id, patch) =>
     set((state) => ({
@@ -393,11 +504,12 @@ export const useScene = create<SceneState>((set, get) => ({
     }),
 
   buildScenario: () => {
-    const { camera, assets, measurements, clearanceThreshold, currentStageId } = get();
+    const { camera, assets, measurements, clearanceThreshold, currentStageId, sceneKey } = get();
     return {
       version: 2,
       savedAt: new Date().toISOString(),
       currentStageId,
+      sceneKey,
       camera,
       assets,
       measurements,
@@ -414,6 +526,7 @@ export const useScene = create<SceneState>((set, get) => ({
       set({
         assets: data.assets,
         camera: { ...DEMO_SHOT, ...data.camera },
+        sceneKey: typeof data.sceneKey === 'string' ? data.sceneKey : null,
         measurements: Array.isArray(data.measurements) ? data.measurements : [],
         clearanceThreshold: typeof data.clearanceThreshold === 'number' ? data.clearanceThreshold : 1,
         currentStageId:
@@ -422,6 +535,8 @@ export const useScene = create<SceneState>((set, get) => ({
             : get().currentStageId,
         selectedId: null,
         pendingPoint: null,
+        activeShotId: null,
+        activeShotUsedIds: null,
       });
       return null;
     } catch {
@@ -429,9 +544,6 @@ export const useScene = create<SceneState>((set, get) => ({
     }
   },
 }));
-
-export const findAssetDef = (assetId: string): AssetDef | undefined =>
-  ASSET_LIBRARY.find((a) => a.assetId === assetId);
 
 /**
  * 自动保存：任何数据变更后 800ms 落盘到后端（后端写 SQLite 持久化）。
@@ -445,20 +557,23 @@ useScene.subscribe((state, prev) => {
     state.camera === prev.camera &&
     state.measurements === prev.measurements &&
     state.clearanceThreshold === prev.clearanceThreshold &&
-    state.currentStageId === prev.currentStageId
+    state.currentStageId === prev.currentStageId &&
+    state.sceneKey === prev.sceneKey
   ) {
     return;
   }
   if (saveTimer) clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
     saveTimer = null;
-    const { camera, assets, measurements, clearanceThreshold, currentStageId } = useScene.getState();
+    const { camera, assets, measurements, clearanceThreshold, currentStageId, sceneKey } =
+      useScene.getState();
     apiFetch('/api/scene', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         version: 2,
         currentStageId,
+        sceneKey,
         camera,
         assets,
         measurements,

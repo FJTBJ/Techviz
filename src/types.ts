@@ -180,6 +180,14 @@ export interface PrevizTimeline {
   shots: PrevizShot[];
 }
 
+/** 方案管理：一个场次场景对应一个方案 */
+export interface PlanMeta {
+  name: string;
+  /** 关联的预演场次（空表示未关联） */
+  scene: string | null;
+  updatedAt: string;
+}
+
 
 /** 传感器实际成像尺寸，单位 mm */
 export const SENSORS: Record<SensorKey, { label: string; width: number; height: number }> = {

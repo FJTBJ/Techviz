@@ -7,6 +7,7 @@ import {
   getScene,
   upsertScene,
   listScenes,
+  deleteScene,
   getCurrentSceneName,
   setCurrentScene,
   seedUserScenes,
@@ -126,7 +127,12 @@ app.get('/api/scene', (req, res) => {
 app.put('/api/scene', (req, res) => {
   try {
     const scene = { ...req.body, savedAt: new Date().toISOString() };
-    upsertScene(req.user.id, getCurrentSceneName(req.user.id), JSON.stringify(scene));
+    upsertScene(
+      req.user.id,
+      getCurrentSceneName(req.user.id),
+      JSON.stringify(scene),
+      scene.sceneKey ?? null,
+    );
     res.json({ code: 0, data: { savedAt: scene.savedAt } });
   } catch (err) {
     res.status(500).json({ code: 1, message: String(err) });
@@ -142,25 +148,47 @@ app.post('/api/stages/sync', (_req, res) => {
   }
 });
 
-/** 当前用户方案列表 */
+/** 当前用户方案列表（含关联场次与当前方案名） */
 app.get('/api/scenes', (req, res) => {
-  res.json({ code: 0, data: listScenes(req.user.id) });
+  res.json({
+    code: 0,
+    current: getCurrentSceneName(req.user.id),
+    data: listScenes(req.user.id),
+  });
 });
 
-/** 创建新方案（复制当前方案数据并切换过去） */
+/**
+ * 新建方案：一个场景（场次）对应一个方案。
+ * 方案名默认取场次编号；数据从当前方案复制，避免新方案空白。
+ */
 app.post('/api/scenes', (req, res) => {
-  const name = typeof req.body?.name === 'string' ? req.body.name.trim() : '';
-  if (!name) return res.status(400).json({ code: 1, message: '方案名不能为空' });
-  if (getScene(req.user.id, name)) return res.status(409).json({ code: 1, message: '同名方案已存在' });
-  const currentName = getCurrentSceneName(req.user.id);
-  const src = getScene(req.user.id, currentName);
-  upsertScene(
-    req.user.id,
-    name,
-    src ? src.data : JSON.stringify({ version: 2, savedAt: new Date().toISOString() }),
-  );
+  const scene = typeof req.body?.scene === 'string' ? req.body.scene.trim() : '';
+  if (!scene) return res.status(400).json({ code: 1, message: '请选择关联场次' });
+  const name = (typeof req.body?.name === 'string' ? req.body.name.trim() : '') || scene;
+  if (getScene(req.user.id, name)) {
+    return res.status(409).json({ code: 1, message: '同名方案已存在' });
+  }
+  if (listScenes(req.user.id).some((row) => row.scene === scene)) {
+    return res.status(409).json({ code: 1, message: `场次 ${scene} 已有方案` });
+  }
+  const src = getScene(req.user.id, getCurrentSceneName(req.user.id));
+  let data = null;
+  if (src) {
+    try {
+      data = JSON.parse(src.data);
+    } catch {
+      data = null;
+    }
+  }
+  const payload = {
+    version: 2,
+    savedAt: new Date().toISOString(),
+    ...(data && typeof data === 'object' ? data : {}),
+    sceneKey: scene,
+  };
+  upsertScene(req.user.id, name, JSON.stringify(payload), scene);
   setCurrentScene(req.user.id, name);
-  res.json({ code: 0, data: { name, copiedFrom: currentName } });
+  res.json({ code: 0, data: { name, scene } });
 });
 
 /** 切换当前方案 */
@@ -169,6 +197,22 @@ app.put('/api/scenes/current', (req, res) => {
   if (!getScene(req.user.id, name)) return res.status(404).json({ code: 1, message: '方案不存在' });
   setCurrentScene(req.user.id, name);
   res.json({ code: 0, data: { name } });
+});
+
+/** 删除方案：至少保留一个；删掉当前方案时自动切到剩余最新方案 */
+app.delete('/api/scenes/:name', (req, res) => {
+  const name = String(req.params.name || '').trim();
+  if (!getScene(req.user.id, name)) return res.status(404).json({ code: 1, message: '方案不存在' });
+  if (listScenes(req.user.id).length <= 1) {
+    return res.status(400).json({ code: 1, message: '至少保留一个方案' });
+  }
+  const remaining = deleteScene(req.user.id, name);
+  let current = getCurrentSceneName(req.user.id);
+  if (current === name) {
+    current = remaining[0]?.name ?? '默认方案';
+    setCurrentScene(req.user.id, current);
+  }
+  res.json({ code: 0, data: { current, deleted: name } });
 });
 
 /** UE Remote Control 状态探测 */

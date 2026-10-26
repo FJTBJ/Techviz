@@ -128,7 +128,7 @@ export function SceneOutline() {
             </div>
           );
         })}
-        {assets.length === 0 && <p className="empty">场景为空，请从左侧资产库添加</p>}
+        {assets.length === 0 && <p className="empty">场景为空，可从顶栏导入 UE 场景</p>}
       </div>
     </Panel>
   );

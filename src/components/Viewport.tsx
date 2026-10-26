@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber';
 import { Grid, OrbitControls } from '@react-three/drei';
@@ -160,11 +160,19 @@ function Ground() {
 
 function SceneContent() {
   const assets = useScene((s) => s.assets);
+  const usedIds = useScene((s) => s.activeShotUsedIds);
   const mode = useScene((s) => s.mode);
   const follow = useScene((s) => s.followPreviz);
   const stages = useScene((s) => s.stages);
   const currentStageId = useScene((s) => s.currentStageId);
   const stage = stages.find((s) => s.id === currentStageId);
+
+  // 镜头库选中某个镜头时，只渲染该镜头视锥内用到的元素
+  const visibleAssets = useMemo(() => {
+    if (!usedIds) return assets;
+    const used = new Set(usedIds);
+    return assets.filter((asset) => used.has(asset.instanceId));
+  }, [assets, usedIds]);
 
   return (
     <>
@@ -209,7 +217,7 @@ function SceneContent() {
         infiniteGrid
         raycast={() => null}
       />
-      {assets.map((asset) => (
+      {visibleAssets.map((asset) => (
         <SceneObject key={asset.instanceId} asset={asset} />
       ))}
       <MeasurementLayer />
@@ -300,6 +308,13 @@ function Readout() {
 export function Viewport() {
   const mode = useScene((s) => s.mode);
   const selectAsset = useScene((s) => s.selectAsset);
+  const activeShotId = useScene((s) => s.activeShotId);
+  const usedIds = useScene((s) => s.activeShotUsedIds);
+  const assets = useScene((s) => s.assets);
+  const previz = useScene((s) => s.previz);
+  const activeShot = activeShotId
+    ? (previz?.shots.find((shot) => shot.id === activeShotId) ?? null)
+    : null;
 
   return (
     <div className="viewport">
@@ -316,6 +331,14 @@ export function Viewport() {
       </Canvas>
       {mode === 'camera' && <FrameOverlay />}
       <Readout />
+      {activeShot && usedIds && (
+        <div className="shot-filter-badge">
+          <b>{activeShot.name}</b>
+          <span>
+            本镜头元素 {usedIds.length} / {assets.length} · 其余已按视锥剔除
+          </span>
+        </div>
+      )}
       <div className={`mode-badge ${mode}`}>
         {mode === 'orbit' ? '自由视角' : mode === 'camera' ? '机位取景' : '测量模式'}
       </div>

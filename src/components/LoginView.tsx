@@ -53,18 +53,50 @@ export function LoginView({ onAuthenticated }: LoginViewProps) {
       }
     };
 
+    /** 读取服务端登录配置，并在第三方已有登录态时发起一次静默登录 */
+    const resolveEntry = async () => {
+      let publicConfig: AuthPublicConfig | null = null;
+      try {
+        publicConfig = await fetchAuthPublicConfig();
+      } catch (err) {
+        console.warn('[auth] 读取登录配置失败：', err);
+      }
+      setConfig(publicConfig);
+
+      if (!publicConfig?.oidc_configured) {
+        setErrorMessage('服务端未配置可用的登录方式，请联系管理员');
+        setStatus('error');
+        return;
+      }
+
+      // 用户主动退出后不再自动静默登录，避免被立即重新登入
+      if (consumeExplicitLogout()) {
+        setStatus('idle');
+        return;
+      }
+
+      // 首次进入：尝试一次静默登录（第三方已有登录态时免交互进入）
+      if (!markSilentLoginAttempted()) {
+        setStatus('idle');
+        return;
+      }
+      setStatus('checking');
+      await startAuthorize(true);
+    };
+
     const bootstrap = async () => {
       const { code, state, error, errorDescription } = readOidcCallbackParams();
 
       // 1. 第三方直接回传错误（如静默登录时用户无登录态）
       if (error) {
         clearOidcQueryParams();
-        if (isSilentLoginError(error)) {
-          setStatus('idle');
-        } else {
+        if (!isSilentLoginError(error)) {
           setErrorMessage(errorDescription || '统一身份登录失败，请重试');
           setStatus('error');
+          return;
         }
+        // 静默登录被拒（第三方当前无登录态）属预期，继续读配置以展示登录按钮
+        await resolveEntry();
         return;
       }
 
@@ -84,34 +116,8 @@ export function LoginView({ onAuthenticated }: LoginViewProps) {
         return;
       }
 
-      // 3. 读取服务端配置，确认 OIDC 是否可用
-      let publicConfig: AuthPublicConfig | null = null;
-      try {
-        publicConfig = await fetchAuthPublicConfig();
-      } catch (err) {
-        console.warn('[auth] 读取登录配置失败：', err);
-      }
-      setConfig(publicConfig);
-
-      if (!publicConfig?.oidc_configured) {
-        setErrorMessage('服务端未配置可用的登录方式，请联系管理员');
-        setStatus('error');
-        return;
-      }
-
-      // 4. 用户主动退出后不再自动静默登录，避免被立即重新登入
-      if (consumeExplicitLogout()) {
-        setStatus('idle');
-        return;
-      }
-
-      // 5. 首次进入：尝试一次静默登录（第三方已有登录态时免交互进入）
-      if (!markSilentLoginAttempted()) {
-        setStatus('idle');
-        return;
-      }
-      setStatus('checking');
-      await startAuthorize(true);
+      // 3. 正常进入：读取配置并在必要时静默登录
+      await resolveEntry();
     };
 
     bootstrap();
