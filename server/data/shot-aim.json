@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-26T06:38:55.952Z",
+ "generatedAt": "2026-10-26T14:40:00.994Z",
  "mode": "aim-at-led",
  "ring": {
   "diameter": 22.285,
@@ -16,16 +16,16 @@
  "note": "环屏与缺口固定（缺口中心 +Z，面向机位一侧）；每个镜头保留机位位置、俯仰与镜头运动，只加一个固定偏航修正角 Δ，使画面尽量落在 LED 屏上。",
  "summary": {
   "before": {
-   "shots": 29,
-   "led": 56.1,
-   "ground": 22.8,
-   "open": 21.2,
+   "shots": 28,
+   "led": 54.5,
+   "ground": 23.6,
+   "open": 22,
    "zeroLed": 5
   },
   "after": {
-   "shots": 29,
-   "led": 80.5,
-   "ground": 19.4,
+   "shots": 28,
+   "led": 79.8,
+   "ground": 20.1,
    "open": 0.1,
    "zeroLed": 0
   }
@@ -102,14 +102,14 @@
    "maxDeltaDeg": 225
   },
   "s138": {
-   "shots": 8,
+   "shots": 7,
    "before": {
-    "led": 64.7,
-    "open": 22.2,
+    "led": 59.6,
+    "open": 25.3,
     "zeroLed": 2
    },
    "after": {
-    "led": 90.1,
+    "led": 88.6,
     "open": 0,
     "zeroLed": 0
    },
@@ -636,25 +636,6 @@
    "scene": "s138",
    "start": 1829.25,
    "end": 1851.71,
-   "focal": 35,
-   "before": {
-    "led": 100,
-    "ground": 0,
-    "open": 0
-   },
-   "deltaDeg": 0,
-   "after": {
-    "led": 100,
-    "ground": 0,
-    "open": 0
-   }
-  },
-  {
-   "id": "c_s138_b01_02b_a_05@1851.79s",
-   "name": "c_s138_b01_02b_a_05",
-   "scene": "s138",
-   "start": 1851.79,
-   "end": 1860.88,
    "focal": 35,
    "before": {
     "led": 100,

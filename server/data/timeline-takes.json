@@ -1,0 +1,84 @@
+{
+  "generatedAt": "2026-10-26T14:39:13.902Z",
+  "source": "kmoke4 timeline_list_submission_files project 10777",
+  "scenes": {
+    "s001": {
+      "bindingId": 99,
+      "submissionId": 403,
+      "submittedAt": "2026-10-09 18:36:29",
+      "fcpxml": "Previz_Xml_s001.fcpxml",
+      "takes": [
+        "s001_c022_A",
+        "s001_c025_A",
+        "s001_c029_A",
+        "s001_c032_B",
+        "s001_c034_B",
+        "s001_c035_B",
+        "s001_c037_B",
+        "s001_c038_B",
+        "s001_c039_B",
+        "s001_c044_B",
+        "s001_c045_B"
+      ]
+    },
+    "s015": {
+      "bindingId": 100,
+      "submissionId": 409,
+      "submittedAt": "2026-10-09 18:41:26",
+      "fcpxml": "Previz_Xml_s015.fcpxml",
+      "takes": [
+        "s015_c005_A",
+        "s015_c007_A",
+        "s015_c008_A"
+      ]
+    },
+    "s057": {
+      "bindingId": 101,
+      "submissionId": 474,
+      "submittedAt": "2026-10-09 19:31:45",
+      "fcpxml": "Previz_Xml_s057.fcpxml",
+      "takes": [
+        "s057_c006_B",
+        "s057_c009_B"
+      ]
+    },
+    "s079a": {
+      "bindingId": 102,
+      "submissionId": 524,
+      "submittedAt": "2026-10-09 20:11:17",
+      "fcpxml": "Previz_Xml_s079a.fcpxml",
+      "takes": [
+        "s079a_c004_A",
+        "s079a_c005_A",
+        "s079a_c006_A"
+      ]
+    },
+    "s136": {
+      "bindingId": 103,
+      "submissionId": 504,
+      "submittedAt": "2026-10-09 19:53:31",
+      "fcpxml": "Previz_Xml_s136.fcpxml",
+      "takes": [
+        "s136_c005_B",
+        "s136_c008_B",
+        "s136_c010_B"
+      ]
+    },
+    "s138": {
+      "bindingId": 105,
+      "submissionId": 503,
+      "submittedAt": "2026-10-09 19:52:57",
+      "fcpxml": "Previz_Xml_s138.fcpxml",
+      "takes": [
+        "s138_c017_A",
+        "s138_c019_A",
+        "s138_c022_A",
+        "s138_c025_A",
+        "s138_c027_A",
+        "s138_c033_A",
+        "s138_c036_A",
+        "s138_c037_A"
+      ]
+    }
+  }
+}

@@ -5,6 +5,8 @@
  *   server/data/previz-shots.json    主预演序列的镜头表（60 镜 → 31 个 take，含 master 时间码）
  *   server/data/previz-cameras.json  take 相机动画（uecam 解析 .uasset 得到，已转 three 坐标）
  *   server/data/ring-led01.json      nDisplay 实测环屏几何
+ *   server/data/shot-names.json      UE 镜头 → Kmoke 场记单官方短名
+ *   server/data/timeline-takes.json  成片时间线实际用到的 take（Kmoke 最新 Previz 时间线）
  * 输出：
  *   server/data/setplan.json         SetPlanFile（按场次分组）
  *
@@ -23,6 +25,8 @@ const CAMS_FILE = path.join(DATA, 'previz-cameras.json');
 const RING_FILE = path.join(DATA, 'ring-led01.json');
 const OUT_FILE = path.join(DATA, 'setplan.json');
 const TIMELINE_FILE = path.join(DATA, 'previz-timeline.json');
+const SHOT_NAMES_FILE = path.join(DATA, 'shot-names.json');
+const TIMELINE_TAKES_FILE = path.join(DATA, 'timeline-takes.json');
 
 /** 环屏台面（棚地面）高度，米 */
 const FLOOR_Y = 0;
@@ -88,6 +92,17 @@ function main() {
   };
 
   const shots = (shotsFile.shots ?? []).filter((s) => s.sequence && s.asset);
+  // 成片时间线过滤：同一场次可能拍了几十条 take，只保留最新时间线里实际用到的
+  const timelineTakes = fs.existsSync(TIMELINE_TAKES_FILE) ? readJson(TIMELINE_TAKES_FILE) : null;
+  const shotNames = fs.existsSync(SHOT_NAMES_FILE) ? (readJson(SHOT_NAMES_FILE).shots ?? {}) : {};
+  /** 无该场次时间线数据时不过滤；有数据时按官方短名严格匹配 */
+  const inTimeline = (scene, base) => {
+    const sceneTakes = timelineTakes?.scenes?.[scene];
+    if (!sceneTakes?.takes?.length) return true;
+    const short = shotNames[base]?.short;
+    return Boolean(short) && sceneTakes.takes.includes(short);
+  };
+  const droppedShots = [];
   const byScene = new Map();
   const timelineShots = [];
   let staticShots = 0;
@@ -97,6 +112,11 @@ function main() {
   for (const s of shots) {
     const scene = sceneOf(s.sequence);
     if (!scene) continue;
+    const take = parseTakeName(s.sequence);
+    if (!inTimeline(scene, take.base)) {
+      droppedShots.push({ scene, base: take.base, short: shotNames[take.base]?.short ?? null });
+      continue;
+    }
     const camera = cams.cameras[s.sequence];
     const durationSec = +(s.masterEnd - s.masterStart).toFixed(3);
     const rawKeys = sliceKeys(camera, s.sourceSeconds ?? 0, durationSec, 1200);
@@ -108,7 +128,6 @@ function main() {
     }
     const first = keys[0];
     heights.push(...keys.map((k) => k.position[1]));
-    const take = parseTakeName(s.sequence);
     const shot = {
       id: `${take.base}@${round2(s.masterStart)}s`,
       name: take.base,
@@ -178,6 +197,14 @@ function main() {
       staticShots,
       emptyShots,
       heightNote,
+      timelineFilter: timelineTakes
+        ? {
+            source: timelineTakes.source,
+            scenes: Object.keys(timelineTakes.scenes ?? {}),
+            dropped: droppedShots.length,
+            droppedShots,
+          }
+        : null,
       note: `环屏 ${ring.diameter.toFixed(2)}m / 高 ${ring.height.toFixed(2)}m / 覆盖 ${ring.arc.toFixed(2)}°；${heightNote}`,
     },
     scenes,
@@ -186,8 +213,11 @@ function main() {
   fs.writeFileSync(OUT_FILE, JSON.stringify(out));
   console.log(
     `[build-setplan] ${scenes.length} 个场次 / ${timelineShots.length} 镜 → ${OUT_FILE}` +
-      `（静态 ${staticShots}，缺失 ${emptyShots}；${heightNote}）`,
+      `（静态 ${staticShots}，缺失 ${emptyShots}，非时间线剔除 ${droppedShots.length}；${heightNote}）`,
   );
+  for (const d of droppedShots) {
+    console.log(`  剔除 ${d.base}（${d.short ?? '未匹配短名'}）不在 ${d.scene} 最新时间线`);
+  }
 
   // 播放时间线：按 master 时间码排布所有镜头，供前端底部时间线使用
   timelineShots.sort((a, b) => a.start - b.start);
