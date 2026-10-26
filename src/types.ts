@@ -93,7 +93,7 @@ export type GizmoMode = 'translate' | 'rotate' | 'scale';
 export interface SetPiece {
   id: string;
   name: string;
-  category: 'platform' | 'gapMask' | 'topSkirt' | 'backing';
+  category: 'platform' | 'topSkirt' | 'backing';
   position: Vec3;
   /** [宽, 高, 深]，单位米 */
   size: Vec3;

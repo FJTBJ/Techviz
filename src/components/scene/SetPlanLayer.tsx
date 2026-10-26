@@ -4,7 +4,6 @@ import { useScene } from '../../store/sceneStore';
 
 const CATEGORY_COLOR: Record<string, string> = {
   platform: '#2f7fae',
-  gapMask: '#8a5a2b',
   topSkirt: '#5d4a7a',
   backing: '#2f8a6f',
 };

@@ -169,7 +169,7 @@ export const useScene = create<SceneState>((set, get) => ({
   aerialPrevMode: null,
   previz: null,
   shotAim: null,
-  aimMode: 'raw',
+  aimMode: 'led',
   timelineTime: 0,
   playing: false,
   playbackSpeed: 1,

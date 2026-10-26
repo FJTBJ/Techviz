@@ -6,7 +6,7 @@
  *   shots —— 预演镜头（相机采样点）
  * 输出：
  *   coverage —— 逐镜头「LED 环屏 / 实体地面 / 无覆盖」的射线占比
- *   setPieces —— 需要实体搭建的布景条目（地台 / 缺口封挡 / 顶部延伸）
+ *   setPieces —— 需要实体搭建的布景条目（地台 / 顶部延伸）
  *
  * 坐标约定与工作台一致：three.js 右手系，Y 向上，XZ 为地平面，单位米。
  * 环屏网格：position = [R·sinθ, y, R·cosθ]，θ=90° 指向 +X。
@@ -120,7 +120,7 @@ export function buildSetPlan({ ring, shots, platformHeight = 0.15 }) {
   const H = ring.height;
 
   const shotResults = [];
-  const openBins = new Map(); // binIndex -> {aboveTop:number, inGap:number, maxHeight:number, shots:Set}
+  const openBins = new Map(); // binIndex -> {aboveTop:number, maxHeight:number, shots:Set}
   const groundPoints = [];
   let totalRays = 0;
   let totalLed = 0;
@@ -191,17 +191,16 @@ export function buildSetPlan({ ring, shots, platformHeight = 0.15 }) {
           }
 
           open += 1;
-          if (ringHit) {
+          // 从缺口漏出的射线只计入「无覆盖」，现场不设封挡，不生成任何补缺口方案
+          if (ringHit && ringHit.inArc) {
             const theta = ringHit.theta;
             const bin = Math.floor((norm(theta) / (2 * Math.PI)) * BINS) % BINS;
             const entry = openBins.get(bin) ?? {
               aboveTop: 0,
-              inGap: 0,
               maxHeight: 0,
               shots: new Set(),
             };
-            if (ringHit.inArc) entry.aboveTop += 1;
-            else entry.inGap += 1;
+            entry.aboveTop += 1;
             entry.maxHeight = Math.max(entry.maxHeight, Math.min(ringHit.point[1], H + 6));
             entry.shots.add(shot.id);
             openBins.set(bin, entry);
@@ -279,42 +278,16 @@ export function buildSetPlan({ ring, shots, platformHeight = 0.15 }) {
     });
   }
 
-  // 2) 缺口封挡 + 顶部延伸：按角度扇区聚合
+  // 2) 顶部延伸：按角度扇区聚合
   const binArc = (2 * Math.PI) / BINS;
-  const gapPieces = [];
   const topPieces = [];
   for (const [bin, entry] of [...openBins.entries()].sort((a, b) => a[0] - b[0])) {
-    const theta = (bin + 0.5) * binArc;
-    if (entry.inGap > 0) {
-      gapPieces.push({ bin, theta, count: entry.inGap, shots: [...entry.shots] });
-    }
-    if (entry.aboveTop > 0) {
-      topPieces.push({
-        bin,
-        theta,
-        count: entry.aboveTop,
-        shots: [...entry.shots],
-        height: entry.maxHeight,
-      });
-    }
-  }
-
-  // 缺口：合并为整体挡板（缺口通常是连续一整段）
-  if (gapPieces.length > 0) {
-    const gapDeg = (2 * Math.PI - range.arc) / DEG;
-    const center = (ring.gapCenterDeg ?? 90) * DEG;
-    const chord = 2 * R * Math.sin(((gapDeg * DEG) / 2) || 0.01);
-    setPieces.push({
-      id: 'gap-mask',
-      name: '环屏缺口封挡（黑布/实体挡板）',
-      category: 'gapMask',
-      position: [R * Math.sin(center), H / 2, R * Math.cos(center)],
-      size: [round2(Math.max(1, chord)), round2(H), 0.12],
-      rotationY: center,
-      color: '#243040',
-      relatedShots: [...new Set(gapPieces.flatMap((g) => g.shots))],
-      rationale: `${gapDeg.toFixed(0)}° 缺口被镜头取到，需实体封挡（否则漏出棚外）`,
-      metrics: { sectors: gapPieces.length, rays: gapPieces.reduce((n, g) => n + g.count, 0) },
+    topPieces.push({
+      bin,
+      theta: (bin + 0.5) * binArc,
+      count: entry.aboveTop,
+      shots: [...entry.shots],
+      height: entry.maxHeight,
     });
   }
 

@@ -4,7 +4,6 @@ import { Panel } from './ui';
 
 const CATEGORY_LABEL: Record<string, string> = {
   platform: '地台',
-  gapMask: '缺口封挡',
   topSkirt: '屏顶遮光',
   backing: '背景板',
 };
