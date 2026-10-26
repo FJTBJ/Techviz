@@ -11,7 +11,7 @@ import { PeopleLayer } from './scene/PeopleLayer';
 import { TakePlayer } from './TakePlayer';
 import { ASPECTS } from '../types';
 import { frameFractions, lensMath } from '../lib/lens';
-import { shotAt, sampleShotAtTime, shotLabel } from '../lib/previz';
+import { shotAt, shotPoseAt, shotLabel } from '../lib/previz';
 import { viewportBridge } from '../lib/viewportBridge';
 
 function Bridge() {
@@ -27,22 +27,32 @@ function Bridge() {
 function CameraDriver() {
   const shot = useScene((s) => s.camera);
   const mode = useScene((s) => s.mode);
+  const activeShotId = useScene((s) => s.activeShotId);
+  const previz = useScene((s) => s.previz);
+  const shotAim = useScene((s) => s.shotAim);
+  const aimMode = useScene((s) => s.aimMode);
   const camera = useThree((s) => s.camera) as THREE.PerspectiveCamera;
   const size = useThree((s) => s.size);
-  const saved = useRef<{ position: THREE.Vector3; quaternion: THREE.Quaternion } | null>(null);
   const lastMode = useRef(mode);
 
+  const activeShot = activeShotId
+    ? (previz?.shots.find((item) => item.id === activeShotId) ?? null)
+    : null;
+  const activeAim =
+    activeShot && aimMode === 'led'
+      ? (shotAim?.shots.find((row) => row.id === activeShot.id) ?? null)
+      : null;
+
   useEffect(() => {
-    if (mode === 'camera' && lastMode.current !== 'camera') {
-      saved.current = {
-        position: camera.position.clone(),
-        quaternion: camera.quaternion.clone(),
-      };
-    } else if (mode !== 'camera' && lastMode.current === 'camera') {
-      if (saved.current) {
-        camera.position.copy(saved.current.position);
-        camera.quaternion.copy(saved.current.quaternion);
-      }
+    // 退出机位取景：保持当前取景（朝环屏），把轨道中心放到视线前方。
+    // 恢复进入前的旧机位会直接把镜头打回缺口方向。
+    if (mode !== 'camera' && lastMode.current === 'camera') {
+      const dir = camera.getWorldDirection(new THREE.Vector3());
+      const p = camera.position;
+      useScene.getState().goToView(
+        [p.x, p.y, p.z],
+        [p.x + dir.x * 6, p.y + dir.y * 6, p.z + dir.z * 6],
+      );
       camera.fov = 48;
       camera.updateProjectionMatrix();
     }
@@ -61,6 +71,34 @@ function CameraDriver() {
     const canvasAspect = size.width / Math.max(1, size.height);
     const frame = frameFractions(canvasAspect, ASPECTS[shot.aspect]);
     const camVfov = 2 * Math.atan(Math.tan(lens.vfov / 2) / frame.heightFraction);
+
+    // 选中镜头时「机位取景」直接取该镜头当前帧，并叠加朝环屏修正：
+    // 否则会一直停在方案里保存的旧机位（可能就是原始 UE 朝向，正对环屏缺口）。
+    const pose = activeShot
+      ? shotPoseAt(activeShot, activeAim, aimMode, useScene.getState().timelineTime)
+      : null;
+    if (activeShot && pose) {
+      camera.position.set(...pose.position);
+      camera.rotation.order = 'YXZ';
+      camera.rotation.set(
+        THREE.MathUtils.degToRad(pose.pitch),
+        THREE.MathUtils.degToRad(pose.yaw),
+        0,
+      );
+      const shotLens = lensMath(
+        pose.focal ?? shot.focal,
+        shot.sensor,
+        shot.aspect,
+      );
+      const fovDeg = THREE.MathUtils.radToDeg(
+        2 * Math.atan(Math.tan(shotLens.vfov / 2) / frame.heightFraction),
+      );
+      if (Math.abs(camera.fov - fovDeg) > 0.01) {
+        camera.fov = fovDeg;
+        camera.updateProjectionMatrix();
+      }
+      return;
+    }
 
     camera.position.set(...shot.position);
     camera.rotation.order = 'YXZ';
@@ -87,46 +125,57 @@ function PrevizPlayback() {
   const aimMode = useScene((s) => s.aimMode);
   const camera = useThree((s) => s.camera) as THREE.PerspectiveCamera;
   const size = useThree((s) => s.size);
-  const saved = useRef<{ position: THREE.Vector3; quaternion: THREE.Quaternion; fov: number } | null>(null);
+  /** 最后一帧镜头姿态：退出跟随时据此保持取景，避免 OrbitControls 把镜头掰回缺口 */
+  const last = useRef<{ position: THREE.Vector3; yaw: number; pitch: number } | null>(null);
   const active = useRef(false);
 
   useFrame(() => {
+    const st = useScene.getState();
     const shouldFollow = follow && mode !== 'camera';
     if (!shouldFollow) {
-      // 高空视角由 AerialRig 接管相机，这里不能把相机恢复成进入跟随前的旧位置
-      const aerial = useScene.getState().aerialView;
-      if (!aerial && active.current && saved.current) {
-        camera.position.copy(saved.current.position);
-        camera.quaternion.copy(saved.current.quaternion);
-        camera.fov = saved.current.fov;
-        camera.updateProjectionMatrix();
+      // 高空视角由 AerialRig 接管相机，这里不能动相机
+      if (active.current && last.current && !st.aerialView) {
+        const { position, yaw, pitch } = last.current;
+        const yawR = THREE.MathUtils.degToRad(yaw);
+        const pitchR = THREE.MathUtils.degToRad(pitch);
+        const cp = Math.cos(pitchR);
+        // 先保持镜头画面（暂停/停止后仍朝环屏），再把轨道中心放到视线前方
+        camera.position.copy(position);
+        camera.rotation.order = 'YXZ';
+        camera.rotation.set(pitchR, yawR, 0);
+        st.goToView(
+          [position.x, position.y, position.z],
+          [
+            position.x - Math.sin(yawR) * cp * 6,
+            position.y + Math.sin(pitchR) * 6,
+            position.z - Math.cos(yawR) * cp * 6,
+          ],
+        );
       }
       active.current = false;
-      saved.current = null;
+      last.current = null;
       return;
     }
-    if (!active.current) {
-      saved.current = { position: camera.position.clone(), quaternion: camera.quaternion.clone(), fov: camera.fov };
-      active.current = true;
-    }
-    const st = useScene.getState();
     const tl = st.previz;
     if (!tl) return;
     const shot = shotAt(tl.shots, st.timelineTime);
     if (!shot) return; // 镜头间隙保持上一帧
-    const pose = sampleShotAtTime(shot, st.timelineTime);
+    const aim = aimMode === 'led' ? (st.shotAim?.shots.find((row) => row.id === shot.id) ?? null) : null;
+    const pose = shotPoseAt(shot, aim, aimMode, st.timelineTime);
     if (!pose) return;
 
-    // 计算后：整条 take 加固定偏航/俯仰角，把视线摆向 LED 环屏（缺口位置不动）
-    const aim = aimMode === 'led' ? st.shotAim?.shots.find((row) => row.id === shot.id) : null;
-    const yaw = pose.yaw + (aim?.deltaDeg ?? 0);
-    const pitch = pose.pitch + (aim?.deltaPitchDeg ?? 0);
+    active.current = true;
+    last.current = {
+      position: new THREE.Vector3(...pose.position),
+      yaw: pose.yaw,
+      pitch: pose.pitch,
+    };
 
     camera.position.set(...pose.position);
     camera.rotation.order = 'YXZ';
     camera.rotation.set(
-      THREE.MathUtils.degToRad(pitch),
-      THREE.MathUtils.degToRad(yaw),
+      THREE.MathUtils.degToRad(pose.pitch),
+      THREE.MathUtils.degToRad(pose.yaw),
       0,
     );
 
@@ -139,6 +188,31 @@ function PrevizPlayback() {
       camera.updateProjectionMatrix();
     }
   });
+
+  return null;
+}
+
+/**
+ * 自由视角跳转：把相机摆到指定位置并让轨道中心落在视线前方。
+ * 环屏缺口固定在 +Z，任何视角跳转都必须朝 LED 屏，不能停在缺口外侧。
+ */
+function ViewCommander() {
+  const request = useScene((s) => s.viewRequest);
+  const camera = useThree((s) => s.camera) as THREE.PerspectiveCamera;
+  const controls = useThree((s) => s.controls) as
+    | { target: THREE.Vector3; update: () => void }
+    | null;
+
+  useEffect(() => {
+    if (!request) return;
+    camera.position.set(...request.position);
+    if (controls) {
+      controls.target.set(...request.target);
+      controls.update();
+    } else {
+      camera.lookAt(request.target[0], request.target[1], request.target[2]);
+    }
+  }, [request, camera, controls]);
 
   return null;
 }
@@ -206,15 +280,15 @@ function PrevizCameraMarker() {
   useFrame(() => {
     const group = ref.current;
     if (!group || !shot) return;
-    const pose = sampleShotAtTime(shot, useScene.getState().timelineTime);
+    const aim = aimMode === 'led' ? shotAim?.shots.find((row) => row.id === shot.id) : null;
+    const pose = shotPoseAt(shot, aim, aimMode, useScene.getState().timelineTime);
     if (!pose) return;
     // 与跟随播放同口径：朝环屏模式下整条 take 叠加固定偏航/俯仰修正
-    const aim = aimMode === 'led' ? shotAim?.shots.find((row) => row.id === shot.id) : null;
     group.position.set(...pose.position);
     group.rotation.order = 'YXZ';
     group.rotation.set(
-      THREE.MathUtils.degToRad(pose.pitch + (aim?.deltaPitchDeg ?? 0)),
-      THREE.MathUtils.degToRad(pose.yaw + (aim?.deltaDeg ?? 0)),
+      THREE.MathUtils.degToRad(pose.pitch),
+      THREE.MathUtils.degToRad(pose.yaw),
       0,
     );
   });
@@ -268,7 +342,6 @@ function Ground() {
 function SceneContent() {
   const assets = useScene((s) => s.assets);
   const usedIds = useScene((s) => s.activeShotUsedIds);
-  const aerial = useScene((s) => s.aerialView);
   const mode = useScene((s) => s.mode);
   const follow = useScene((s) => s.followPreviz);
   const stages = useScene((s) => s.stages);
@@ -345,11 +418,11 @@ function SceneContent() {
       <PrevizPlayback />
       <AerialRig />
       <PrevizCameraMarker />
+      <ViewCommander />
       <Bridge />
       <OrbitControls
         enabled={mode !== 'camera' && !follow}
         makeDefault
-        target={aerial ? [0, 1, 0] : [0, 3, -1]}
         enableDamping
         dampingFactor={0.08}
         maxPolarAngle={Math.PI / 2 - 0.02}
@@ -457,7 +530,7 @@ export function Viewport() {
         shadows
         dpr={[1, 2]}
         gl={{ antialias: true, preserveDrawingBuffer: true }}
-        camera={{ position: [0, 10, 17], fov: 48, near: 0.1, far: 400 }}
+        camera={{ position: [0, 7.2, 8.5], fov: 48, near: 0.1, far: 400 }}
         onPointerMissed={() => {
           if (!isGizmoActive()) selectAsset(null);
         }}

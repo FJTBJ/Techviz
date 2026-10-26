@@ -1,4 +1,13 @@
-import { Component, Suspense, useCallback, useMemo, useRef, useState, type ReactNode } from 'react';
+import {
+  Component,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import * as THREE from 'three';
 import { TransformControls } from '@react-three/drei';
 import { useFrame, useLoader, type ThreeEvent } from '@react-three/fiber';
@@ -44,6 +53,49 @@ function GltfModel({ url }: { url: string }) {
   return <primitive object={cloned} />;
 }
 
+/**
+ * 环屏投屏层：直接复用右下角 take 小窗的 <video> 作为贴图，
+ * 播放/暂停/进度/倍速天然同步，相当于把环屏当成虚拟拍摄的 LED 墙。
+ */
+function LedVideoScreen({
+  radius,
+  height,
+  thetaStart,
+  thetaLength,
+}: {
+  radius: number;
+  height: number;
+  thetaStart: number;
+  thetaLength: number;
+}) {
+  const video = useScene((s) => s.takeVideoEl);
+
+  const texture = useMemo(() => {
+    if (!video) return null;
+    const next = new THREE.VideoTexture(video);
+    next.colorSpace = THREE.SRGBColorSpace;
+    next.wrapS = THREE.ClampToEdgeWrapping;
+    next.wrapT = THREE.ClampToEdgeWrapping;
+    // 从环内看圆柱背面时 U 方向是反的，翻转贴图让画面左右正确
+    next.repeat.x = -1;
+    next.offset.x = 1;
+    return next;
+  }, [video]);
+
+  useEffect(() => () => texture?.dispose(), [texture]);
+
+  if (!texture) return null;
+
+  return (
+    <mesh position={[0, height / 2, 0]} raycast={() => null}>
+      <cylinderGeometry
+        args={[radius - 0.02, radius - 0.02, height, 128, 1, true, thetaStart, thetaLength]}
+      />
+      <meshBasicMaterial map={texture} side={THREE.BackSide} toneMapped={false} />
+    </mesh>
+  );
+}
+
 /** 环屏棚：按直径 / 高度 / 覆盖角度程序化生成，规格来自后端扫描 UE 工程 NDC 目录 */
 export function LedRing({
   diameter,
@@ -77,6 +129,13 @@ export function LedRing({
           emissiveIntensity={0.35}
         />
       </mesh>
+      {/* 投屏层：有 take 视频时把画面贴到环屏内侧 */}
+      <LedVideoScreen
+        radius={radius}
+        height={height}
+        thetaStart={thetaStart}
+        thetaLength={thetaLength}
+      />
       {/* 顶部桁架环带 */}
       <mesh position={[0, height + 0.28, 0]} castShadow>
         <cylinderGeometry

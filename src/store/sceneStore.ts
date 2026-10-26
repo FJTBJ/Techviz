@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { DEMO_SHOT, demoAssets } from '../data/mockData';
 import { apiFetch } from '../lib/api';
 import { buildBoxes, usedAssetIds } from '../lib/shotFilter';
+import { shotPoseAt } from '../lib/previz';
 import type {
   GizmoMode,
   Measurement,
@@ -101,9 +102,18 @@ interface SceneState {
   /** 当前镜头用到的资产 id（视锥剔除结果），null 表示不过滤 */
   activeShotUsedIds: string[] | null;
   selectShot: (shotId: string | null) => void;
+  /**
+   * 自由视角跳转请求：确定相机位置与轨道中心（视线前方的落点）。
+   * 环屏缺口固定在 +Z，默认视角必须落在环内朝 LED 屏，不能停在缺口外侧。
+   */
+  viewRequest: { position: Vec3; target: Vec3; nonce: number } | null;
+  goToView: (position: Vec3, target: Vec3) => void;
   /** 右下角 take 视频小窗是否展开 */
   takeVisible: boolean;
   toggleTake: () => void;
+  /** 右下角 take 视频元素：与 3D 环屏共用同一个 video，避免两路播放不同步 */
+  takeVideoEl: HTMLVideoElement | null;
+  setTakeVideoEl: (el: HTMLVideoElement | null) => void;
 
   /** 高空俯视视角：播放时从场景上方观察机位如何运动 */
   aerialView: boolean;
@@ -181,7 +191,16 @@ export const useScene = create<SceneState>((set, get) => ({
   revisions: [],
   activeShotId: null,
   activeShotUsedIds: null,
+  // 默认视角：站在环内石拱通道里、朝对面的 LED 屏取景
+  // （棚中央是石拱布景，正对 -Z 的平视会被布景挡住，所以沿用预演机位略仰的取景方向）
+  viewRequest: {
+    position: [-2.4, 2.2, 5.6],
+    target: [-0.1, 5.0, -5.9],
+    nonce: 0,
+  },
   takeVisible: true,
+  takeVideoEl: null,
+  setTakeVideoEl: (el) => set({ takeVideoEl: el }),
   aerialView: false,
   aerialPrevMode: null,
   previz: null,
@@ -263,6 +282,28 @@ export const useScene = create<SceneState>((set, get) => ({
         }
       } catch {
         /* 无机位朝向数据时忽略 */
+      }
+      // 默认视角：取本场第一镜的机位并叠加朝环屏修正。
+      // 棚中央是石拱布景，随便放一个自由机位很容易被布景挡死或正对缺口，
+      // 直接用真实预演机位取景，保证打开页面就朝 LED 环屏。
+      {
+        const state = get();
+        const first =
+          state.previz?.shots.find((s) => s.scene === state.sceneKey) ?? state.previz?.shots[0];
+        if (first) {
+          const aim = state.shotAim?.shots.find((row) => row.id === first.id) ?? null;
+          const pose = shotPoseAt(first, aim, state.aimMode, first.start);
+          if (pose) {
+            const yaw = (pose.yaw * Math.PI) / 180;
+            const pitch = (pose.pitch * Math.PI) / 180;
+            const cp = Math.cos(pitch);
+            state.goToView(pose.position, [
+              pose.position[0] - Math.sin(yaw) * cp * 6,
+              pose.position[1] + Math.sin(pitch) * 6,
+              pose.position[2] - Math.cos(yaw) * cp * 6,
+            ]);
+          }
+        }
       }
       // 方案列表：与场次关联，供左侧方案管理使用
       await get().refreshPlans();
@@ -395,7 +436,7 @@ export const useScene = create<SceneState>((set, get) => ({
   },
 
   selectShot: (shotId) => {
-    const { previz, assets } = get();
+    const { previz, assets, shotAim, aimMode } = get();
     if (!shotId) {
       set({
         activeShotId: null,
@@ -408,7 +449,8 @@ export const useScene = create<SceneState>((set, get) => ({
     const shot = previz?.shots.find((s) => s.id === shotId);
     if (!shot) return;
     // 本镜头用到的元素：24 帧采样视锥并集，其余元素不渲染。
-    // 只做元素剔除，不改机位/操作模式，环屏与场景操作保持可用。
+    // 只做元素剔除，不改操作模式；视口摆到该镜头首帧、并叠加「朝环屏」修正，
+    // 这样点镜头立刻看到本镜头的取景（朝 LED 屏），而不是停在缺口外的默认机位。
     const ids = usedAssetIds(buildBoxes(assets), shot);
     set({
       activeShotId: shot.id,
@@ -417,7 +459,25 @@ export const useScene = create<SceneState>((set, get) => ({
       playing: false,
       followPreviz: false,
     });
+    const aim = aimMode === 'led' ? (shotAim?.shots.find((row) => row.id === shot.id) ?? null) : null;
+    const pose = shotPoseAt(shot, aim, aimMode, shot.start);
+    // 高空视角由 AerialRig 接管相机，跳转会打断俯视观察
+    if (pose && !get().aerialView) {
+      const yaw = (pose.yaw * Math.PI) / 180;
+      const pitch = (pose.pitch * Math.PI) / 180;
+      const cp = Math.cos(pitch);
+      get().goToView(pose.position, [
+        pose.position[0] - Math.sin(yaw) * cp * 6,
+        pose.position[1] + Math.sin(pitch) * 6,
+        pose.position[2] - Math.cos(yaw) * cp * 6,
+      ]);
+    }
   },
+
+  goToView: (position, target) =>
+    set((state) => ({
+      viewRequest: { position, target, nonce: (state.viewRequest?.nonce ?? 0) + 1 },
+    })),
 
   toggleTake: () => set((state) => ({ takeVisible: !state.takeVisible })),
 

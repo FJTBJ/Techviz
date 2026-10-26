@@ -37,6 +37,16 @@ export function TakePlayer() {
   const remoteSrc = shot?.takeUrl ?? null;
   const src = localSrc && !useRemote ? localSrc : remoteSrc;
   const label = shot ? shotLabel(shot) : '';
+  // 环屏投屏只使用同源的本地 take，远端视频没有 CORS 头时无法作为 WebGL 贴图
+  const projectable = Boolean(localSrc && !useRemote);
+  const setTakeVideoEl = useScene((s) => s.setTakeVideoEl);
+
+  // 把小窗里的 video 交给 3D 环屏复用：同一路播放，进度/暂停/速度天然同步
+  useEffect(() => {
+    const video = projectable ? videoRef.current : null;
+    setTakeVideoEl(video);
+    return () => setTakeVideoEl(null);
+  }, [projectable, src, visible, setTakeVideoEl]);
 
   // 播放 / 暂停跟随时间线
   useEffect(() => {

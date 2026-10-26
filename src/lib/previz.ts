@@ -1,4 +1,4 @@
-import type { PrevizShot, Vec3 } from '../types';
+import type { PrevizShot, ShotAim, Vec3 } from '../types';
 
 export interface PrevizPose {
   position: Vec3;
@@ -68,6 +68,34 @@ export function sampleShotAtTime(shot: PrevizShot, time: number): PrevizPose | n
   const keys = shot.keys;
   if (keys.length === 0) return null;
   return sampleShot(shot, keys[0].t + (time - shot.start));
+}
+
+/**
+ * 叠加「朝环屏」修正角：环屏与缺口固定，整条 take 加一组固定偏航 / 俯仰修正，
+ * 把视线从 UE 原始朝向（很可能正对缺口）摆到 LED 屏上。
+ */
+export function applyAim(
+  pose: PrevizPose,
+  aim: ShotAim | null | undefined,
+  aimMode: 'raw' | 'led',
+): PrevizPose {
+  if (aimMode !== 'led' || !aim) return pose;
+  return {
+    ...pose,
+    yaw: pose.yaw + aim.deltaDeg,
+    pitch: pose.pitch + aim.deltaPitchDeg,
+  };
+}
+
+/** 镜头在指定时间、叠加朝环屏修正后的最终机位姿态 */
+export function shotPoseAt(
+  shot: PrevizShot,
+  aim: ShotAim | null | undefined,
+  aimMode: 'raw' | 'led',
+  time: number,
+): PrevizPose | null {
+  const pose = sampleShotAtTime(shot, time);
+  return pose ? applyAim(pose, aim, aimMode) : null;
 }
 
 /** 官方镜头短名：Kmoke 场记单 shot_file_name（如 s079a_c004_A），缺失时退回 UE 镜头名 */

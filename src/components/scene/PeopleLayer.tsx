@@ -132,12 +132,29 @@ function PersonActor({ person, index, offset, shotStart }: {
       <Humanoid color={color} />
       <Html position={[0, 1.95, 0]} center distanceFactor={16} zIndexRange={[8, 0]}>
         <div className="person-tag" style={{ borderColor: color }}>
-          <b>{person.label}</b>
+          <b>{displayLabel(person)}</b>
         </div>
       </Html>
     </group>
   );
 }
+
+/** 展示名去掉 UE 资产前缀，只留角色代号与姓名 */
+const displayLabel = (person: UePerson) =>
+  person.label.replace(/^(Char_|FIX\s*)/i, '').trim() || person.label;
+
+/** 同一演员在 UE 里可能被重复引用（Char_ / FIX 两份、名字多一个 2），按轨迹去重 */
+const trackSignature = (person: UePerson) => {
+  const keys = person.keys;
+  if (!keys.length) return '';
+  const first = keys[0].p.join(',');
+  const last = keys[keys.length - 1].p.join(',');
+  return `${keys.length}|${first}|${last}`;
+};
+
+/** 同名轨迹优先保留 Char_ 前缀、命名更干净的一条 */
+const keepScore = (person: UePerson) =>
+  (/^char/i.test(person.name) ? 2 : 0) + (/^char_[a-z0-9]+\s/i.test(person.name) ? 1 : 0);
 
 /**
  * 镜头人物层：读取 UE take 对应 PostData 镜头序列里的人物动画，
@@ -168,11 +185,25 @@ export function PeopleLayer({ shot }: { shot: PrevizShot | null }) {
   }, [shotName]);
 
   const info = shotName && people ? people.shots[shotName] : null;
-  if (!shot || !info || !info.characters.length) return null;
+
+  // 同一演员可能被重复引用，轨迹完全相同时合并成一个人，避免人形重叠、观感怪异
+  const characters = useMemo(() => {
+    const list = info?.characters ?? [];
+    const picked = new Map<string, UePerson>();
+    for (const person of list) {
+      const sig = trackSignature(person);
+      if (!sig) continue;
+      const prev = picked.get(sig);
+      if (!prev || keepScore(person) > keepScore(prev)) picked.set(sig, person);
+    }
+    return [...picked.values()];
+  }, [info]);
+
+  if (!shot || !info || !characters.length) return null;
 
   return (
     <group>
-      {info.characters.map((person, index) => (
+      {characters.map((person, index) => (
         <PersonActor
           key={person.name}
           person={person}
