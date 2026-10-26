@@ -24,3 +24,10 @@ server/data/takes/
 *.log
 .DS_Store
 Thumbs.db
+
+# UE 原始导出备份（体积大，仅本地保留；优化后的产物在 server/public/models）
+.models-raw/
+
+# 临时验证截图、镜头卡产物
+tmp_probe/
+shot/

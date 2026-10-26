@@ -49,6 +49,9 @@ export interface Scenario {
 interface SceneState {
   assets: SceneAsset[];
   selectedId: string | null;
+  /** 鼠标悬停的构件：视口左下角显示名称，便于辨认场景里是什么元素 */
+  hoveredId: string | null;
+  hoverAsset: (id: string | null) => void;
   camera: ShotCamera;
   mode: ViewMode;
   gizmo: GizmoMode;
@@ -141,6 +144,8 @@ interface SceneState {
 export const useScene = create<SceneState>((set, get) => ({
   assets: demoAssets(),
   selectedId: null,
+  hoveredId: null,
+  hoverAsset: (id) => set({ hoveredId: id }),
   camera: { ...DEMO_SHOT },
   mode: 'orbit',
   gizmo: 'translate',

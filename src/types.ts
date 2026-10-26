@@ -16,6 +16,10 @@ export interface SceneAsset {
   kind: ProxyKind;
   /** 模型地址，仅 glb 类型使用 */
   url?: string;
+  /** UE 网格资产路径（如 /Game/.../ZhuZi_4.ZhuZi_4） */
+  mesh?: string;
+  /** UE 网格导出的真实模型地址（如 /models/ZhuZi_4_ab12cd.glb），缺失时回退代理体块 */
+  meshUrl?: string;
   /** 近似包围盒尺寸，单位米：[宽, 高, 深] */
   size: Vec3;
   /** 包围盒中心相对 group 原点的局部偏移（UE 导入体块使用），单位米 */

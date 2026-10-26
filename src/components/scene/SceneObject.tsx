@@ -1,13 +1,46 @@
-import { Suspense, useCallback, useMemo, useRef, useState } from 'react';
+import { Component, Suspense, useCallback, useMemo, useRef, useState, type ReactNode } from 'react';
 import * as THREE from 'three';
-import { TransformControls, useGLTF } from '@react-three/drei';
-import { useFrame, type ThreeEvent } from '@react-three/fiber';
+import { TransformControls } from '@react-three/drei';
+import { useFrame, useLoader, type ThreeEvent } from '@react-three/fiber';
+import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { useScene, markGizmoDragEnd } from '../../store/sceneStore';
 import type { SceneAsset } from '../../types';
 
+/** 模型加载失败（文件没部署/路径失效）时回退到代理体块，避免整块画布崩掉 */
+class ModelBoundary extends Component<{ fallback: ReactNode; children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+
+  render() {
+    return this.state.failed ? this.props.fallback : this.props.children;
+  }
+}
+
+/** UE 导出的模型经过 meshopt 压缩，需要显式挂解码器 */
+class MeshoptGLTFLoader extends GLTFLoader {
+  constructor(manager?: THREE.LoadingManager) {
+    super(manager);
+    this.setMeshoptDecoder(MeshoptDecoder);
+  }
+}
+
 function GltfModel({ url }: { url: string }) {
-  const gltf = useGLTF(url);
-  const cloned = useMemo(() => gltf.scene.clone(true), [gltf.scene]);
+  const gltf = useLoader(MeshoptGLTFLoader, url) as unknown as GLTF;
+  const cloned = useMemo(() => {
+    const scene = gltf.scene.clone(true);
+    scene.traverse((node) => {
+      const mesh = node as THREE.Mesh;
+      if (mesh.isMesh) {
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+      }
+    });
+    return scene;
+  }, [gltf.scene]);
   return <primitive object={cloned} />;
 }
 
@@ -86,23 +119,46 @@ function ProxyMesh({ asset }: { asset: SceneAsset }) {
           {surface}
         </mesh>
       );
-    /* UE 导入体块：size 为包围盒尺寸，offset 为包围盒中心（相对 actor 原点） */
+    /* UE 导入构件：优先用从 UE 导出的真实网格（GLB），没有模型时回退包围盒 */
     case 'ue': {
       const [ox, oy, oz] = asset.offset ?? [0, 0, 0];
+      // size / offset 已是世界尺度，而外层 group 又带 asset.scale，回退盒需要先除回去
+      const [gx, gy, gz] = asset.scale.map((v) => (v === 0 ? 1 : Math.abs(v)));
+      const localSize: [number, number, number] = [size[0] / gx, size[1] / gy, size[2] / gz];
+      const localOffset: [number, number, number] = [
+        ox / (asset.scale[0] || 1),
+        oy / (asset.scale[1] || 1),
+        oz / (asset.scale[2] || 1),
+      ];
       // 立柱（ZhuZi 系列）用圆柱表达，其余用包围盒
       const isColumn = /ZHUZI/i.test(asset.code);
-      return (
-        <mesh position={[ox, oy, oz]} castShadow receiveShadow>
+      const proxy = (
+        <mesh position={localOffset} castShadow receiveShadow>
           {isColumn ? (
             <cylinderGeometry
-              args={[Math.max(size[0], size[2]) / 2, Math.max(size[0], size[2]) / 2, size[1], 20]}
+              args={[
+                Math.max(localSize[0], localSize[2]) / 2,
+                Math.max(localSize[0], localSize[2]) / 2,
+                localSize[1],
+                20,
+              ]}
             />
           ) : (
-            <boxGeometry args={size} />
+            <boxGeometry args={localSize} />
           )}
           {surface}
         </mesh>
       );
+      if (asset.meshUrl) {
+        return (
+          <ModelBoundary fallback={proxy}>
+            <Suspense fallback={proxy}>
+              <GltfModel url={asset.meshUrl} />
+            </Suspense>
+          </ModelBoundary>
+        );
+      }
+      return proxy;
     }
     case 'column':
       return (
@@ -177,6 +233,7 @@ export function SceneObject({
   const mode = useScene((s) => s.mode);
   const gizmo = useScene((s) => s.gizmo);
   const selectAsset = useScene((s) => s.selectAsset);
+  const hoverAsset = useScene((s) => s.hoverAsset);
   const updateAsset = useScene((s) => s.updateAsset);
   const addMeasurePoint = useScene((s) => s.addMeasurePoint);
   const followPreviz = useScene((s) => s.followPreviz);
@@ -252,14 +309,21 @@ export function SceneObject({
     selectAsset(asset.instanceId);
   };
 
-  // UE 体块：选中环贴在其包围盒水平中心、地面或盒底
+  // UE 体块：选中环贴在其包围盒水平中心、地面或盒底（都在 group 局部坐标系内，需除以缩放）
   const ueOffset = asset.offset ?? [0, 0, 0];
   const isUe = asset.kind === 'ue';
+  const [sgx, sgy, sgz] = asset.scale.map((v) => (v === 0 ? 1 : Math.abs(v)));
   const rawRadius = Math.max(asset.size[0], asset.size[2]) / 2 + 0.25;
   const ringRadius = isUe ? Math.min(3, rawRadius) : rawRadius;
   const ringPos: [number, number, number] = isUe
-    ? [ueOffset[0], Math.max(0.02, ueOffset[1] - asset.size[1] / 2 + 0.02), ueOffset[2]]
+    ? [
+        ueOffset[0] / (asset.scale[0] || 1),
+        Math.max(0.02, (ueOffset[1] - asset.size[1] / 2 + 0.02) / (asset.scale[1] || 1)),
+        ueOffset[2] / (asset.scale[2] || 1),
+      ]
     : [0, 0.02, 0];
+  // 环形几何也在 group 内被缩放，半径按缩放换算回去，避免大缩放体块上的环变成巨型圆盘
+  const ringScale = Math.max(1, Math.max(sgx, sgy, sgz));
 
   return (
     <>
@@ -271,11 +335,18 @@ export function SceneObject({
         scale={asset.scale}
         visible={asset.visible || forceVisible}
         onClick={handleClick}
+        onPointerOver={(event) => {
+          event.stopPropagation();
+          hoverAsset(asset.instanceId);
+        }}
+        onPointerOut={() => {
+          if (useScene.getState().hoveredId === asset.instanceId) hoverAsset(null);
+        }}
       >
         <ProxyMesh asset={asset} />
         {selected && (
           <mesh rotation={[-Math.PI / 2, 0, 0]} position={ringPos}>
-            <ringGeometry args={[ringRadius, ringRadius + 0.08, 48]} />
+            <ringGeometry args={[ringRadius / ringScale, (ringRadius + 0.08) / ringScale, 48]} />
             <meshBasicMaterial color="#ffb020" side={THREE.DoubleSide} transparent opacity={0.9} />
           </mesh>
         )}

@@ -103,6 +103,10 @@ mountAuthRoutes(app);
 // take 视频：<video> 无法带 Authorization 头，支持 ?token= 鉴权，需在全局 /api 鉴权之前注册
 app.use('/api/takes', requireAuthMedia, express.static(TAKES_DIR, { maxAge: '1h' }));
 
+// 真实模型（GLB，由 tools/export_ue_meshes.py 从 UE 导出）：公开静态资源
+const MODELS_DIR = path.join(__dirname, 'public', 'models');
+app.use('/models', express.static(MODELS_DIR, { maxAge: '7d', fallthrough: true }));
+
 // 其余 /api/* 一律需要登录（开发模式自动注入 dev 用户）
 app.use('/api', requireAuth);
 

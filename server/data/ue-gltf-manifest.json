@@ -1,0 +1,337 @@
+{
+ "generatedAt": "2026-10-26T21:50:36",
+ "generator": "tools/export_ue_meshes.py",
+ "meshCount": 53,
+ "exported": 53,
+ "failed": {},
+ "totalBytes": 13677928,
+ "models": {
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/uebpbd3fa_LOD0.uebpbd3fa_LOD0": {
+   "file": "uebpbd3fa_LOD0_79a93b.glb",
+   "url": "/models/uebpbd3fa_LOD0_79a93b.glb",
+   "bytes": 83536,
+   "triangles": 784
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/ZhuZi_4.ZhuZi_4": {
+   "file": "ZhuZi_4_354746.glb",
+   "url": "/models/ZhuZi_4_354746.glb",
+   "bytes": 127060,
+   "triangles": 2410
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/Cube.Cube": {
+   "file": "Cube_aa4aa8.glb",
+   "url": "/models/Cube_aa4aa8.glb",
+   "bytes": 10340,
+   "triangles": 48
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_ChuangHu_2.SM_ChuangHu_2": {
+   "file": "SM_ChuangHu_2_df36cd.glb",
+   "url": "/models/SM_ChuangHu_2_df36cd.glb",
+   "bytes": 437620,
+   "triangles": 11494
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_MuHuBan_A000C_VTWElementLookDev.SM_MuHuBan_A000C_VTWElementLookDev": {
+   "file": "SM_MuHuBan_A000C_VTWElementLookDev_1ac951.glb",
+   "url": "/models/SM_MuHuBan_A000C_VTWElementLookDev_1ac951.glb",
+   "bytes": 199804,
+   "triangles": 2642
+  },
+  "/Engine/BasicShapes/Cube.Cube": {
+   "file": "engine_Cube_829152.glb",
+   "url": "/models/engine_Cube_829152.glb",
+   "bytes": 10340,
+   "triangles": 48
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_MuHuBan_A000C_VTWElementLookDev1.SM_MuHuBan_A000C_VTWElementLookDev1": {
+   "file": "SM_MuHuBan_A000C_VTWElementLookDev1_904877.glb",
+   "url": "/models/SM_MuHuBan_A000C_VTWElementLookDev1_904877.glb",
+   "bytes": 172636,
+   "triangles": 1868
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/ZhuZi_2.ZhuZi_2": {
+   "file": "ZhuZi_2_12bbd0.glb",
+   "url": "/models/ZhuZi_2_12bbd0.glb",
+   "bytes": 129908,
+   "triangles": 2604
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_ChuangHu_10.SM_ChuangHu_10": {
+   "file": "SM_ChuangHu_10_25eb68.glb",
+   "url": "/models/SM_ChuangHu_10_25eb68.glb",
+   "bytes": 570308,
+   "triangles": 21972
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/JieGou_16.JieGou_16": {
+   "file": "JieGou_16_597426.glb",
+   "url": "/models/JieGou_16_597426.glb",
+   "bytes": 450848,
+   "triangles": 8916
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_MenTou_2b.SM_MenTou_2b": {
+   "file": "SM_MenTou_2b_aecffd.glb",
+   "url": "/models/SM_MenTou_2b_aecffd.glb",
+   "bytes": 351920,
+   "triangles": 6010
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_GongMen01.SM_GongMen01": {
+   "file": "SM_GongMen01_8d127e.glb",
+   "url": "/models/SM_GongMen01_8d127e.glb",
+   "bytes": 125992,
+   "triangles": 1218
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_ShuJia1.SM_ShuJia1": {
+   "file": "SM_ShuJia1_92fd15.glb",
+   "url": "/models/SM_ShuJia1_92fd15.glb",
+   "bytes": 405500,
+   "triangles": 7226
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/ZhuZi_6.ZhuZi_6": {
+   "file": "ZhuZi_6_57d2bc.glb",
+   "url": "/models/ZhuZi_6_57d2bc.glb",
+   "bytes": 100024,
+   "triangles": 1028
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_MuHuBan_A000C_VTWElementLookDev5.SM_MuHuBan_A000C_VTWElementLookDev5": {
+   "file": "SM_MuHuBan_A000C_VTWElementLookDev5_a0fc0b.glb",
+   "url": "/models/SM_MuHuBan_A000C_VTWElementLookDev5_a0fc0b.glb",
+   "bytes": 153148,
+   "triangles": 1302
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_DaMen01a.SM_DaMen01a": {
+   "file": "SM_DaMen01a_f63715.glb",
+   "url": "/models/SM_DaMen01a_f63715.glb",
+   "bytes": 894752,
+   "triangles": 20662
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_QiangTi01.SM_QiangTi01": {
+   "file": "SM_QiangTi01_5eaf2a.glb",
+   "url": "/models/SM_QiangTi01_5eaf2a.glb",
+   "bytes": 14044,
+   "triangles": 256
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_QiangTi04.SM_QiangTi04": {
+   "file": "SM_QiangTi04_e40662.glb",
+   "url": "/models/SM_QiangTi04_e40662.glb",
+   "bytes": 11512,
+   "triangles": 136
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/ZhuZi_5.ZhuZi_5": {
+   "file": "ZhuZi_5_468d01.glb",
+   "url": "/models/ZhuZi_5_468d01.glb",
+   "bytes": 101068,
+   "triangles": 1026
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_QiangTi02.SM_QiangTi02": {
+   "file": "SM_QiangTi02_8b2192.glb",
+   "url": "/models/SM_QiangTi02_8b2192.glb",
+   "bytes": 12620,
+   "triangles": 248
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_tissu_1.SM_tissu_1": {
+   "file": "SM_tissu_1_0120b1.glb",
+   "url": "/models/SM_tissu_1_0120b1.glb",
+   "bytes": 16524,
+   "triangles": 251
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_DaChuangHu03.SM_DaChuangHu03": {
+   "file": "SM_DaChuangHu03_8964b7.glb",
+   "url": "/models/SM_DaChuangHu03_8964b7.glb",
+   "bytes": 525132,
+   "triangles": 10386
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_GongMen02.SM_GongMen02": {
+   "file": "SM_GongMen02_b984e6.glb",
+   "url": "/models/SM_GongMen02_b984e6.glb",
+   "bytes": 41152,
+   "triangles": 922
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/ding2.ding2": {
+   "file": "ding2_ea44c5.glb",
+   "url": "/models/ding2_ea44c5.glb",
+   "bytes": 13644,
+   "triangles": 256
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_MenTou_2.SM_MenTou_2": {
+   "file": "SM_MenTou_2_a53dd0.glb",
+   "url": "/models/SM_MenTou_2_a53dd0.glb",
+   "bytes": 360388,
+   "triangles": 5360
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_diaohua_2.SM_diaohua_2": {
+   "file": "SM_diaohua_2_9d0b1b.glb",
+   "url": "/models/SM_diaohua_2_9d0b1b.glb",
+   "bytes": 420320,
+   "triangles": 5776
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_MenTou_new.SM_MenTou_new": {
+   "file": "SM_MenTou_new_a10cae.glb",
+   "url": "/models/SM_MenTou_new_a10cae.glb",
+   "bytes": 448128,
+   "triangles": 9764
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_MuTiao_12.SM_MuTiao_12": {
+   "file": "SM_MuTiao_12_6f56f4.glb",
+   "url": "/models/SM_MuTiao_12_6f56f4.glb",
+   "bytes": 151796,
+   "triangles": 12
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_DaMen01b.SM_DaMen01b": {
+   "file": "SM_DaMen01b_9ab448.glb",
+   "url": "/models/SM_DaMen01b_9ab448.glb",
+   "bytes": 292360,
+   "triangles": 9214
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/Wall_01.Wall_01": {
+   "file": "Wall_01_e0e19c.glb",
+   "url": "/models/Wall_01_e0e19c.glb",
+   "bytes": 283052,
+   "triangles": 27318
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/JieGou_43.JieGou_43": {
+   "file": "JieGou_43_3574ca.glb",
+   "url": "/models/JieGou_43_3574ca.glb",
+   "bytes": 15268,
+   "triangles": 52
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_QiangTi03.SM_QiangTi03": {
+   "file": "SM_QiangTi03_b793fa.glb",
+   "url": "/models/SM_QiangTi03_b793fa.glb",
+   "bytes": 13540,
+   "triangles": 252
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_Men_A218C_VTWElementLookDev.SM_Men_A218C_VTWElementLookDev": {
+   "file": "SM_Men_A218C_VTWElementLookDev_15c86b.glb",
+   "url": "/models/SM_Men_A218C_VTWElementLookDev_15c86b.glb",
+   "bytes": 476320,
+   "triangles": 9306
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_Men_A218C_VTWElementLookDev1.SM_Men_A218C_VTWElementLookDev1": {
+   "file": "SM_Men_A218C_VTWElementLookDev1_11243c.glb",
+   "url": "/models/SM_Men_A218C_VTWElementLookDev1_11243c.glb",
+   "bytes": 284524,
+   "triangles": 6822
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_DiaoHua_A043C_VTWElementLookDev.SM_DiaoHua_A043C_VTWElementLookDev": {
+   "file": "SM_DiaoHua_A043C_VTWElementLookDev_cb84ee.glb",
+   "url": "/models/SM_DiaoHua_A043C_VTWElementLookDev_cb84ee.glb",
+   "bytes": 243572,
+   "triangles": 10872
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_diaohua_3.SM_diaohua_3": {
+   "file": "SM_diaohua_3_c97d83.glb",
+   "url": "/models/SM_diaohua_3_c97d83.glb",
+   "bytes": 419892,
+   "triangles": 5794
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/Ding_7.Ding_7": {
+   "file": "Ding_7_a8f080.glb",
+   "url": "/models/Ding_7_a8f080.glb",
+   "bytes": 22592,
+   "triangles": 537
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_ChuangHuMen02.SM_ChuangHuMen02": {
+   "file": "SM_ChuangHuMen02_ef2ca1.glb",
+   "url": "/models/SM_ChuangHuMen02_ef2ca1.glb",
+   "bytes": 509060,
+   "triangles": 7730
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_GongMen06.SM_GongMen06": {
+   "file": "SM_GongMen06_6b4e87.glb",
+   "url": "/models/SM_GongMen06_6b4e87.glb",
+   "bytes": 164812,
+   "triangles": 1498
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/pingding.pingding": {
+   "file": "pingding_5b2d88.glb",
+   "url": "/models/pingding_5b2d88.glb",
+   "bytes": 2340,
+   "triangles": 24
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_TianChuang05.SM_TianChuang05": {
+   "file": "SM_TianChuang05_5603e6.glb",
+   "url": "/models/SM_TianChuang05_5603e6.glb",
+   "bytes": 379456,
+   "triangles": 11035
+  },
+  "/Game/Techviz/Mesh/SM_门.SM_门": {
+   "file": "SM___9cddaa.glb",
+   "url": "/models/SM___9cddaa.glb",
+   "bytes": 774764,
+   "triangles": 11632
+  },
+  "/Game/Techviz/Mesh/SM_墙.SM_墙": {
+   "file": "SM___cef0ba.glb",
+   "url": "/models/SM___cef0ba.glb",
+   "bytes": 85312,
+   "triangles": 16
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/jiegou/_Mesh517._Mesh517": {
+   "file": "_Mesh517_b92bbc.glb",
+   "url": "/models/_Mesh517_b92bbc.glb",
+   "bytes": 10740,
+   "triangles": 48
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/jiegou/_Mesh557._Mesh557": {
+   "file": "_Mesh557_0b8408.glb",
+   "url": "/models/_Mesh557_0b8408.glb",
+   "bytes": 13848,
+   "triangles": 193
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/jiegou/_Mesh739._Mesh739": {
+   "file": "_Mesh739_a14b97.glb",
+   "url": "/models/_Mesh739_a14b97.glb",
+   "bytes": 11100,
+   "triangles": 76
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/jiegou/_Mesh1016._Mesh1016": {
+   "file": "_Mesh1016_0f7537.glb",
+   "url": "/models/_Mesh1016_0f7537.glb",
+   "bytes": 11424,
+   "triangles": 72
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_JingJia3.SM_JingJia3": {
+   "file": "SM_JingJia3_463b5e.glb",
+   "url": "/models/SM_JingJia3_463b5e.glb",
+   "bytes": 658132,
+   "triangles": 13440
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_GongMen04.SM_GongMen04": {
+   "file": "SM_GongMen04_1269b7.glb",
+   "url": "/models/SM_GongMen04_1269b7.glb",
+   "bytes": 42340,
+   "triangles": 1008
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/WoShi_LiShiDengLong_02_6002.WoShi_LiShiDengLong_02_6002": {
+   "file": "WoShi_LiShiDengLong_02_6002_03ddfc.glb",
+   "url": "/models/WoShi_LiShiDengLong_02_6002_03ddfc.glb",
+   "bytes": 2159716,
+   "triangles": 193745
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/Cube1.Cube1": {
+   "file": "Cube1_992920.glb",
+   "url": "/models/Cube1_992920.glb",
+   "bytes": 10820,
+   "triangles": 80
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_TianChuang04.SM_TianChuang04": {
+   "file": "SM_TianChuang04_03d4e0.glb",
+   "url": "/models/SM_TianChuang04_03d4e0.glb",
+   "bytes": 252700,
+   "triangles": 7392
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Map/_GENERATED/lifeng1/Boolean_8F9BBB0A1.Boolean_8F9BBB0A1": {
+   "file": "Boolean_8F9BBB0A1_23bcf2.glb",
+   "url": "/models/Boolean_8F9BBB0A1_23bcf2.glb",
+   "bytes": 200180,
+   "triangles": 13464
+  }
+ },
+ "optimizedAt": "2026-10-26T14:00:55.308Z",
+ "optimized": {
+  "textureFormat": "webp",
+  "textureMax": 512,
+  "textureQuality": 72,
+  "uniqueTextures": 118,
+  "geometry": "meshopt + quantize",
+  "axis": "wrapper yaw +90deg, scale 0.01"
+ }
+}

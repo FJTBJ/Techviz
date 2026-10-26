@@ -413,6 +413,19 @@ function Readout() {
   );
 }
 
+function HoverName() {
+  const hoveredId = useScene((s) => s.hoveredId);
+  const asset = useScene((s) => (s.hoveredId ? s.assets.find((a) => a.instanceId === s.hoveredId) : null));
+  if (!hoveredId || !asset) return null;
+  return (
+    <div className="hover-name">
+      <b>{asset.name}</b>
+      <span>{asset.code}</span>
+      {asset.meshUrl ? <em>真实网格</em> : <em className="proxy">代理体块</em>}
+    </div>
+  );
+}
+
 export function Viewport() {
   const mode = useScene((s) => s.mode);
   const aerial = useScene((s) => s.aerialView);
@@ -441,6 +454,7 @@ export function Viewport() {
       </Canvas>
       {mode === 'camera' && <FrameOverlay />}
       <Readout />
+      <HoverName />
       <TakePlayer />
       {aerial && (
         <div className="shot-filter-badge">
