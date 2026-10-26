@@ -88,6 +88,8 @@ interface SceneState {
 
   /** 高空俯视视角：播放时从场景上方观察机位如何运动 */
   aerialView: boolean;
+  /** 进入高空视角前的操作模式，退出时恢复 */
+  aerialPrevMode: ViewMode | null;
   toggleAerialView: () => void;
 
   /** 预演播放时间线（master 时间码 + 相机关键帧） */
@@ -159,6 +161,7 @@ export const useScene = create<SceneState>((set, get) => ({
   activeShotUsedIds: null,
   takeVisible: true,
   aerialView: false,
+  aerialPrevMode: null,
   previz: null,
   shotAim: null,
   aimMode: 'raw',
@@ -367,12 +370,13 @@ export const useScene = create<SceneState>((set, get) => ({
   toggleTake: () => set((state) => ({ takeVisible: !state.takeVisible })),
 
   toggleAerialView: () =>
-    set((state) => ({
-      aerialView: !state.aerialView,
-      // 高空视角不跟随镜头，且必须处于自由视角才能操作相机
-      followPreviz: false,
-      mode: state.aerialView ? state.mode : 'orbit',
-    })),
+    set((state) =>
+      state.aerialView
+        ? // 退出高空：恢复进入前的操作模式
+          { aerialView: false, mode: state.aerialPrevMode ?? 'orbit', aerialPrevMode: null }
+        : // 进入高空：不跟随镜头，记录原模式后切到自由视角
+          { aerialView: true, followPreviz: false, aerialPrevMode: state.mode, mode: 'orbit' },
+    ),
 
   toggleAimMode: () =>
     set((state) => ({ aimMode: state.aimMode === 'raw' ? 'led' : 'raw' })),

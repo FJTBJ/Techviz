@@ -141,24 +141,43 @@ function PrevizPlayback() {
   return null;
 }
 
-/** 高空视角：切到场景上方俯视，便于观察机位怎么运转 */
+/** 高空视角：切到场景上方俯视，便于观察机位怎么运转；退出时恢复原相机位姿 */
 function AerialRig() {
   const aerial = useScene((s) => s.aerialView);
   const camera = useThree((s) => s.camera) as THREE.PerspectiveCamera;
   const controls = useThree((s) => s.controls) as
     | { target: THREE.Vector3; update: () => void }
     | null;
+  const saved = useRef<{ pos: THREE.Vector3; fov: number; target: THREE.Vector3 } | null>(null);
 
   useEffect(() => {
-    if (!aerial) return;
-    camera.position.set(0, 34, 30);
-    camera.fov = 48;
+    if (aerial) {
+      saved.current = {
+        pos: camera.position.clone(),
+        fov: camera.fov,
+        target: controls ? controls.target.clone() : new THREE.Vector3(),
+      };
+      camera.position.set(0, 34, 30);
+      camera.fov = 48;
+      camera.updateProjectionMatrix();
+      camera.lookAt(0, 1, 0);
+      if (controls) {
+        controls.target.set(0, 1, 0);
+        controls.update();
+      }
+      return;
+    }
+    const prev = saved.current;
+    if (!prev) return;
+    camera.position.copy(prev.pos);
+    camera.fov = prev.fov;
     camera.updateProjectionMatrix();
-    camera.lookAt(0, 1, 0);
+    camera.lookAt(prev.target);
     if (controls) {
-      controls.target.set(0, 1, 0);
+      controls.target.copy(prev.target);
       controls.update();
     }
+    saved.current = null;
   }, [aerial, camera, controls]);
 
   return null;
