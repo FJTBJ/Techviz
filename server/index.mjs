@@ -2,7 +2,7 @@ import express from 'express';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { mountAuthRoutes, requireAuth, logAuthConfigSummary } from './auth.mjs';
+import { mountAuthRoutes, requireAuth, requireAuthMedia, logAuthConfigSummary } from './auth.mjs';
 import {
   getScene,
   upsertScene,
@@ -15,6 +15,10 @@ import {
 import { getUeStatus, getUeLevel, getUeActors } from './ue.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+/** 运行时数据目录（SQLite + 快照 JSON + take 视频） */
+const DATA_DIR = path.join(__dirname, 'data');
+const TAKES_DIR = path.join(DATA_DIR, 'takes');
 
 /** UE 工程位置（数据源）：引擎插件内的 nDisplay 环屏棚目录 */
 const UE_NDC_DIRS = [
@@ -95,6 +99,9 @@ app.use(express.json({ limit: '4mb' }));
 
 // 认证端点（login/callback/me/logout，不需要会话）
 mountAuthRoutes(app);
+
+// take 视频：<video> 无法带 Authorization 头，支持 ?token= 鉴权，需在全局 /api 鉴权之前注册
+app.use('/api/takes', requireAuthMedia, express.static(TAKES_DIR, { maxAge: '1h' }));
 
 // 其余 /api/* 一律需要登录（开发模式自动注入 dev 用户）
 app.use('/api', requireAuth);
@@ -243,7 +250,8 @@ app.get('/api/ue/prayer-room', (_req, res) => {
  * 结果由 build-setplan 脚本写入 data/setplan.json。
  */
 const SETPLAN_FILE = path.join(__dirname, 'data', 'setplan.json');
-const TIMELINE_FILE = path.join(__dirname, 'data', 'previz-timeline.json');
+const TIMELINE_FILE = path.join(DATA_DIR, 'previz-timeline.json');
+const SHOT_NAMES_FILE = path.join(DATA_DIR, 'shot-names.json');
 
 app.get('/api/setplan', (_req, res) => {
   try {
@@ -264,6 +272,19 @@ app.get('/api/previz/timeline', (_req, res) => {
       return res.status(404).json({ code: 1, message: '尚未生成预演时间线' });
     }
     const data = JSON.parse(fs.readFileSync(TIMELINE_FILE, 'utf8'));
+    // 合并 Kmoke 场记单的官方短名与 take 视频（shot-names.json 由 kmoke4 MCP 生成）
+    if (fs.existsSync(SHOT_NAMES_FILE)) {
+      const names = JSON.parse(fs.readFileSync(SHOT_NAMES_FILE, 'utf8')).shots ?? {};
+      for (const shot of data.shots ?? []) {
+        const meta = names[String(shot.name).replace(/@.*$/, '')];
+        if (!meta) continue;
+        shot.short = meta.short;
+        shot.take = meta.take;
+        shot.takeDuration = meta.durationSec;
+        shot.takeUrl = meta.videoUrl;
+        shot.takeLocal = Boolean(meta.short && fs.existsSync(path.join(TAKES_DIR, `${meta.short}.mp4`)));
+      }
+    }
     res.json({ code: 0, data });
   } catch (err) {
     res.status(500).json({ code: 1, message: String(err) });

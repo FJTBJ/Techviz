@@ -448,6 +448,29 @@ export async function requireAuth(req, res, next) {
   }
 }
 
+/** 媒体（take 视频）鉴权：<video> 不能带 Authorization 头，额外接受 ?token= */
+export async function requireAuthMedia(req, res, next) {
+  if (!authEnabled) {
+    req.user = DEV_USER;
+    return next();
+  }
+  const queryToken = typeof req.query.token === 'string' ? req.query.token : '';
+  const header = queryToken ? `Bearer ${queryToken}` : req.header('authorization');
+  try {
+    const { user, jti, oidcIdToken } = await authenticate(header);
+    req.user = user;
+    req.jti = jti;
+    req.authSession = { oidcIdToken };
+    next();
+  } catch (error) {
+    if (!(error instanceof AuthError) || error.httpStatus >= 500) {
+      console.error('[auth] 媒体鉴权异常：', error);
+    }
+    const { status, body } = toErrorPayload(error);
+    res.status(status).json(body);
+  }
+}
+
 /** 挂载 /api/auth/* 路由（需在 api 级 requireAuth 之前注册） */
 export function mountAuthRoutes(app) {
   app.get('/api/auth/config', (_req, res) => {

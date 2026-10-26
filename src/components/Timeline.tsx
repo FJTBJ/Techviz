@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { useScene } from '../store/sceneStore';
-import { shotShortName, timecode } from '../lib/previz';
+import { shotLabel, timecode } from '../lib/previz';
 
 /** 场次配色，让时间线上的镜头块可区分 */
 const SCENE_COLORS = ['#3f7fd6', '#5bb98c', '#c98b3a', '#a06bd0', '#c0555f', '#4aa6b8', '#8a8f3d'];
@@ -104,7 +104,7 @@ export function Timeline() {
     if (next && next.id !== shot.id) selectShot(next.id);
   };
 
-  const label = shotShortName(shot, shots);
+  const label = shotLabel(shot);
 
   return (
     <div className="timeline">

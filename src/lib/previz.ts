@@ -58,12 +58,10 @@ export function sampleShot(shot: PrevizShot, time: number): PrevizPose | null {
   };
 }
 
-/** 镜头短名：场次 + 同场次内的镜号，例如「S079A · 第 2 镜」 */
-export function shotShortName(shot: PrevizShot, shots: PrevizShot[]): string {
-  const scene = (shot.scene ?? '—').toUpperCase();
-  const siblings = shots.filter((item) => (item.scene ?? '') === (shot.scene ?? ''));
-  const index = siblings.findIndex((item) => item.id === shot.id) + 1;
-  return `${scene} · 第 ${index > 0 ? index : 1} 镜`;
+/** 官方镜头短名：Kmoke 场记单 shot_file_name（如 s079a_c004_A），缺失时退回 UE 镜头名 */
+export function shotLabel(shot: PrevizShot): string {
+  if (shot.short) return shot.short;
+  return shot.name.replace(/@.*$/, '');
 }
 
 /** 时间码 00:00:00:00（时:分:秒:帧） */

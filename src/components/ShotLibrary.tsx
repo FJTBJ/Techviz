@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { computeShotUsage } from '../lib/shotFilter';
-import { shotShortName } from '../lib/previz';
+import { shotLabel } from '../lib/previz';
 import { useScene } from '../store/sceneStore';
 import { Panel } from './ui';
 
@@ -133,7 +133,7 @@ export function ShotLibrary() {
               >
                 <span className="shot-index mono">{String(index + 1).padStart(2, '0')}</span>
                 <span className="shot-meta">
-                  <strong>{shotShortName(shot, shots)}</strong>
+                  <strong>{shotLabel(shot)}</strong>
                   <em>
                     {shot.durationSec.toFixed(1)}s · 用到 {used} / {assets.length}
                   </em>

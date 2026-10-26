@@ -169,6 +169,15 @@ export interface PrevizShot {
   durationSec: number;
   focal: number | null;
   keys: PrevizKey[];
+  /** Kmoke 场记单官方短名，如 s079a_c004_A */
+  short?: string;
+  /** take 序号 */
+  take?: number;
+  takeDuration?: number;
+  /** take 视频（Kmoke 签名 URL，24 小时有效，仅作本地缺失时的兜底） */
+  takeUrl?: string;
+  /** 本地已缓存 take 视频（/api/takes/<short>.mp4） */
+  takeLocal?: boolean;
 }
 
 export interface PrevizTimeline {

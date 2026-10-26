@@ -12,6 +12,9 @@ server/data/*.db
 server/data/*.db-shm
 server/data/*.db-wal
 
+# take 视频（体积大，部署时单独上传，不进仓库）
+server/data/takes/
+
 # 环境变量
 .env
 .env.*

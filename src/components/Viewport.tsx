@@ -10,7 +10,7 @@ import { MeasurementLayer } from './scene/MeasurementLayer';
 import { TakePlayer } from './TakePlayer';
 import { ASPECTS } from '../types';
 import { frameFractions, lensMath } from '../lib/lens';
-import { shotAt, sampleShot, shotShortName } from '../lib/previz';
+import { shotAt, sampleShot, shotLabel } from '../lib/previz';
 import { viewportBridge } from '../lib/viewportBridge';
 
 function Bridge() {
@@ -335,7 +335,7 @@ export function Viewport() {
       <TakePlayer />
       {activeShot && usedIds && (
         <div className="shot-filter-badge">
-          <b>{previz ? shotShortName(activeShot, previz.shots) : activeShot.name}</b>
+          <b>{shotLabel(activeShot)}</b>
           <span>
             本镜头元素 {usedIds.length} / {assets.length} · 其余已按视锥剔除
           </span>
