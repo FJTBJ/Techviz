@@ -193,6 +193,35 @@ export interface PrevizTimeline {
   shots: PrevizShot[];
 }
 
+/** UE 人物动画关键帧（three.js 坐标，米；s 为镜头序列内时间，秒） */
+export interface UePersonKey {
+  s: number;
+  p: Vec3;
+  yaw: number;
+}
+
+export interface UePerson {
+  name: string;
+  label: string;
+  keys: UePersonKey[];
+}
+
+/** 单个 take 对应的人物动画（来自 UE PostData 镜头序列） */
+export interface UeShotPeople {
+  short: string | null;
+  sequence: string | null;
+  /** take 时间 0 对应的镜头序列时间偏移，秒 */
+  offset: number;
+  duration: number | null;
+  characters: UePerson[];
+}
+
+export interface UePeople {
+  generatedAt: string;
+  fps: number;
+  shots: Record<string, UeShotPeople>;
+}
+
 /** 机位朝向计算：单个镜头计算前 / 计算后 */
 export interface ShotAim {
   id: string;
@@ -204,6 +233,8 @@ export interface ShotAim {
   before: { led: number; ground: number; open: number };
   /** 整条 take 的偏航修正角，度 */
   deltaDeg: number;
+  /** 整条 take 的俯仰修正角，度（低机位避免画幅压在地面上） */
+  deltaPitchDeg: number;
   after: { led: number; ground: number; open: number };
 }
 

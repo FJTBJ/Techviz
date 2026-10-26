@@ -58,6 +58,18 @@ export function sampleShot(shot: PrevizShot, time: number): PrevizPose | null {
   };
 }
 
+/**
+ * 按 master 时间码取姿态。
+ * 注意：关键帧的 t 是 UE take 时间码（如 33275s），不是 master 秒数，
+ * 首帧 t 对应 shot.start，因此按相同时间偏移平移到关键帧时间轴（1:1，不拉伸），
+ * 轨道结束后 sampleShot 会自然停在最后一帧。
+ */
+export function sampleShotAtTime(shot: PrevizShot, time: number): PrevizPose | null {
+  const keys = shot.keys;
+  if (keys.length === 0) return null;
+  return sampleShot(shot, keys[0].t + (time - shot.start));
+}
+
 /** 官方镜头短名：Kmoke 场记单 shot_file_name（如 s079a_c004_A），缺失时退回 UE 镜头名 */
 export function shotLabel(shot: PrevizShot): string {
   if (shot.short) return shot.short;

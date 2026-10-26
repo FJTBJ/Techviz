@@ -3,9 +3,10 @@
  *
  * 规则：
  *   - 环屏是固定对象，缺口中心始终在 three +Z（面向观众/机位一侧），不旋转
- *   - 每个镜头保留机位位置、俯仰和整条 take 的镜头运动（摇/移）
- *   - 只给整条 take 加一个固定偏航修正角 Δ，使画面尽量落在 LED 屏上
- *   - Δ 以 5° 步长搜索：LED 覆盖率最大 → 无覆盖最小 → |Δ| 最小
+ *   - 每个镜头保留机位位置和整条 take 的镜头运动（摇/移）
+ *   - 先给整条 take 加一个固定偏航修正角 Δyaw，把视线摆向 LED 屏
+ *   - 再给整条 take 加一个固定俯仰修正角 Δpitch，避免低机位把画幅压在地面上
+ *   - 两个修正角都按覆盖率搜索：LED 覆盖率最大 → 修正量最小
  *
  * 输出：server/data/shot-aim.json（计算前 / 计算后两组数据）
  */
@@ -25,6 +26,9 @@ const SENSOR_W = 24.89;
 const SENSOR_H = 24.89 / 2.39;
 const DEFAULT_FOCAL = 35;
 const STEP_DEG = 5;
+/** 俯仰修正搜索范围与步长（度） */
+const PITCH_STEP_DEG = 2.5;
+const MAX_PITCH_DEG = 30;
 
 const readJson = (f) => JSON.parse(fs.readFileSync(f, 'utf8'));
 const round1 = (n) => Math.round(n * 10) / 10;
@@ -41,7 +45,7 @@ function main() {
     gapCenterDeg: 0, // 缺口中心在 three +Z，始终朝向观众/机位一侧
   };
 
-  const coverage = (shot, deltaDeg) => {
+  const coverage = (shot, deltaDeg, deltaPitchDeg = 0) => {
     const plan = buildSetPlan({
       ring,
       shots: [
@@ -52,10 +56,14 @@ function main() {
           focal: shot.focal ?? DEFAULT_FOCAL,
           sensorWidth: SENSOR_W,
           sensorHeight: SENSOR_H,
-          keys: shot.keys.map((k) => ({ ...k, yaw: k.yaw + deltaDeg })),
+          keys: shot.keys.map((k) => ({
+            ...k,
+            yaw: k.yaw + deltaDeg,
+            pitch: k.pitch + deltaPitchDeg,
+          })),
           position: shot.keys[0].position,
           yaw: shot.keys[0].yaw + deltaDeg,
-          pitch: shot.keys[0].pitch,
+          pitch: shot.keys[0].pitch + deltaPitchDeg,
         },
       ],
     });
@@ -80,6 +88,18 @@ function main() {
         best = candidate;
       }
     }
+    // 俯仰修正：低机位（<1m）只修偏航时半个画幅会压在地面上
+    let bestPitch = { deltaPitchDeg: 0, coverage: best.coverage };
+    for (let dp = -MAX_PITCH_DEG; dp <= MAX_PITCH_DEG; dp += PITCH_STEP_DEG) {
+      const c = coverage(shot, best.delta, dp);
+      if (
+        c.led > bestPitch.coverage.led ||
+        (c.led === bestPitch.coverage.led &&
+          Math.abs(dp) < Math.abs(bestPitch.deltaPitchDeg))
+      ) {
+        bestPitch = { deltaPitchDeg: dp, coverage: c };
+      }
+    }
     rows.push({
       id: shot.id,
       name: shot.name,
@@ -89,7 +109,8 @@ function main() {
       focal: shot.focal ?? DEFAULT_FOCAL,
       before,
       deltaDeg: best.delta,
-      after: best.coverage,
+      deltaPitchDeg: bestPitch.deltaPitchDeg,
+      after: bestPitch.coverage,
     });
   }
 
@@ -145,8 +166,8 @@ function main() {
     },
     frame: { sensor: 'S35', sensorWidth: SENSOR_W, sensorHeight: round1(SENSOR_H * 100) / 100, aspect: '2.39:1' },
     note:
-      '环屏与缺口固定（缺口中心 +Z，面向机位一侧）；每个镜头保留机位位置、俯仰与镜头运动，' +
-      '只加一个固定偏航修正角 Δ，使画面尽量落在 LED 屏上。',
+      '环屏与缺口固定（缺口中心 +Z，面向机位一侧）；每个镜头保留机位位置与整条 take 的镜头运动，' +
+      '加一组固定偏航 / 俯仰修正角，使画面尽量落在 LED 屏上。',
     summary: {
       before: summarize((r) => r.before),
       after: summarize((r) => r.after),

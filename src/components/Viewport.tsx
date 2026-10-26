@@ -7,10 +7,11 @@ import { SceneObject, LedRing } from './scene/SceneObject';
 import { CameraRig } from './scene/CameraRig';
 import { SetPlanLayer } from './scene/SetPlanLayer';
 import { MeasurementLayer } from './scene/MeasurementLayer';
+import { PeopleLayer } from './scene/PeopleLayer';
 import { TakePlayer } from './TakePlayer';
 import { ASPECTS } from '../types';
 import { frameFractions, lensMath } from '../lib/lens';
-import { shotAt, sampleShot, shotLabel } from '../lib/previz';
+import { shotAt, sampleShotAtTime, shotLabel } from '../lib/previz';
 import { viewportBridge } from '../lib/viewportBridge';
 
 function Bridge() {
@@ -113,17 +114,18 @@ function PrevizPlayback() {
     if (!tl) return;
     const shot = shotAt(tl.shots, st.timelineTime);
     if (!shot) return; // 镜头间隙保持上一帧
-    const pose = sampleShot(shot, st.timelineTime);
+    const pose = sampleShotAtTime(shot, st.timelineTime);
     if (!pose) return;
 
-    // 计算后：整条 take 加固定偏航角，把视线摆向 LED 环屏（缺口位置不动）
+    // 计算后：整条 take 加固定偏航/俯仰角，把视线摆向 LED 环屏（缺口位置不动）
     const aim = aimMode === 'led' ? st.shotAim?.shots.find((row) => row.id === shot.id) : null;
     const yaw = pose.yaw + (aim?.deltaDeg ?? 0);
+    const pitch = pose.pitch + (aim?.deltaPitchDeg ?? 0);
 
     camera.position.set(...pose.position);
     camera.rotation.order = 'YXZ';
     camera.rotation.set(
-      THREE.MathUtils.degToRad(pose.pitch),
+      THREE.MathUtils.degToRad(pitch),
       THREE.MathUtils.degToRad(yaw),
       0,
     );
@@ -188,6 +190,8 @@ function PrevizCameraMarker() {
   const aerial = useScene((s) => s.aerialView);
   const previz = useScene((s) => s.previz);
   const activeShotId = useScene((s) => s.activeShotId);
+  const aimMode = useScene((s) => s.aimMode);
+  const shotAim = useScene((s) => s.shotAim);
   const ref = useRef<THREE.Group>(null);
 
   const shot = useMemo(
@@ -202,13 +206,15 @@ function PrevizCameraMarker() {
   useFrame(() => {
     const group = ref.current;
     if (!group || !shot) return;
-    const pose = sampleShot(shot, useScene.getState().timelineTime);
+    const pose = sampleShotAtTime(shot, useScene.getState().timelineTime);
     if (!pose) return;
+    // 与跟随播放同口径：朝环屏模式下整条 take 叠加固定偏航/俯仰修正
+    const aim = aimMode === 'led' ? shotAim?.shots.find((row) => row.id === shot.id) : null;
     group.position.set(...pose.position);
     group.rotation.order = 'YXZ';
     group.rotation.set(
-      THREE.MathUtils.degToRad(pose.pitch),
-      THREE.MathUtils.degToRad(pose.yaw),
+      THREE.MathUtils.degToRad(pose.pitch + (aim?.deltaPitchDeg ?? 0)),
+      THREE.MathUtils.degToRad(pose.yaw + (aim?.deltaDeg ?? 0)),
       0,
     );
   });
@@ -267,7 +273,12 @@ function SceneContent() {
   const follow = useScene((s) => s.followPreviz);
   const stages = useScene((s) => s.stages);
   const currentStageId = useScene((s) => s.currentStageId);
+  const activeShotId = useScene((s) => s.activeShotId);
+  const previz = useScene((s) => s.previz);
   const stage = stages.find((s) => s.id === currentStageId);
+  const activeShot = activeShotId
+    ? (previz?.shots.find((shot) => shot.id === activeShotId) ?? null)
+    : null;
 
   // 镜头库选中某个镜头时，只渲染该镜头视锥内用到的元素（高空视角也一样，便于只看本镜头布景与机位运动）
   const visibleAssets = useMemo(() => {
@@ -328,6 +339,7 @@ function SceneContent() {
       ))}
       <MeasurementLayer />
       <SetPlanLayer />
+      <PeopleLayer shot={activeShot} />
       <CameraRig />
       <CameraDriver />
       <PrevizPlayback />

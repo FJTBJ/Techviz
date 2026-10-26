@@ -155,13 +155,18 @@ export function SetPlanPanel() {
                   >
                     <span className="name">{row.name}</span>
                     <span className="mono dim">{pct(row.before.led)}</span>
-                    <span className="mono dim">+{row.deltaDeg}°</span>
+                    <span
+                      className="mono dim"
+                      title={`偏航 +${row.deltaDeg}° / 俯仰 ${row.deltaPitchDeg > 0 ? '+' : ''}${row.deltaPitchDeg}°`}
+                    >
+                      +{row.deltaDeg}°{row.deltaPitchDeg ? `/${row.deltaPitchDeg > 0 ? '+' : ''}${row.deltaPitchDeg}°` : ''}
+                    </span>
                     <span className="mono">{pct(row.after.led)}</span>
                   </div>
                 ))}
               </div>
               <p className="setplan-meta mono">
-                缺口固定朝机位一侧；计算后每个 take 只加固定偏航角，把视线摆向环屏
+                缺口固定朝机位一侧；计算后每个 take 加固定偏航 / 俯仰角，把视线摆向环屏
               </p>
             </>
           )}

@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-10-26T14:40:00.994Z",
+ "generatedAt": "2026-10-26T14:56:45.245Z",
  "mode": "aim-at-led",
  "ring": {
   "diameter": 22.285,
@@ -13,7 +13,7 @@
   "sensorHeight": 10.414000000000001,
   "aspect": "2.39:1"
  },
- "note": "环屏与缺口固定（缺口中心 +Z，面向机位一侧）；每个镜头保留机位位置、俯仰与镜头运动，只加一个固定偏航修正角 Δ，使画面尽量落在 LED 屏上。",
+ "note": "环屏与缺口固定（缺口中心 +Z，面向机位一侧）；每个镜头保留机位位置与整条 take 的镜头运动，加一组固定偏航 / 俯仰修正角，使画面尽量落在 LED 屏上。",
  "summary": {
   "before": {
    "shots": 28,
@@ -24,9 +24,9 @@
   },
   "after": {
    "shots": 28,
-   "led": 79.8,
-   "ground": 20.1,
-   "open": 0.1,
+   "led": 99.5,
+   "ground": 0,
+   "open": 0.5,
    "zeroLed": 0
   }
  },
@@ -39,8 +39,8 @@
     "zeroLed": 1
    },
    "after": {
-    "led": 80.8,
-    "open": 0.3,
+    "led": 99.6,
+    "open": 0.4,
     "zeroLed": 0
    },
    "maxDeltaDeg": 280
@@ -53,7 +53,7 @@
     "zeroLed": 0
    },
    "after": {
-    "led": 75.1,
+    "led": 100,
     "open": 0,
     "zeroLed": 0
    },
@@ -67,8 +67,8 @@
     "zeroLed": 0
    },
    "after": {
-    "led": 50.8,
-    "open": 0,
+    "led": 95.1,
+    "open": 5,
     "zeroLed": 0
    },
    "maxDeltaDeg": 85
@@ -81,8 +81,8 @@
     "zeroLed": 1
    },
    "after": {
-    "led": 83.3,
-    "open": 0,
+    "led": 99.9,
+    "open": 0.1,
     "zeroLed": 0
    },
    "maxDeltaDeg": 185
@@ -95,7 +95,7 @@
     "zeroLed": 1
    },
    "after": {
-    "led": 76.7,
+    "led": 100,
     "open": 0,
     "zeroLed": 0
    },
@@ -109,7 +109,7 @@
     "zeroLed": 2
    },
    "after": {
-    "led": 88.6,
+    "led": 100,
     "open": 0,
     "zeroLed": 0
    },
@@ -130,6 +130,7 @@
     "open": 100
    },
    "deltaDeg": 125,
+   "deltaPitchDeg": 0,
    "after": {
     "led": 100,
     "ground": 0,
@@ -149,6 +150,7 @@
     "open": 10.4
    },
    "deltaDeg": 200,
+   "deltaPitchDeg": 0,
    "after": {
     "led": 100,
     "ground": 0,
@@ -168,6 +170,7 @@
     "open": 36.4
    },
    "deltaDeg": 15,
+   "deltaPitchDeg": 0,
    "after": {
     "led": 100,
     "ground": 0,
@@ -187,6 +190,7 @@
     "open": 0
    },
    "deltaDeg": 0,
+   "deltaPitchDeg": 0,
    "after": {
     "led": 100,
     "ground": 0,
@@ -206,9 +210,10 @@
     "open": 0
    },
    "deltaDeg": 0,
+   "deltaPitchDeg": 7.5,
    "after": {
-    "led": 57.1,
-    "ground": 42.9,
+    "led": 100,
+    "ground": 0,
     "open": 0
    }
   },
@@ -225,6 +230,7 @@
     "open": 85.7
    },
    "deltaDeg": 70,
+   "deltaPitchDeg": 0,
    "after": {
     "led": 100,
     "ground": 0,
@@ -244,6 +250,7 @@
     "open": 0
    },
    "deltaDeg": 0,
+   "deltaPitchDeg": 0,
    "after": {
     "led": 100,
     "ground": 0,
@@ -263,10 +270,11 @@
     "open": 0
    },
    "deltaDeg": 10,
+   "deltaPitchDeg": 25,
    "after": {
-    "led": 4.4,
-    "ground": 95.6,
-    "open": 0
+    "led": 90.1,
+    "ground": 0,
+    "open": 9.9
    }
   },
   {
@@ -282,9 +290,10 @@
     "open": 52.7
    },
    "deltaDeg": 85,
+   "deltaPitchDeg": 2.5,
    "after": {
-    "led": 97.1,
-    "ground": 2.9,
+    "led": 100,
+    "ground": 0,
     "open": 0
    }
   },
@@ -301,9 +310,10 @@
     "open": 0
    },
    "deltaDeg": 80,
+   "deltaPitchDeg": 5,
    "after": {
-    "led": 69.1,
-    "ground": 30.9,
+    "led": 100,
+    "ground": 0,
     "open": 0
    }
   },
@@ -320,9 +330,10 @@
     "open": 7
    },
    "deltaDeg": 355,
+   "deltaPitchDeg": 7.5,
    "after": {
-    "led": 68.3,
-    "ground": 31.7,
+    "led": 100,
+    "ground": 0,
     "open": 0
    }
   },
@@ -339,9 +350,10 @@
     "open": 63.4
    },
    "deltaDeg": 225,
+   "deltaPitchDeg": 7.5,
    "after": {
-    "led": 61,
-    "ground": 39,
+    "led": 100,
+    "ground": 0,
     "open": 0
    }
   },
@@ -358,10 +370,11 @@
     "open": 4.7
    },
    "deltaDeg": 185,
+   "deltaPitchDeg": 10,
    "after": {
-    "led": 49.9,
-    "ground": 50.1,
-    "open": 0
+    "led": 99.7,
+    "ground": 0,
+    "open": 0.3
    }
   },
   {
@@ -377,6 +390,7 @@
     "open": 24.2
    },
    "deltaDeg": 155,
+   "deltaPitchDeg": 0,
    "after": {
     "led": 100,
     "ground": 0,
@@ -396,9 +410,10 @@
     "open": 74.3
    },
    "deltaDeg": 270,
+   "deltaPitchDeg": 7.5,
    "after": {
-    "led": 65.5,
-    "ground": 34.5,
+    "led": 100,
+    "ground": 0,
     "open": 0
    }
   },
@@ -415,9 +430,10 @@
     "open": 0
    },
    "deltaDeg": 280,
+   "deltaPitchDeg": 10,
    "after": {
-    "led": 70.4,
-    "ground": 29.6,
+    "led": 100,
+    "ground": 0,
     "open": 0
    }
   },
@@ -434,9 +450,10 @@
     "open": 0
    },
    "deltaDeg": 0,
+   "deltaPitchDeg": 7.5,
    "after": {
-    "led": 57.1,
-    "ground": 42.9,
+    "led": 100,
+    "ground": 0,
     "open": 0
    }
   },
@@ -453,6 +470,7 @@
     "open": 0
    },
    "deltaDeg": 0,
+   "deltaPitchDeg": 0,
    "after": {
     "led": 100,
     "ground": 0,
@@ -472,9 +490,10 @@
     "open": 0
    },
    "deltaDeg": 145,
+   "deltaPitchDeg": 7.5,
    "after": {
-    "led": 69.1,
-    "ground": 30.9,
+    "led": 100,
+    "ground": 0,
     "open": 0
    }
   },
@@ -491,10 +510,11 @@
     "open": 64.4
    },
    "deltaDeg": 150,
+   "deltaPitchDeg": 5,
    "after": {
-    "led": 73.5,
-    "ground": 23.9,
-    "open": 2.6
+    "led": 96.4,
+    "ground": 0,
+    "open": 3.6
    }
   },
   {
@@ -510,9 +530,10 @@
     "open": 0
    },
    "deltaDeg": 85,
+   "deltaPitchDeg": 5,
    "after": {
-    "led": 72.7,
-    "ground": 27.3,
+    "led": 100,
+    "ground": 0,
     "open": 0
    }
   },
@@ -529,6 +550,7 @@
     "open": 0
    },
    "deltaDeg": 0,
+   "deltaPitchDeg": 0,
    "after": {
     "led": 100,
     "ground": 0,
@@ -548,9 +570,10 @@
     "open": 0
    },
    "deltaDeg": 0,
+   "deltaPitchDeg": 5,
    "after": {
-    "led": 91.4,
-    "ground": 8.6,
+    "led": 100,
+    "ground": 0,
     "open": 0
    }
   },
@@ -567,9 +590,10 @@
     "open": 86
    },
    "deltaDeg": 235,
+   "deltaPitchDeg": 5,
    "after": {
-    "led": 84.7,
-    "ground": 15.3,
+    "led": 100,
+    "ground": 0,
     "open": 0
    }
   },
@@ -586,9 +610,10 @@
     "open": 0
    },
    "deltaDeg": 0,
+   "deltaPitchDeg": 7.5,
    "after": {
-    "led": 57.1,
-    "ground": 42.9,
+    "led": 100,
+    "ground": 0,
     "open": 0
    }
   },
@@ -605,10 +630,11 @@
     "open": 0
    },
    "deltaDeg": 85,
+   "deltaPitchDeg": 5,
    "after": {
-    "led": 87.3,
-    "ground": 12.7,
-    "open": 0
+    "led": 99.7,
+    "ground": 0,
+    "open": 0.3
    }
   },
   {
@@ -624,6 +650,7 @@
     "open": 5.5
    },
    "deltaDeg": 60,
+   "deltaPitchDeg": 0,
    "after": {
     "led": 100,
     "ground": 0,
@@ -643,6 +670,7 @@
     "open": 0
    },
    "deltaDeg": 0,
+   "deltaPitchDeg": 0,
    "after": {
     "led": 100,
     "ground": 0,
