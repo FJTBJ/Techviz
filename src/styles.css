@@ -348,6 +348,14 @@ textarea {
   gap: 6px;
 }
 
+/* 集合自由转向滑块：与两侧 ±15° 按钮同高 */
+.ensemble-slider {
+  width: 96px;
+  margin: 0 4px;
+  accent-color: #ffb020;
+  cursor: ew-resize;
+}
+
 .panel-body {
   display: flex;
   flex-direction: column;

@@ -148,6 +148,8 @@ interface SceneState {
   /** true = 按当前镜头的朝环屏修正角自动转向；false = 手动（一键旋转后进入手动） */
   ensembleAuto: boolean;
   setEnsembleYaw: (deg: number) => void;
+  /** 自由拖动转向：设置角度并切到手动，避免切镜头时被自动角度覆盖 */
+  setEnsembleYawManual: (deg: number) => void;
   rotateEnsemble: (deltaDeg: number) => void;
   toggleEnsembleAuto: () => void;
   /** 播放头位置，秒 */
@@ -528,6 +530,8 @@ export const useScene = create<SceneState>((set, get) => ({
     ),
 
   setEnsembleYaw: (deg) => set({ ensembleYaw: normDeg(deg) }),
+
+  setEnsembleYawManual: (deg) => set({ ensembleYaw: normDeg(deg), ensembleAuto: false }),
 
   /** 一键把整个集合在环屏内转向（集合内部相对关系不变） */
   rotateEnsemble: (deltaDeg) =>

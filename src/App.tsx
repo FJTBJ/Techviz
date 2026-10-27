@@ -28,8 +28,11 @@ function EnsembleTurnControl() {
   const yaw = useScene((s) => s.ensembleYaw);
   const auto = useScene((s) => s.ensembleAuto);
   const rotate = useScene((s) => s.rotateEnsemble);
-  const setYaw = useScene((s) => s.setEnsembleYaw);
+  const setYaw = useScene((s) => s.setEnsembleYawManual);
   const toggleAuto = useScene((s) => s.toggleEnsembleAuto);
+
+  /** 滑块用 0~360 表示，避免负角度时滑块反向 */
+  const dial = ((Math.round(yaw) % 360) + 360) % 360;
 
   return (
     <div
@@ -39,11 +42,21 @@ function EnsembleTurnControl() {
       <button onClick={() => rotate(-15)} title="逆时针转 15°">
         ↺15°
       </button>
-      <button onClick={() => setYaw(0)} title="集合朝向归零（UE 原始方位）">
-        <span className="mono">{Math.round(yaw)}°</span>
-      </button>
+      <input
+        className="ensemble-slider"
+        type="range"
+        min={0}
+        max={360}
+        step={1}
+        value={dial}
+        onChange={(e) => setYaw(Number(e.target.value))}
+        title={`拖动自由转向（${dial}°）`}
+      />
       <button onClick={() => rotate(15)} title="顺时针转 15°">
         ↻15°
+      </button>
+      <button onClick={() => setYaw(0)} title="集合朝向归零（UE 原始方位）">
+        <span className="mono">{dial}°</span>
       </button>
       <button
         className={auto ? 'active' : ''}
