@@ -13,6 +13,7 @@ export function SetPlanLayer() {
   const plan = useScene((s) => s.setPlan);
   const scene = useScene((s) => s.planScene);
   const showSetPlan = useScene((s) => s.showSetPlan);
+  const showShotMarkers = useScene((s) => s.showShotMarkers);
   const current = plan?.plans?.[scene ?? ''] ?? null;
 
   const cameraMarkers = useMemo(() => {
@@ -29,39 +30,41 @@ export function SetPlanLayer() {
     return out;
   }, [current]);
 
-  if (!showSetPlan || !current) return null;
+  if ((!showSetPlan && !showShotMarkers) || !current) return null;
 
   return (
     <group>
-      {current.setPieces.map((piece) => {
-        const color = CATEGORY_COLOR[piece.category] ?? piece.color;
-        return (
-          <mesh
-            key={piece.id}
-            position={piece.position}
-            rotation={[0, piece.rotationY, 0]}
-            renderOrder={2}
-          >
-            <boxGeometry args={piece.size} />
-            <meshStandardMaterial
-              color={color}
-              transparent
-              opacity={0.4}
-              roughness={0.75}
-              metalness={0.05}
-              depthWrite={false}
-            />
-            <Edges color={color} />
-          </mesh>
-        );
-      })}
+      {showSetPlan &&
+        current.setPieces.map((piece) => {
+          const color = CATEGORY_COLOR[piece.category] ?? piece.color;
+          return (
+            <mesh
+              key={piece.id}
+              position={piece.position}
+              rotation={[0, piece.rotationY, 0]}
+              renderOrder={2}
+            >
+              <boxGeometry args={piece.size} />
+              <meshStandardMaterial
+                color={color}
+                transparent
+                opacity={0.4}
+                roughness={0.75}
+                metalness={0.05}
+                depthWrite={false}
+              />
+              <Edges color={color} />
+            </mesh>
+          );
+        })}
 
-      {cameraMarkers.map((marker) => (
-        <mesh key={marker.id} position={marker.p}>
-          <octahedronGeometry args={[0.16, 0]} />
-          <meshBasicMaterial color="#ffb020" />
-        </mesh>
-      ))}
+      {showShotMarkers &&
+        cameraMarkers.map((marker) => (
+          <mesh key={marker.id} position={marker.p}>
+            <octahedronGeometry args={[0.16, 0]} />
+            <meshBasicMaterial color="#ffb020" />
+          </mesh>
+        ))}
     </group>
   );
 }

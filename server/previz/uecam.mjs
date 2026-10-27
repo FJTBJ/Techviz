@@ -270,6 +270,17 @@ if (movieSceneExport) {
 }
 
 const sections = [];
+if (process.env.UECAM_DEBUG) {
+  for (const e of exports) {
+    const cn = exportClassName(e);
+    if (!/SceneComponent|CineCamera|ActorRecorderPropertyMap/.test(cn)) continue;
+    const r = parseTags(e.off, e.size);
+    debug('tags', e.index, e.objectName, cn, JSON.stringify(r.tags.map(t => ({
+      n: t.name, t: t.type, extra: t.extra, size: t.size,
+      d: t.type === 'StructProperty' ? [0, 1, 2].map(i => +f64(t.valueStart + i * 8).toFixed(3)) : null,
+    }))));
+  }
+}
 for (const e of exports) {
   const cn = exportClassName(e);
   if (!sectionClasses.has(cn)) continue;
@@ -410,6 +421,7 @@ function templateStaticPose() {
   const rot = (mount || cam)
     ? [0, 1, 2].map(i => +((mount ? mount[i] : 0) + (cam ? cam[i] : 0)).toFixed(4))
     : null;
+  debug('templateStaticPose', JSON.stringify({ loc, mount, cam }));
   return { loc, rot };
 }
 

@@ -170,6 +170,8 @@ for (const g of groups.values()) {
     section: s.exportIndex,
     keyCount: keys.length,
     sourceKeys: times.length,
+    // 第一帧在序列里的 tick：换算 take 时间时要用 (camFirst - subStart - t0)，不能直接当成 0
+    firstTick: t0,
     duration: +dur.toFixed(3),
     range: { x: range(0), y: range(1), z: range(2) },
     keys,

@@ -1,4 +1,4 @@
-import type { PrevizShot, ShotAim, Vec3 } from '../types';
+import type { PrevizShot, Vec3 } from '../types';
 
 export interface PrevizPose {
   position: Vec3;
@@ -71,31 +71,25 @@ export function sampleShotAtTime(shot: PrevizShot, time: number): PrevizPose | n
 }
 
 /**
- * 叠加「朝环屏」修正角：环屏与缺口固定，整条 take 加一组固定偏航 / 俯仰修正，
- * 把视线从 UE 原始朝向（很可能正对缺口）摆到 LED 屏上。
+ * 把整个集合（布景 / 演员 / 机位）绕环屏中心整体旋转 yawDeg。
+ * 集合内相对关系不变，只是相对固定的 LED 缺口换了朝向。
  */
-export function applyAim(
-  pose: PrevizPose,
-  aim: ShotAim | null | undefined,
-  aimMode: 'raw' | 'led',
-): PrevizPose {
-  if (aimMode !== 'led' || !aim) return pose;
+export function rotatePoseY(pose: PrevizPose, yawDeg: number): PrevizPose {
+  if (!yawDeg) return pose;
+  const r = (yawDeg * Math.PI) / 180;
+  const cos = Math.cos(r);
+  const sin = Math.sin(r);
+  const [x, y, z] = pose.position;
   return {
     ...pose,
-    yaw: pose.yaw + aim.deltaDeg,
-    pitch: pose.pitch + aim.deltaPitchDeg,
+    position: [x * cos + z * sin, y, -x * sin + z * cos],
+    yaw: pose.yaw + yawDeg,
   };
 }
 
-/** 镜头在指定时间、叠加朝环屏修正后的最终机位姿态 */
-export function shotPoseAt(
-  shot: PrevizShot,
-  aim: ShotAim | null | undefined,
-  aimMode: 'raw' | 'led',
-  time: number,
-): PrevizPose | null {
-  const pose = sampleShotAtTime(shot, time);
-  return pose ? applyAim(pose, aim, aimMode) : null;
+/** 镜头在指定时间的原始机位姿态（集合整体转向由 rotatePoseY 叠加） */
+export function shotPoseAt(shot: PrevizShot, time: number): PrevizPose | null {
+  return sampleShotAtTime(shot, time);
 }
 
 /** 官方镜头短名：Kmoke 场记单 shot_file_name（如 s079a_c004_A），缺失时退回 UE 镜头名 */

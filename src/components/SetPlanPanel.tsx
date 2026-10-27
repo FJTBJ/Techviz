@@ -15,6 +15,8 @@ export function SetPlanPanel() {
   const setPlan = useScene((s) => s.setPlan);
   const planScene = useScene((s) => s.planScene);
   const showSetPlan = useScene((s) => s.showSetPlan);
+  const showShotMarkers = useScene((s) => s.showShotMarkers);
+  const toggleShotMarkers = useScene((s) => s.toggleShotMarkers);
   const loadSetPlan = useScene((s) => s.loadSetPlan);
   const setPlanScene = useScene((s) => s.setPlanScene);
   const toggleSetPlan = useScene((s) => s.toggleSetPlan);
@@ -43,9 +45,19 @@ export function SetPlanPanel() {
     <Panel
       title="布景方案"
       extra={
-        <button className={`btn tiny ${showSetPlan ? 'active' : ''}`} onClick={toggleSetPlan} disabled={!current}>
-          {showSetPlan ? '隐藏体块' : '显示体块'}
-        </button>
+        <div className="panel-actions">
+          <button
+            className={`btn tiny ${showShotMarkers ? 'active' : ''}`}
+            onClick={toggleShotMarkers}
+            disabled={!current}
+            title="黄色菱形 = 每个镜头的首帧机位；一键隐藏/显示"
+          >
+            {showShotMarkers ? '隐藏机位点' : '显示机位点'}
+          </button>
+          <button className={`btn tiny ${showSetPlan ? 'active' : ''}`} onClick={toggleSetPlan} disabled={!current}>
+            {showSetPlan ? '隐藏体块' : '显示体块'}
+          </button>
+        </div>
       }
     >
       <button className="btn ghost block" onClick={run} disabled={busy}>

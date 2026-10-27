@@ -165,13 +165,11 @@ export function Timeline() {
             onClick={toggleAimMode}
             title={
               aimMode === 'led'
-                ? `计算后：整条 take 偏航 +${aim.deltaDeg}°、俯仰 ${aim.deltaPitchDeg > 0 ? '+' : ''}${aim.deltaPitchDeg}°，视线摆向 LED 屏（缺口位置不动）`
-                : `计算前：UE 原始机位朝向，LED 覆盖 ${Math.round(aim.before.led)}% → 计算后 ${Math.round(aim.after.led)}%`
+                ? `自动：整个集合绕环屏中心转 ${aim.deltaDeg}°，把镜头背景摆到 LED 屏（机位与演员相对关系不变）`
+                : `原始方位：UE 原始朝向，LED 覆盖 ${Math.round(aim.before.led)}% → 转向后 ${Math.round(aim.after.led)}%`
             }
           >
-            {aimMode === 'led'
-              ? `朝环屏 +${aim.deltaDeg}°${aim.deltaPitchDeg ? ` / ${aim.deltaPitchDeg > 0 ? '+' : ''}${aim.deltaPitchDeg}°` : ''}`
-              : '原始机位'}
+            {aimMode === 'led' ? `集合转向 +${aim.deltaDeg}°` : '原始方位'}
           </button>
         )}
         {aim && (

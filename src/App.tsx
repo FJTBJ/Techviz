@@ -20,6 +20,42 @@ import {
   requestLogout,
 } from './lib/oidc';
 
+/**
+ * 一键把整个集合（布景 + 演员 + 机位）绕环屏中心整体转向。
+ * 环屏与缺口固定不动，集合内部相对关系不变，只是换个方向对准 LED。
+ */
+function EnsembleTurnControl() {
+  const yaw = useScene((s) => s.ensembleYaw);
+  const auto = useScene((s) => s.ensembleAuto);
+  const rotate = useScene((s) => s.rotateEnsemble);
+  const setYaw = useScene((s) => s.setEnsembleYaw);
+  const toggleAuto = useScene((s) => s.toggleEnsembleAuto);
+
+  return (
+    <div
+      className="segmented subtle"
+      title="整个集合绕环屏中心转向：布景 / 演员 / 机位一起转，集合内相对关系不变；环屏与缺口固定"
+    >
+      <button onClick={() => rotate(-15)} title="逆时针转 15°">
+        ↺15°
+      </button>
+      <button onClick={() => setYaw(0)} title="集合朝向归零（UE 原始方位）">
+        <span className="mono">{Math.round(yaw)}°</span>
+      </button>
+      <button onClick={() => rotate(15)} title="顺时针转 15°">
+        ↻15°
+      </button>
+      <button
+        className={auto ? 'active' : ''}
+        onClick={toggleAuto}
+        title={auto ? '自动：跟随当前镜头的朝环屏角度' : '手动：保留当前转向角度'}
+      >
+        {auto ? '自动' : '手动'}
+      </button>
+    </div>
+  );
+}
+
 /** 棚切换器：数据来自后端扫描 UE 工程，棚固定于原点 */
 function StageSwitcher() {
   const stages = useScene((s) => s.stages);
@@ -243,6 +279,7 @@ export default function App() {
 
         <div className="toolbar">
           <StageSwitcher />
+          <EnsembleTurnControl />
           <UeImportButton />
           <div className="segmented">
             {MODES.map((item) => (

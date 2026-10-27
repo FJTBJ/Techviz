@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { DEMO_SHOT, demoAssets } from '../data/mockData';
 import { apiFetch } from '../lib/api';
 import { buildBoxes, usedAssetIds } from '../lib/shotFilter';
-import { shotPoseAt } from '../lib/previz';
+import { rotatePoseY, shotPoseAt } from '../lib/previz';
 import type {
   GizmoMode,
   Measurement,
@@ -31,6 +31,9 @@ export const markGizmoDragEnd = () => {
   lastGizmoDragEnd = performance.now();
 };
 export const isGizmoActive = () => performance.now() - lastGizmoDragEnd < 200;
+
+/** 角度归一到 (-180, 180] */
+const normDeg = (deg: number) => ((deg % 360) + 540) % 360 - 180;
 
 /** 是否已从后端恢复过数据；恢复完成后才开启自动保存，避免用 demo 数据覆盖存档 */
 let hydrated = false;
@@ -81,6 +84,9 @@ interface SceneState {
   setPlan: SetPlanFile | null;
   planScene: string | null;
   showSetPlan: boolean;
+  /** 布景方案里的黄色菱形机位点（各镜首帧机位）是否显示 */
+  showShotMarkers: boolean;
+  toggleShotMarkers: () => void;
 
   /** 方案管理：后端按用户隔离的方案列表、当前方案、关联场次 */
   plans: PlanMeta[];
@@ -128,6 +134,16 @@ interface SceneState {
   /** 机位朝向模式：raw = UE 原始数据，led = 摆向环屏（应用每镜修正角 Δ） */
   aimMode: 'raw' | 'led';
   toggleAimMode: () => void;
+  /**
+   * 整个集合（布景 + 演员 + 机位）绕环屏中心整体旋转的角度，度。
+   * 环屏与缺口固定，转集合等价于换一个方向对准 LED，集合内部相对关系不变。
+   */
+  ensembleYaw: number;
+  /** true = 按当前镜头的朝环屏修正角自动转向；false = 手动（一键旋转后进入手动） */
+  ensembleAuto: boolean;
+  setEnsembleYaw: (deg: number) => void;
+  rotateEnsemble: (deltaDeg: number) => void;
+  toggleEnsembleAuto: () => void;
   /** 播放头位置，秒 */
   timelineTime: number;
   playing: boolean;
@@ -185,6 +201,7 @@ export const useScene = create<SceneState>((set, get) => ({
   setPlan: null,
   planScene: null,
   showSetPlan: false,
+  showShotMarkers: true,
   plans: [],
   planName: null,
   sceneKey: null,
@@ -206,6 +223,8 @@ export const useScene = create<SceneState>((set, get) => ({
   previz: null,
   shotAim: null,
   aimMode: 'led',
+  ensembleYaw: 0,
+  ensembleAuto: true,
   timelineTime: 0,
   playing: false,
   playbackSpeed: 1,
@@ -283,7 +302,7 @@ export const useScene = create<SceneState>((set, get) => ({
       } catch {
         /* 无机位朝向数据时忽略 */
       }
-      // 默认视角：取本场第一镜的机位并叠加朝环屏修正。
+      // 默认视角：取本场第一镜的机位，并把整个集合按该镜头的朝环屏角度整体转向。
       // 棚中央是石拱布景，随便放一个自由机位很容易被布景挡死或正对缺口，
       // 直接用真实预演机位取景，保证打开页面就朝 LED 环屏。
       {
@@ -292,7 +311,11 @@ export const useScene = create<SceneState>((set, get) => ({
           state.previz?.shots.find((s) => s.scene === state.sceneKey) ?? state.previz?.shots[0];
         if (first) {
           const aim = state.shotAim?.shots.find((row) => row.id === first.id) ?? null;
-          const pose = shotPoseAt(first, aim, state.aimMode, first.start);
+          const turn = state.aimMode === 'led' && aim ? aim.deltaDeg : 0;
+          const yawDeg = state.ensembleAuto ? turn : state.ensembleYaw;
+          set({ ensembleYaw: yawDeg });
+          const raw = shotPoseAt(first, first.start);
+          const pose = raw ? rotatePoseY(raw, yawDeg) : null;
           if (pose) {
             const yaw = (pose.yaw * Math.PI) / 180;
             const pitch = (pose.pitch * Math.PI) / 180;
@@ -436,7 +459,7 @@ export const useScene = create<SceneState>((set, get) => ({
   },
 
   selectShot: (shotId) => {
-    const { previz, assets, shotAim, aimMode } = get();
+    const { previz, assets, shotAim, aimMode, ensembleAuto, ensembleYaw } = get();
     if (!shotId) {
       set({
         activeShotId: null,
@@ -449,20 +472,23 @@ export const useScene = create<SceneState>((set, get) => ({
     const shot = previz?.shots.find((s) => s.id === shotId);
     if (!shot) return;
     // 本镜头用到的元素：24 帧采样视锥并集，其余元素不渲染。
-    // 只做元素剔除，不改操作模式；视口摆到该镜头首帧、并叠加「朝环屏」修正，
-    // 这样点镜头立刻看到本镜头的取景（朝 LED 屏），而不是停在缺口外的默认机位。
+    // 只做元素剔除，不改操作模式；视口摆到该镜头首帧，
+    // 并把「整个集合」按该镜头的朝环屏角度整体转向（机位与演员相对关系不变）。
     const ids = usedAssetIds(buildBoxes(assets), shot);
+    const aim = aimMode === 'led' ? (shotAim?.shots.find((row) => row.id === shot.id) ?? null) : null;
+    const yawDeg = ensembleAuto ? (aim?.deltaDeg ?? 0) : ensembleYaw;
     set({
       activeShotId: shot.id,
       activeShotUsedIds: ids,
       timelineTime: shot.start,
       playing: false,
       followPreviz: false,
+      ensembleYaw: yawDeg,
     });
-    const aim = aimMode === 'led' ? (shotAim?.shots.find((row) => row.id === shot.id) ?? null) : null;
-    const pose = shotPoseAt(shot, aim, aimMode, shot.start);
+    const raw = shotPoseAt(shot, shot.start);
     // 高空视角由 AerialRig 接管相机，跳转会打断俯视观察
-    if (pose && !get().aerialView) {
+    if (raw && !get().aerialView) {
+      const pose = rotatePoseY(raw, yawDeg);
       const yaw = (pose.yaw * Math.PI) / 180;
       const pitch = (pose.pitch * Math.PI) / 180;
       const cp = Math.cos(pitch);
@@ -490,8 +516,43 @@ export const useScene = create<SceneState>((set, get) => ({
           { aerialView: true, followPreviz: false, aerialPrevMode: state.mode, mode: 'orbit' },
     ),
 
-  toggleAimMode: () =>
-    set((state) => ({ aimMode: state.aimMode === 'raw' ? 'led' : 'raw' })),
+  setEnsembleYaw: (deg) => set({ ensembleYaw: normDeg(deg) }),
+
+  /** 一键把整个集合在环屏内转向（集合内部相对关系不变） */
+  rotateEnsemble: (deltaDeg) =>
+    set((state) => ({ ensembleYaw: normDeg(state.ensembleYaw + deltaDeg), ensembleAuto: false })),
+
+  toggleEnsembleAuto: () => {
+    const state = get();
+    if (state.ensembleAuto) {
+      set({ ensembleAuto: false });
+      return;
+    }
+    const shot = state.activeShotId
+      ? (state.previz?.shots.find((s) => s.id === state.activeShotId) ?? null)
+      : null;
+    const aim = shot ? (state.shotAim?.shots.find((row) => row.id === shot.id) ?? null) : null;
+    set({
+      ensembleAuto: true,
+      ensembleYaw: state.aimMode === 'led' && aim ? normDeg(aim.deltaDeg) : 0,
+    });
+  },
+
+  toggleAimMode: () => {
+    const state = get();
+    const aimMode = state.aimMode === 'raw' ? 'led' : 'raw';
+    const shot = state.activeShotId
+      ? (state.previz?.shots.find((s) => s.id === state.activeShotId) ?? null)
+      : null;
+    const aim = shot ? (state.shotAim?.shots.find((row) => row.id === shot.id) ?? null) : null;
+    set({
+      aimMode,
+      // 自动模式下跟着切换集合朝向；手动模式保留用户自己转的角度
+      ...(state.ensembleAuto
+        ? { ensembleYaw: aimMode === 'led' && aim ? normDeg(aim.deltaDeg) : 0 }
+        : {}),
+    });
+  },
 
   togglePlayback: () => {
     const { playing, previz, timelineTime, activeShotId } = get();
@@ -662,6 +723,8 @@ export const useScene = create<SceneState>((set, get) => ({
     set({ clearanceThreshold: Math.max(0, Math.min(10, value)) }),
 
   toggleFrustum: () => set((state) => ({ showFrustum: !state.showFrustum })),
+
+  toggleShotMarkers: () => set((state) => ({ showShotMarkers: !state.showShotMarkers })),
 
   resetDemo: () =>
     set({

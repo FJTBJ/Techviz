@@ -24,6 +24,18 @@ const PARSER = path.join(__dirname, 'uecam.mjs');
 /** 无焦距轨道时的兜底（CineCamera 常用 35mm） */
 const DEFAULT_FOCAL = 35;
 
+/**
+ * 父级机位架高度补偿（米）。
+ *
+ * take 里记录的 CineCameraActor 只带「相对父级（机位架/摇臂」的位移：
+ * 28 个镜头的机位高度只有 0.06~1.20m，而布景地面是 0、演员脚底也是 0，
+ * 真实机位应在 1.4~1.7m。take 内没有 AttachTrack、CineCameraComponent 的
+ * AttachParent 也不在导出表里，父级变换无法从 uasset 还原，
+ * 因此这里按标准机位架高度做一个固定补偿（+1.15m，使全部镜头中位数 ≈1.60m）。
+ * 后续若能从 UE 侧导出真实父级变换，改成读取该值即可。
+ */
+const PARENT_HEIGHT_M = 1.15;
+
 const deg2rad = Math.PI / 180;
 
 function parseTake(asset) {
@@ -43,7 +55,11 @@ function parseTake(asset) {
       const [, pitch, yaw] = k.rot;
       return {
         t: +(k.time / ticksPerSecond).toFixed(4),
-        position: [+(y / 100).toFixed(4), +(z / 100).toFixed(4), +(-x / 100).toFixed(4)],
+        position: [
+          +(y / 100).toFixed(4),
+          +(z / 100 + PARENT_HEIGHT_M).toFixed(4),
+          +(-x / 100).toFixed(4),
+        ],
         yaw: +((-yaw + 540) % 360 - 180).toFixed(3),
         pitch: +pitch.toFixed(3),
         focal: hasFocal && k.focal ? +k.focal.toFixed(2) : null,

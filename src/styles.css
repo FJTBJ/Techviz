@@ -341,6 +341,13 @@ textarea {
   padding: 1px 7px;
 }
 
+/* 面板标题右侧的动作按钮组（多个 tiny 按钮并排） */
+.panel-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .panel-body {
   display: flex;
   flex-direction: column;

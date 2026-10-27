@@ -11,7 +11,7 @@ import { PeopleLayer } from './scene/PeopleLayer';
 import { TakePlayer } from './TakePlayer';
 import { ASPECTS } from '../types';
 import { frameFractions, lensMath } from '../lib/lens';
-import { shotAt, shotPoseAt, shotLabel } from '../lib/previz';
+import { shotAt, shotPoseAt, shotLabel, rotatePoseY } from '../lib/previz';
 import { viewportBridge } from '../lib/viewportBridge';
 
 function Bridge() {
@@ -29,8 +29,7 @@ function CameraDriver() {
   const mode = useScene((s) => s.mode);
   const activeShotId = useScene((s) => s.activeShotId);
   const previz = useScene((s) => s.previz);
-  const shotAim = useScene((s) => s.shotAim);
-  const aimMode = useScene((s) => s.aimMode);
+  const ensembleYaw = useScene((s) => s.ensembleYaw);
   const camera = useThree((s) => s.camera) as THREE.PerspectiveCamera;
   const size = useThree((s) => s.size);
   const lastMode = useRef(mode);
@@ -38,10 +37,6 @@ function CameraDriver() {
   const activeShot = activeShotId
     ? (previz?.shots.find((item) => item.id === activeShotId) ?? null)
     : null;
-  const activeAim =
-    activeShot && aimMode === 'led'
-      ? (shotAim?.shots.find((row) => row.id === activeShot.id) ?? null)
-      : null;
 
   useEffect(() => {
     // 退出机位取景：保持当前取景（朝环屏），把轨道中心放到视线前方。
@@ -72,11 +67,10 @@ function CameraDriver() {
     const frame = frameFractions(canvasAspect, ASPECTS[shot.aspect]);
     const camVfov = 2 * Math.atan(Math.tan(lens.vfov / 2) / frame.heightFraction);
 
-    // 选中镜头时「机位取景」直接取该镜头当前帧，并叠加朝环屏修正：
-    // 否则会一直停在方案里保存的旧机位（可能就是原始 UE 朝向，正对环屏缺口）。
-    const pose = activeShot
-      ? shotPoseAt(activeShot, activeAim, aimMode, useScene.getState().timelineTime)
-      : null;
+    // 选中镜头时「机位取景」直接取该镜头当前帧，
+    // 再按集合整体转向角旋转（机位与演员/布景一起转，相对关系不变）。
+    const raw = activeShot ? shotPoseAt(activeShot, useScene.getState().timelineTime) : null;
+    const pose = raw ? rotatePoseY(raw, ensembleYaw) : null;
     if (activeShot && pose) {
       camera.position.set(...pose.position);
       camera.rotation.order = 'YXZ';
@@ -122,7 +116,6 @@ function CameraDriver() {
 function PrevizPlayback() {
   const follow = useScene((s) => s.followPreviz);
   const mode = useScene((s) => s.mode);
-  const aimMode = useScene((s) => s.aimMode);
   const camera = useThree((s) => s.camera) as THREE.PerspectiveCamera;
   const size = useThree((s) => s.size);
   /** 最后一帧镜头姿态：退出跟随时据此保持取景，避免 OrbitControls 把镜头掰回缺口 */
@@ -160,8 +153,8 @@ function PrevizPlayback() {
     if (!tl) return;
     const shot = shotAt(tl.shots, st.timelineTime);
     if (!shot) return; // 镜头间隙保持上一帧
-    const aim = aimMode === 'led' ? (st.shotAim?.shots.find((row) => row.id === shot.id) ?? null) : null;
-    const pose = shotPoseAt(shot, aim, aimMode, st.timelineTime);
+    const raw = shotPoseAt(shot, st.timelineTime);
+    const pose = raw ? rotatePoseY(raw, st.ensembleYaw) : null;
     if (!pose) return;
 
     active.current = true;
@@ -264,8 +257,6 @@ function PrevizCameraMarker() {
   const aerial = useScene((s) => s.aerialView);
   const previz = useScene((s) => s.previz);
   const activeShotId = useScene((s) => s.activeShotId);
-  const aimMode = useScene((s) => s.aimMode);
-  const shotAim = useScene((s) => s.shotAim);
   const ref = useRef<THREE.Group>(null);
 
   const shot = useMemo(
@@ -280,10 +271,9 @@ function PrevizCameraMarker() {
   useFrame(() => {
     const group = ref.current;
     if (!group || !shot) return;
-    const aim = aimMode === 'led' ? shotAim?.shots.find((row) => row.id === shot.id) : null;
-    const pose = shotPoseAt(shot, aim, aimMode, useScene.getState().timelineTime);
+    // 标记位于「集合」组内：用原始机位姿态，集合整体转向由父级 rotation 叠加
+    const pose = shotPoseAt(shot, useScene.getState().timelineTime);
     if (!pose) return;
-    // 与跟随播放同口径：朝环屏模式下整条 take 叠加固定偏航/俯仰修正
     group.position.set(...pose.position);
     group.rotation.order = 'YXZ';
     group.rotation.set(
@@ -352,6 +342,7 @@ function SceneContent() {
   const activeShot = activeShotId
     ? (previz?.shots.find((shot) => shot.id === activeShotId) ?? null)
     : null;
+  const ensembleYaw = useScene((s) => s.ensembleYaw);
 
   // 镜头库选中某个镜头时，只渲染该镜头视锥内用到的元素（高空视角也一样，便于只看本镜头布景与机位运动）
   const visibleAssets = useMemo(() => {
@@ -403,21 +394,25 @@ function SceneContent() {
         infiniteGrid
         raycast={() => null}
       />
-      {visibleAssets.map((asset) => (
-        <SceneObject
-          key={asset.instanceId}
-          asset={asset}
-          forceVisible={Boolean(usedIds)}
-        />
-      ))}
+      {/* 集合：布景 + 演员 + 预演机位一起整体转向（环屏 / 缺口固定不动） */}
+      <group rotation={[0, THREE.MathUtils.degToRad(ensembleYaw), 0]}>
+        {visibleAssets.map((asset) => (
+          <SceneObject
+            key={asset.instanceId}
+            asset={asset}
+            forceVisible={Boolean(usedIds)}
+          />
+        ))}
+        <SetPlanLayer />
+        <PeopleLayer shot={activeShot} />
+        <CameraRig />
+        <PrevizCameraMarker />
+      </group>
+      {/* 测量标注属于棚内空间坐标，不随集合转向 */}
       <MeasurementLayer />
-      <SetPlanLayer />
-      <PeopleLayer shot={activeShot} />
-      <CameraRig />
       <CameraDriver />
       <PrevizPlayback />
       <AerialRig />
-      <PrevizCameraMarker />
       <ViewCommander />
       <Bridge />
       <OrbitControls
