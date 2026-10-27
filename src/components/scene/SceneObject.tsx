@@ -14,6 +14,8 @@ import { useFrame, useLoader, type ThreeEvent } from '@react-three/fiber';
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { useScene, markGizmoDragEnd } from '../../store/sceneStore';
+import { lensMath } from '../../lib/lens';
+import { rotatePoseY, shotPoseAt } from '../../lib/previz';
 import type { SceneAsset } from '../../types';
 
 /** 模型加载失败（文件没部署/路径失效）时回退到代理体块，避免整块画布崩掉 */
@@ -56,6 +58,10 @@ function GltfModel({ url }: { url: string }) {
 /**
  * 环屏投屏层：直接复用右下角 take 小窗的 <video> 作为贴图，
  * 播放/暂停/进度/倍速天然同步，相当于把环屏当成虚拟拍摄的 LED 墙。
+ *
+ * 画面只落在当前机位视锥真正覆盖到的那一段环屏上（真正的虚拟拍摄 LED 墙逻辑），
+ * 而不是把 take 画面平铺一整圈：按片元世界坐标投影到机位相机里，
+ * 落在视锥外（NDC 超出 [-1,1]）的位置直接丢弃，露出环屏底色。
  */
 function LedVideoScreen({
   radius,
@@ -76,22 +82,109 @@ function LedVideoScreen({
     next.colorSpace = THREE.SRGBColorSpace;
     next.wrapS = THREE.ClampToEdgeWrapping;
     next.wrapT = THREE.ClampToEdgeWrapping;
-    // 从环内看圆柱背面时 U 方向是反的，翻转贴图让画面左右正确
-    next.repeat.x = -1;
-    next.offset.x = 1;
     return next;
   }, [video]);
 
+  const uniforms = useMemo(
+    () => ({
+      uMap: { value: texture },
+      uViewProj: { value: new THREE.Matrix4() },
+      uUseProject: { value: 0 },
+    }),
+    [texture],
+  );
+
+  const material = useMemo(
+    () =>
+      new THREE.ShaderMaterial({
+        uniforms,
+        transparent: false,
+        side: THREE.BackSide,
+        vertexShader: /* glsl */ `
+          varying vec3 vWorld;
+          varying vec2 vUv;
+          void main() {
+            vUv = uv;
+            vec4 world = modelMatrix * vec4(position, 1.0);
+            vWorld = world.xyz;
+            gl_Position = projectionMatrix * viewMatrix * world;
+          }
+        `,
+        fragmentShader: /* glsl */ `
+          uniform sampler2D uMap;
+          uniform mat4 uViewProj;
+          uniform float uUseProject;
+          varying vec3 vWorld;
+          varying vec2 vUv;
+          void main() {
+            vec2 texUv;
+            if (uUseProject > 0.5) {
+              // 世界坐标投影到当前机位：只有落在视锥内的环屏片段才显示画面
+              vec4 clip = uViewProj * vec4(vWorld, 1.0);
+              if (clip.w <= 0.0) discard;
+              vec2 ndc = clip.xy / clip.w;
+              if (ndc.x < -1.0 || ndc.x > 1.0 || ndc.y < -1.0 || ndc.y > 1.0) discard;
+              texUv = ndc * 0.5 + 0.5;
+              texUv.y = 1.0 - texUv.y;
+            } else {
+              // 未选镜头时退回整圈平铺，从环内看圆柱背面需要翻转 U
+              texUv = vec2(1.0 - vUv.x, vUv.y);
+            }
+            gl_FragColor = vec4(texture2D(uMap, texUv).rgb, 1.0);
+            #include <colorspace_fragment>
+          }
+        `,
+      }),
+    [uniforms],
+  );
+
+  useEffect(() => () => material.dispose(), [material]);
   useEffect(() => () => texture?.dispose(), [texture]);
+
+  const cam = useMemo(() => new THREE.PerspectiveCamera(), []);
+  const viewProj = useMemo(() => new THREE.Matrix4(), []);
+
+  useFrame(() => {
+    if (!texture) return;
+    const st = useScene.getState();
+    const shot = st.activeShotId
+      ? (st.previz?.shots.find((item) => item.id === st.activeShotId) ?? null)
+      : null;
+    const raw = shot ? shotPoseAt(shot, st.timelineTime) : null;
+    const pose = raw ? rotatePoseY(raw, st.ensembleYaw) : null;
+
+    if (!pose) {
+      uniforms.uUseProject.value = 0;
+      return;
+    }
+
+    const lens = lensMath(pose.focal ?? st.camera.focal, st.camera.sensor, st.camera.aspect);
+    const aspect = Math.tan(lens.hfov / 2) / Math.max(1e-4, Math.tan(lens.vfov / 2));
+    cam.fov = THREE.MathUtils.radToDeg(lens.vfov);
+    cam.aspect = aspect;
+    cam.updateProjectionMatrix();
+    cam.position.set(pose.position[0], pose.position[1], pose.position[2]);
+    cam.rotation.order = 'YXZ';
+    cam.rotation.set(
+      THREE.MathUtils.degToRad(pose.pitch),
+      THREE.MathUtils.degToRad(pose.yaw),
+      0,
+    );
+    cam.updateMatrixWorld(true);
+
+    viewProj.multiplyMatrices(cam.projectionMatrix, cam.matrixWorldInverse);
+    uniforms.uViewProj.value.copy(viewProj);
+    uniforms.uUseProject.value = 1;
+  });
 
   if (!texture) return null;
 
   return (
     <mesh position={[0, height / 2, 0]} raycast={() => null}>
       <cylinderGeometry
-        args={[radius - 0.02, radius - 0.02, height, 128, 1, true, thetaStart, thetaLength]}
+        args={[radius - 0.02, radius - 0.02, height, 256, 1, true, thetaStart, thetaLength]}
       />
-      <meshBasicMaterial map={texture} side={THREE.BackSide} toneMapped={false} />
+      <primitive object={material} attach="material" />
     </mesh>
   );
 }
@@ -283,10 +376,13 @@ function ProxyMesh({ asset }: { asset: SceneAsset }) {
 export function SceneObject({
   asset,
   forceVisible = false,
+  forceHidden = false,
 }: {
   asset: SceneAsset;
   /** 镜头库选中镜头时：本镜头用到的元素一律显示，不受场景大纲里的手工隐藏影响 */
   forceVisible?: boolean;
+  /** 镜头模式下的手工隐藏：优先级高于 forceVisible，用于在单个镜头里单独剔除某个元素 */
+  forceHidden?: boolean;
 }) {
   const selectedId = useScene((s) => s.selectedId);
   const mode = useScene((s) => s.mode);
@@ -300,6 +396,9 @@ export function SceneObject({
   const groupRef = useRef<THREE.Group | null>(null);
   const [object, setObject] = useState<THREE.Group | null>(null);
   const [dragging, setDragging] = useState(false);
+
+  /** 最终显隐：镜头强制显示 / 大纲手工显示，再被「本镜头手工隐藏」盖掉 */
+  const visible = (asset.visible || forceVisible) && !forceHidden;
 
   // 预演机位常贴着甚至钻进 UE 体块的包围盒（包围盒比真实网格粗），
   // 这时该体块的内壁阴影会把整个画面糊黑，跟随时隐藏包住相机的那一块。
@@ -330,7 +429,7 @@ export function SceneObject({
           Math.abs(dx * sin + dz * cos) <= Math.abs(asset.size[2] * sz) / 2;
       }
     }
-    const next = (asset.visible || forceVisible) && !hide;
+    const next = visible && !hide;
     if (node.visible !== next) node.visible = next;
   });
 
@@ -392,7 +491,7 @@ export function SceneObject({
         position={asset.position}
         rotation={asset.rotation}
         scale={asset.scale}
-        visible={asset.visible || forceVisible}
+        visible={visible}
         onClick={handleClick}
         onPointerOver={(event) => {
           event.stopPropagation();
@@ -411,7 +510,7 @@ export function SceneObject({
         )}
       </group>
       {/* gizmo 独立挂载，不再包裹 children，attach 目标始终是同一个 group 节点 */}
-      {selected && object && mode !== 'measure' && (asset.visible || forceVisible) && (
+      {selected && object && mode !== 'measure' && visible && (
         <TransformControls
           object={object}
           mode={gizmo}

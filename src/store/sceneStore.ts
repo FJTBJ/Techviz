@@ -107,6 +107,12 @@ interface SceneState {
   activeShotId: string | null;
   /** 当前镜头用到的资产 id（视锥剔除结果），null 表示不过滤 */
   activeShotUsedIds: string[] | null;
+  /**
+   * 镜头模式下被用户手工隐藏的元素。
+   * 只作用于当前镜头（切镜头清空），优先级高于「本镜头元素强制显示」。
+   */
+  shotHiddenIds: string[];
+  setShotVisibility: (ids: string[], visible: boolean) => void;
   selectShot: (shotId: string | null) => void;
   /**
    * 自由视角跳转请求：确定相机位置与轨道中心（视线前方的落点）。
@@ -208,6 +214,7 @@ export const useScene = create<SceneState>((set, get) => ({
   revisions: [],
   activeShotId: null,
   activeShotUsedIds: null,
+  shotHiddenIds: [],
   // 默认视角：站在环内石拱通道里、朝对面的 LED 屏取景
   // （棚中央是石拱布景，正对 -Z 的平视会被布景挡住，所以沿用预演机位略仰的取景方向）
   viewRequest: {
@@ -368,6 +375,7 @@ export const useScene = create<SceneState>((set, get) => ({
         pendingPoint: null,
         activeShotId: null,
         activeShotUsedIds: null,
+        shotHiddenIds: [],
         playing: false,
         followPreviz: false,
         mode: 'orbit',
@@ -464,6 +472,7 @@ export const useScene = create<SceneState>((set, get) => ({
       set({
         activeShotId: null,
         activeShotUsedIds: null,
+        shotHiddenIds: [],
         playing: false,
         followPreviz: false,
       });
@@ -480,6 +489,8 @@ export const useScene = create<SceneState>((set, get) => ({
     set({
       activeShotId: shot.id,
       activeShotUsedIds: ids,
+      // 换镜头即恢复默认：上个镜头里手工隐藏的元素不应影响这一镜
+      shotHiddenIds: [],
       timelineTime: shot.start,
       playing: false,
       followPreviz: false,
@@ -618,6 +629,7 @@ export const useScene = create<SceneState>((set, get) => ({
         pendingPoint: null,
         activeShotId: null,
         activeShotUsedIds: null,
+        shotHiddenIds: [],
         mode: 'orbit',
       });
       return null;
@@ -663,10 +675,22 @@ export const useScene = create<SceneState>((set, get) => ({
     }));
   },
 
+  /** 镜头模式下的手工显隐：visible=true 表示从隐藏覆盖里移除，恢复本镜头默认可见 */
+  setShotVisibility: (ids, visible) =>
+    set((state) => {
+      const next = new Set(state.shotHiddenIds);
+      for (const id of ids) {
+        if (visible) next.delete(id);
+        else next.add(id);
+      }
+      return { shotHiddenIds: [...next] };
+    }),
+
   removeAsset: (id) =>
     set((state) => ({
       assets: state.assets.filter((a) => a.instanceId !== id),
       selectedId: state.selectedId === id ? null : state.selectedId,
+      shotHiddenIds: state.shotHiddenIds.filter((item) => item !== id),
     })),
 
   duplicateAsset: (id) => {
@@ -770,6 +794,7 @@ export const useScene = create<SceneState>((set, get) => ({
         pendingPoint: null,
         activeShotId: null,
         activeShotUsedIds: null,
+        shotHiddenIds: [],
       });
       return null;
     } catch {

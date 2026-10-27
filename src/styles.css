@@ -650,8 +650,16 @@ textarea {
 }
 
 .outline-row.active {
-  background: #1a2431;
-  border-color: #304155;
+  background: #24344a;
+  border-color: var(--accent);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+/* 本镜头里被手工隐藏的行：名称变暗，一眼能找到 */
+.outline-row.off .outline-name,
+.outline-row.off .outline-code {
+  color: var(--muted-2);
+  opacity: 0.65;
 }
 
 .outline-name {

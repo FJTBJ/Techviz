@@ -162,12 +162,18 @@ export default function App() {
   const serverState = useScene((s) => s.serverState);
   const initFromServer = useScene((s) => s.initFromServer);
   const activeShotId = useScene((s) => s.activeShotId);
+  const selectedId = useScene((s) => s.selectedId);
   const [tab, setTab] = useState<TabKey>('shot');
   const [sidebarHidden, setSidebarHidden] = useState(false);
 
   useEffect(() => {
     if (mode === 'measure') setTab('measure');
   }, [mode]);
+
+  // 视口里点中场景元素后，右侧自动切到「场景」页，大纲会高亮并滚动到该元素
+  useEffect(() => {
+    if (selectedId) setTab('scene');
+  }, [selectedId]);
 
   // 登录态：本地缓存仅作初始值，启动时向后端校验一次
   const [auth, setAuth] = useState<{ loading: boolean; required: boolean; user: AuthUser | null }>(

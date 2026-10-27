@@ -332,6 +332,7 @@ function Ground() {
 function SceneContent() {
   const assets = useScene((s) => s.assets);
   const usedIds = useScene((s) => s.activeShotUsedIds);
+  const shotHiddenIds = useScene((s) => s.shotHiddenIds);
   const mode = useScene((s) => s.mode);
   const follow = useScene((s) => s.followPreviz);
   const stages = useScene((s) => s.stages);
@@ -350,6 +351,8 @@ function SceneContent() {
     const used = new Set(usedIds);
     return assets.filter((asset) => used.has(asset.instanceId));
   }, [assets, usedIds]);
+  // 镜头模式下手工隐藏的元素：仍保留在列表里，只是不再渲染
+  const shotHidden = useMemo(() => new Set(shotHiddenIds), [shotHiddenIds]);
 
   return (
     <>
@@ -401,6 +404,7 @@ function SceneContent() {
             key={asset.instanceId}
             asset={asset}
             forceVisible={Boolean(usedIds)}
+            forceHidden={shotHidden.has(asset.instanceId)}
           />
         ))}
         <SetPlanLayer />
@@ -513,6 +517,7 @@ export function Viewport() {
   const selectAsset = useScene((s) => s.selectAsset);
   const activeShotId = useScene((s) => s.activeShotId);
   const usedIds = useScene((s) => s.activeShotUsedIds);
+  const shotHiddenIds = useScene((s) => s.shotHiddenIds);
   const assets = useScene((s) => s.assets);
   const previz = useScene((s) => s.previz);
   const activeShot = activeShotId
@@ -546,7 +551,8 @@ export function Viewport() {
         <div className="shot-filter-badge">
           <b>{shotLabel(activeShot)}</b>
           <span>
-            本镜头元素 {usedIds.length} / {assets.length} · 其余已按视锥剔除
+            本镜头元素 {usedIds.length - shotHiddenIds.length} / {assets.length}
+            {shotHiddenIds.length > 0 ? `（手工隐藏 ${shotHiddenIds.length}）` : ''} · 其余已按视锥剔除
           </span>
         </div>
       )}
