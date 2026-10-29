@@ -15,7 +15,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildSetPlan } from '../setplan.mjs';
+import { buildSetPlan, solveStagePosition, collectActorPoints } from '../setplan.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA = path.resolve(__dirname, '..', 'data');
@@ -27,6 +27,38 @@ const OUT_FILE = path.join(DATA, 'setplan.json');
 const TIMELINE_FILE = path.join(DATA, 'previz-timeline.json');
 const SHOT_NAMES_FILE = path.join(DATA, 'shot-names.json');
 const TIMELINE_TAKES_FILE = path.join(DATA, 'timeline-takes.json');
+/** UE take 走位序列（演员表演区数据），用于求解每场次推荐棚位 */
+const PEOPLE_FILE = path.join(DATA, 'ue-people.json');
+/** 场景快照（UE 关卡构件清单，米 / three 坐标），用于判定哪些资产需要置景 */
+const SNAPSHOT_FILE = path.join(DATA, 'ue-prayer-room.json');
+
+/** 交互判定：资产包围盒表面与演员走位点的水平距离 ≤ 该值视为「与人物有交互」，需要置景 */
+const INTERACT_DIST_M = 0.1;
+/** 演员活动高度上限（米）：资产垂直范围与此区间无重叠则不可能交互（如房顶） */
+const ACTOR_TOP_M = 1.8;
+
+/**
+ * 筛选需要置景的资产：与该场次演员走位有交互的资产默认显示，其余默认隐藏
+ * 距离按「走位点到资产 3D 包围盒表面的水平距离」计算，并要求资产垂直范围
+ * 与演员活动高度（0~ACTOR_TOP_M）有重叠——排除房顶等高空构件
+ */
+function filterSetAssets(snapshotAssets, actorPoints) {
+  if (!actorPoints.length) return [];
+  return snapshotAssets.filter((a) => {
+    if (!Array.isArray(a.position) || a.position.length < 3) return false;
+    const hx = (a.size?.[0] ?? 0) / 2;
+    const hy = (a.size?.[1] ?? 0) / 2;
+    const hz = (a.size?.[2] ?? 0) / 2;
+    const y0 = a.position[1] - hy;
+    const y1 = a.position[1] + hy;
+    if (y0 > ACTOR_TOP_M || y1 < 0) return false;
+    return actorPoints.some(([px, pz]) => {
+      const dx = Math.max(Math.abs(px - a.position[0]) - hx, 0);
+      const dz = Math.max(Math.abs(pz - a.position[2]) - hz, 0);
+      return Math.hypot(dx, dz) <= INTERACT_DIST_M;
+    });
+  });
+}
 
 /** 环屏台面（棚地面）高度，米 */
 const FLOOR_Y = 0;
@@ -82,6 +114,9 @@ function main() {
   const shotsFile = readJson(SHOTS_FILE);
   const cams = readJson(CAMS_FILE);
   const ringFile = readJson(RING_FILE);
+  const people = fs.existsSync(PEOPLE_FILE) ? readJson(PEOPLE_FILE) : null;
+  const snapshot = fs.existsSync(SNAPSHOT_FILE) ? readJson(SNAPSHOT_FILE) : null;
+  const snapshotAssets = (snapshot?.assets ?? []).filter((a) => a.kind === 'ue');
   const d = ringFile.derived;
 
   const ring = {
@@ -162,12 +197,19 @@ function main() {
   for (const scene of [...byScene.keys()].sort()) {
     const sceneShots = byScene.get(scene).sort((a, b) => a.masterStart - b.masterStart);
     const plan = buildSetPlan({ ring, shots: sceneShots });
+    // 每场次一个摆放：先按「与人物有交互」筛出置景资产，再连同演员活动范围解算统一摆放
+    const actorPoints = collectActorPoints(sceneShots, people?.shots ?? null);
+    const setAssets = filterSetAssets(snapshotAssets, actorPoints);
+    const stagePos = solveStagePosition({ ring, shots: sceneShots, people, setAssets });
     const takeCount = new Set(sceneShots.map((s) => s.name)).size;
     const hMin = Math.min(...sceneShots.flatMap((s) => s.keys.map((k) => k.position[1])));
     const hMax = Math.max(...sceneShots.flatMap((s) => s.keys.map((k) => k.position[1])));
     plans[scene] = {
       ...plan,
       scene,
+      stagePosition: stagePos,
+      /** 需要置景的资产（与人物有交互）：默认显示；其余资产默认隐藏。按快照唯一实例 ID 记录（assetId 是类别代码，同类别含门窗/屋顶等多种构件） */
+      setInstanceIds: setAssets.map((a) => a.instanceId),
       source: {
         rings: 'ring-led01.json（nDisplay 实测）',
         previz: 'previz-cameras.json（take 序列相机轨道）',
@@ -179,6 +221,14 @@ function main() {
       },
     };
     scenes.push({ scene, shotCount: sceneShots.length, takeCount });
+    if (stagePos) {
+      console.log(
+        `  [摆放] ${scene}: 平移(${-stagePos.offset[0]}, ${-stagePos.offset[2]})m ` +
+          `演员 ${stagePos.actorBacked}%（原位 ${stagePos.actorBackedOrigin}%）` +
+          ` 置景资产 ${stagePos.assetBacked}%（${stagePos.assetCount}/${snapshotAssets.length} 件）` +
+          ` · ${stagePos.sampleCount} 采样 / ${stagePos.shotCount} 镜`,
+      );
+    }
   }
 
   const heightsSorted = heights.slice().sort((a, b) => a - b);

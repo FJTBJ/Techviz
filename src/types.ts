@@ -4,7 +4,7 @@ export type AspectKey = '2.39:1' | '1.85:1' | '16:9' | '4:3';
 
 export type RigType = '三脚架' | '摇臂' | '轨道' | '斯坦尼康' | '无人机' | '伸缩摇臂';
 
-export type ProxyKind = 'wall' | 'box' | 'column' | 'person' | 'vehicle' | 'tree' | 'glb' | 'ue';
+export type ProxyKind = 'wall' | 'box' | 'column' | 'person' | 'vehicle' | 'tree' | 'glb' | 'ue' | 'skeletal' | 'light';
 
 export type Vec3 = [number, number, number];
 
@@ -14,16 +14,29 @@ export interface SceneAsset {
   name: string;
   code: string;
   kind: ProxyKind;
-  /** 模型地址，仅 glb 类型使用 */
+  /** 模型地址，仅 glb / skeletal 类型使用 */
   url?: string;
   /** UE 网格资产路径（如 /Game/.../ZhuZi_4.ZhuZi_4） */
   mesh?: string;
   /** UE 网格导出的真实模型地址（如 /models/ZhuZi_4_ab12cd.glb），缺失时回退代理体块 */
   meshUrl?: string;
+  /** 骨骼动画片段地址，仅 skeletal 类型使用 */
+  animUrl?: string;
+  /** 动画相对镜头入点的时间偏移，秒 */
+  animOffset?: number;
   /** 近似包围盒尺寸，单位米：[宽, 高, 深] */
   size: Vec3;
   /** 包围盒中心相对 group 原点的局部偏移（UE 导入体块使用），单位米 */
   offset?: Vec3;
+  /** 灯光类型（PointLight / SpotLight / RectLight / DirectionalLight / SkyLight），仅 light 使用 */
+  lightType?: string;
+  /** 灯光强度（UE 原始单位，仅展示用） */
+  intensity?: number | null;
+  /** 灯光衰减半径（米），点光/聚光有效 */
+  lightRange?: number | null;
+  /** 聚光锥角（度） */
+  innerConeDeg?: number | null;
+  outerConeDeg?: number | null;
   color: string;
   position: Vec3;
   rotation: Vec3;
@@ -145,6 +158,22 @@ export interface SetPlan {
   };
   shots: PlanShot[];
   setPieces: SetPiece[];
+  /** 该场次推荐置景摆放（演员表演区尽量都在屏内的最优环心偏移，由 build-setplan 离线解算） */
+  stagePosition?: {
+    offset: Vec3;
+    actorBacked: number;
+    actorBackedOrigin: number;
+    /** 置景资产锚点在屏弧内的占比（%） */
+    assetBacked?: number;
+    sampleCount: number;
+    /** 需要置景的资产件数 */
+    assetCount?: number;
+    shotCount: number;
+    headY: number;
+    method: string;
+  } | null;
+  /** 需要置景的资产实例 ID 列表（与人物有交互，对应快照 instanceId）：默认显示；其余资产默认隐藏 */
+  setInstanceIds?: string[];
 }
 
 export interface SetPlanFile {

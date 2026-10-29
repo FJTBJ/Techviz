@@ -354,3 +354,182 @@ function groupByAdjacent(items) {
 
 const pct = (n, total) => (total > 0 ? Math.round((n / total) * 1000) / 10 : 0);
 const round2 = (n) => Math.round(n * 100) / 100;
+
+/** 演员头顶高度：表演区「全身在屏内」按地面点 + 头顶点双重判定 */
+const ACTOR_HEAD_Y = 1.7;
+/** 每镜每角色最多抽多少个走位采样点 */
+const MAX_SAMPLES_PER_CHAR = 40;
+
+/**
+ * 收集一个场次所有镜头的演员走位点（raw，不配相机），用于置景资产交互判定
+ * @returns [[x, z], ...]
+ */
+export function collectActorPoints(shots, peopleShots) {
+  const out = [];
+  for (const shot of shots) {
+    const track = peopleShots?.[shot.name];
+    if (!track?.characters?.length) continue;
+    for (const ch of track.characters) {
+      for (const k of ch.keys ?? []) {
+        const p = k?.p;
+        if (!Array.isArray(p) || p.length < 3) continue;
+        out.push([p[0], p[2]]);
+      }
+    }
+  }
+  return out;
+}
+
+/**
+ * 收集一个场次所有镜头的演员走位采样点
+ * @returns [{ cam:[x,y,z] 采样时刻的相机位置, pt:[x,z] 演员地面位置, shot 镜头 id }]
+ */
+function collectActorSamples(shots, peopleShots) {
+  const out = [];
+  for (const shot of shots) {
+    const track = peopleShots?.[shot.name];
+    if (!track?.characters?.length) continue;
+    const camKeys = shot.keys?.length ? shot.keys : [{ t: 0, position: shot.position }];
+    // 相机关键帧时间 ≈ sourceSeconds + take 本地时间；走位 key.s 是 take 本地时间
+    const base = camKeys[0].t;
+    const camAt = (tt) => {
+      if (camKeys.length === 1) return camKeys[0].position;
+      const target = base + tt;
+      const last = camKeys[camKeys.length - 1];
+      if (target <= camKeys[0].t) return camKeys[0].position;
+      if (target >= last.t) return last.position;
+      let lo = 0;
+      let hi = camKeys.length - 1;
+      while (hi - lo > 1) {
+        const mid = (lo + hi) >> 1;
+        if (camKeys[mid].t <= target) lo = mid;
+        else hi = mid;
+      }
+      const a = camKeys[lo];
+      const b = camKeys[hi];
+      const f = (target - a.t) / Math.max(1e-6, b.t - a.t);
+      return [
+        a.position[0] + (b.position[0] - a.position[0]) * f,
+        a.position[1] + (b.position[1] - a.position[1]) * f,
+        a.position[2] + (b.position[2] - a.position[2]) * f,
+      ];
+    };
+    for (const ch of track.characters) {
+      const keys = ch.keys ?? [];
+      const step = Math.max(1, Math.ceil(keys.length / MAX_SAMPLES_PER_CHAR));
+      for (let i = 0; i < keys.length; i += step) {
+        const k = keys[i];
+        const p = k?.p;
+        if (!Array.isArray(p) || p.length < 3) continue;
+        out.push({ cam: camAt(k.s ?? 0), pt: [p[0], p[2]], shot: shot.id });
+      }
+    }
+  }
+  return out;
+}
+
+/**
+ * 单个采样点在给定环心偏移下的「表演区在屏内」得分（0/1）
+ * 判据：演员在环内，且相机经演员头顶(1.7m)延伸的视线命中环屏弧段内、屏高范围内、演员身后。
+ * （脚部视线延伸必然落到屏底以下，由地面与屏底衔接，不参与判定）
+ * 相机在环外或演员在环外 → 0 分。
+ */
+function actorScore(cam, pt, off, ring, range) {
+  const R = ring.diameter / 2;
+  const H = ring.height;
+  const ox = cam[0] - off[0];
+  const oz = cam[2] - off[2];
+  const tx = pt[0] - off[0];
+  const tz = pt[1] - off[2];
+  if (Math.hypot(ox, oz) > R - 0.05) return 0;
+  if (Math.hypot(tx, tz) > R - 0.05) return 0;
+  const dx = tx - ox;
+  const dy = ACTOR_HEAD_Y - cam[1];
+  const dz = tz - oz;
+  const len = Math.hypot(dx, dy, dz);
+  if (len < 1e-6) return 0;
+  const hit = intersectRing([ox, cam[1], oz], [dx / len, dy / len, dz / len], ring, range);
+  return hit && hit.inArc && hit.point[1] >= 0 && hit.point[1] <= H && hit.t > len - 0.05 ? 1 : 0;
+}
+
+/**
+ * 置景资产锚点得分（0/1）：资产在环内，且资产方向落在屏体弧段内（背后是屏不是缺口）。
+ * 锚点取资产顶面中心；资产高于屏体的部分由「顶部延伸遮光」方案兜底，不参与此项判定。
+ */
+function assetScore(anchor, off, ring, range) {
+  const R = ring.diameter / 2;
+  const tx = anchor[0] - off[0];
+  const tz = anchor[2] - off[2];
+  if (Math.hypot(tx, tz) > R - 0.05) return 0;
+  return inArc(Math.atan2(tx, tz), range) ? 1 : 0;
+}
+
+/**
+ * 求解「同场次一个摆放」：网格搜索环心偏移，使所有镜头演员表演区尽量被屏体遮挡，
+ * 且需要置景的资产（与人物有交互的）方向落在屏弧内。
+ * 两段搜索：1m 粗搜全场 → 0.25m 细搜最优邻域
+ * @returns null | { offset, actorBacked, actorBackedOrigin, assetBacked, sampleCount, assetCount, shotCount, headY, method }
+ */
+export function solveStagePosition({ ring, shots, people, setAssets = [], coarseStep = 1, fineStep = 0.25 }) {
+  const peopleShots = people?.shots ?? null;
+  if (!peopleShots) return null;
+  const actorSamples = collectActorSamples(shots, peopleShots);
+  // 置景资产锚点：顶面中心
+  const anchors = setAssets.map((a) => [
+    a.position[0],
+    (a.position[1] ?? 0) + (a.size?.[1] ?? 0) / 2,
+    a.position[2],
+  ]);
+  if (actorSamples.length === 0 && anchors.length === 0) return null;
+  const range = ringArcRange(ring);
+  const R = ring.diameter / 2;
+  const total = actorSamples.length + anchors.length;
+
+  const evalAt = (ox, oz) => {
+    const off = [ox, 0, oz];
+    let score = 0;
+    for (const s of actorSamples) score += actorScore(s.cam, s.pt, off, ring, range);
+    for (const a of anchors) score += assetScore(a, off, ring, range);
+    return score / total;
+  };
+
+  let best = { x: 0, z: 0, score: -1 };
+  const consider = (x, z) => {
+    const score = evalAt(x, z);
+    const better =
+      score > best.score + 1e-9 ||
+      (Math.abs(score - best.score) < 1e-9 && Math.hypot(x, z) < Math.hypot(best.x, best.z));
+    if (better) best = { x, z, score };
+  };
+  for (let x = -R; x <= R + 1e-9; x += coarseStep) {
+    for (let z = -R; z <= R + 1e-9; z += coarseStep) consider(x, z);
+  }
+  for (let x = best.x - coarseStep; x <= best.x + coarseStep + 1e-9; x += fineStep) {
+    for (let z = best.z - coarseStep; z <= best.z + coarseStep + 1e-9; z += fineStep) consider(x, z);
+  }
+
+  const shotCount = new Set(actorSamples.map((s) => s.shot)).size;
+  const actorHit = actorSamples.length
+    ? actorSamples.filter((s) => actorScore(s.cam, s.pt, [best.x, 0, best.z], ring, range)).length
+    : 0;
+  const assetHit = anchors.length
+    ? anchors.filter((a) => assetScore(a, [best.x, 0, best.z], ring, range)).length
+    : 0;
+  const pct1 = (n, t) => (t > 0 ? Math.round((n / t) * 1000) / 10 : 0);
+  return {
+    offset: [round2(best.x), 0, round2(best.z)],
+    actorBacked: pct1(actorHit, actorSamples.length),
+    actorBackedOrigin: actorSamples.length
+      ? pct1(
+          actorSamples.filter((s) => actorScore(s.cam, s.pt, [0, 0, 0], ring, range)).length,
+          actorSamples.length,
+        )
+      : 0,
+    assetBacked: pct1(assetHit, anchors.length),
+    sampleCount: actorSamples.length,
+    assetCount: anchors.length,
+    shotCount,
+    headY: ACTOR_HEAD_Y,
+    method: `网格搜索 ${coarseStep}m→${fineStep}m；目标=(演员在环内且头顶(${ACTOR_HEAD_Y}m)视线被屏体遮挡 + 置景资产在屏弧内)占比最大化；数据=UE take 走位序列 + 置景资产包围盒`,
+  };
+}

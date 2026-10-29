@@ -4,6 +4,7 @@ import { Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { useScene } from '../../store/sceneStore';
 import { apiFetch } from '../../lib/api';
+import { AnimatedActor } from './AnimatedActor';
 import type { PrevizShot, UePeople, UePerson, UePersonKey } from '../../types';
 
 /** 在关键帧之间线性插值（yaw 走最短弧） */
@@ -37,72 +38,12 @@ function sampleKeys(keys: UePersonKey[], s: number): { p: [number, number, numbe
 }
 
 const PALETTE = ['#4a86c8', '#c8794a', '#4fa87a', '#b5647f', '#8a6fc0', '#b39a45'];
-const SKIN = '#e0b08c';
 
-/** 简易人形代理：头 / 躯干 / 双臂 / 双腿，脚底在原点，身高约 1.72m */
-function Humanoid({ color }: { color: string }) {
-  const cloth = <meshStandardMaterial color={color} roughness={0.7} metalness={0.05} />;
-  const skin = <meshStandardMaterial color={SKIN} roughness={0.85} metalness={0} />;
-  return (
-    <group>
-      {/* 双腿 */}
-      <mesh position={[-0.09, 0.44, 0]} castShadow>
-        <capsuleGeometry args={[0.075, 0.6, 4, 10]} />
-        <meshStandardMaterial color="#33404f" roughness={0.75} />
-      </mesh>
-      <mesh position={[0.09, 0.44, 0]} castShadow>
-        <capsuleGeometry args={[0.075, 0.6, 4, 10]} />
-        <meshStandardMaterial color="#33404f" roughness={0.75} />
-      </mesh>
-      {/* 胯与躯干 */}
-      <mesh position={[0, 0.88, 0]} castShadow>
-        <capsuleGeometry args={[0.145, 0.1, 4, 12]} />
-        {cloth}
-      </mesh>
-      <mesh position={[0, 1.2, 0]} castShadow>
-        <capsuleGeometry args={[0.17, 0.34, 6, 14]} />
-        {cloth}
-      </mesh>
-      {/* 双臂 */}
-      <mesh position={[-0.245, 1.18, 0]} rotation={[0, 0, 0.09]} castShadow>
-        <capsuleGeometry args={[0.052, 0.46, 4, 8]} />
-        {cloth}
-      </mesh>
-      <mesh position={[0.245, 1.18, 0]} rotation={[0, 0, -0.09]} castShadow>
-        <capsuleGeometry args={[0.052, 0.46, 4, 8]} />
-        {cloth}
-      </mesh>
-      {/* 手 */}
-      <mesh position={[-0.25, 0.92, 0]}>
-        <sphereGeometry args={[0.05, 12, 10]} />
-        {skin}
-      </mesh>
-      <mesh position={[0.25, 0.92, 0]}>
-        <sphereGeometry args={[0.05, 12, 10]} />
-        {skin}
-      </mesh>
-      {/* 颈与头 */}
-      <mesh position={[0, 1.45, 0]}>
-        <cylinderGeometry args={[0.05, 0.05, 0.08, 8]} />
-        {skin}
-      </mesh>
-      <mesh position={[0, 1.58, 0]} castShadow>
-        <sphereGeometry args={[0.105, 18, 14]} />
-        {skin}
-      </mesh>
-      {/* 头发：让头部轮廓更像人 */}
-      <mesh position={[0, 1.585, 0.005]} castShadow>
-        <sphereGeometry args={[0.112, 18, 12, 0, Math.PI * 2, 0, Math.PI * 0.52]} />
-        <meshStandardMaterial color="#2b211c" roughness={0.95} />
-      </mesh>
-      {/* 鼻子：标记朝向（yaw 0 朝 -Z） */}
-      <mesh position={[0, 1.575, -0.1]}>
-        <sphereGeometry args={[0.032, 8, 8]} />
-        {skin}
-      </mesh>
-    </group>
-  );
-}
+/** 通用骨架 json（MetaHuman 骨架层级相同，仅作体型结构；后续角色动画导出后逐角色替换） */
+const GENERIC_RIG_URL = '/models/s079a/nuola_rig.json';
+
+/** MetaHuman 编号惯例：F=女 M=男，据此给不同角色区分身高 */
+const personHeight = (label: string) => (/f\d/i.test(label) ? 1.65 : /m\d/i.test(label) ? 1.78 : 1.72);
 
 /** 单个演员：人形代理 + 名称牌，位置每帧按时间线推进 */
 function PersonActor({ person, index, offset, shotStart }: {
@@ -129,7 +70,13 @@ function PersonActor({ person, index, offset, shotStart }: {
 
   return (
     <group ref={group} position={initial.p}>
-      <Humanoid color={color} />
+      {/* json 骨架人形（静态姿态），整体位移与朝向由走位轨迹驱动 */}
+      <AnimatedActor
+        animUrl={GENERIC_RIG_URL}
+        mode="rest"
+        height={personHeight(person.label)}
+        clothColor={color}
+      />
       <Html position={[0, 1.95, 0]} center distanceFactor={16} zIndexRange={[8, 0]}>
         <div className="person-tag" style={{ borderColor: color }}>
           <b>{displayLabel(person)}</b>

@@ -121,6 +121,34 @@ function main() {
     };
   });
 
+  // 灯光：ue-mesh-map.json 的 lights 已是 three 空间（米/弧度），转成 SceneAsset 结构（kind: 'light'）；
+  // 旧 mesh-map 无 lights 字段时保持空数组兼容
+  const LIGHT_COLOR_DEFAULT = '#ffd9a0';
+  const lights = (Array.isArray(map.lights) ? map.lights : []).map((l) => {
+    const [r, g, b] = l.color ?? [255, 255, 255];
+    const hex = `#${[r, g, b].map((v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join('')}`;
+    const type = l.type ?? 'Light';
+    return {
+      instanceId: `light-${String(l.actorPath ?? l.label ?? type).split('.').pop()}`,
+      assetId: `light/${type}`,
+      name: l.label ?? type,
+      code: type,
+      kind: 'light',
+      lightType: type,
+      intensity: l.intensity ?? null,
+      /** three 空间衰减半径（米），点光/聚光有效 */
+      lightRange: l.attenuationRadiusCm != null ? +(l.attenuationRadiusCm / 100).toFixed(3) : null,
+      innerConeDeg: l.innerConeDeg ?? null,
+      outerConeDeg: l.outerConeDeg ?? null,
+      size: [0.2, 0.2, 0.2],
+      color: hex || LIGHT_COLOR_DEFAULT,
+      position: l.position ?? [0, 0, 0],
+      rotation: l.rotation ?? [0, 0, 0],
+      scale: [1, 1, 1],
+      visible: l.visible !== false,
+    };
+  });
+
   const snapshot = {
     version: 2,
     stageId: 'Led_01',
@@ -131,17 +159,19 @@ function main() {
       actorTotal: map.actors.length,
       imported: assets.length,
       skippedFar,
+      lightTotal: lights.length,
       meshes: Object.keys(map.meshBounds ?? {}).length,
       modelsExported: Object.keys(meshUrls).length,
       note: 'UE cm -> Web m；位置 [Y,Z,-X]；旋转按 M·R·Mᵀ 共轭；size/offset 为网格本地包围盒 × 缩放',
     },
     assets,
+    lights,
   };
 
   fs.writeFileSync(SNAPSHOT_FILE, JSON.stringify(snapshot, null, 1));
   const withModel = assets.filter((a) => a.meshUrl).length;
   console.log(
-    `[snapshot] ${assets.length} 个构件（跳过远处 ${skippedFar}），其中 ${withModel} 个带真实模型 → ${SNAPSHOT_FILE}`,
+    `[snapshot] ${assets.length} 个构件（跳过远处 ${skippedFar}），${lights.length} 盏灯，其中 ${withModel} 个带真实模型 → ${SNAPSHOT_FILE}`,
   );
   if (withModel === 0) {
     console.log('[snapshot] 提示：先运行 tools/export_ue_meshes.py 导出 GLB，再执行本脚本即可带模型');

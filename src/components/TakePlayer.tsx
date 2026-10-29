@@ -37,8 +37,9 @@ export function TakePlayer() {
   const remoteSrc = shot?.takeUrl ?? null;
   const src = localSrc && !useRemote ? localSrc : remoteSrc;
   const label = shot ? shotLabel(shot) : '';
-  // 环屏投屏只使用同源的本地 take，远端视频没有 CORS 头时无法作为 WebGL 贴图
-  const projectable = Boolean(localSrc && !useRemote);
+  // 环屏投屏：Kmoke 视频 CDN 会回显 Access-Control-Allow-Origin，
+  // 远端签名 URL 配合 crossOrigin=anonymous 可直接作为 WebGL 纹理，无需本地缓存
+  const projectable = Boolean(src);
   const setTakeVideoEl = useScene((s) => s.setTakeVideoEl);
 
   // 把小窗里的 video 交给 3D 环屏复用：同一路播放，进度/暂停/速度天然同步
@@ -124,6 +125,7 @@ export function TakePlayer() {
             key={src}
             ref={videoRef}
             src={src}
+            crossOrigin="anonymous"
             playsInline
             preload="metadata"
             onClick={togglePlayback}

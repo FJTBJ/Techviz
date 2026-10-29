@@ -1,9 +1,11 @@
 /**
- * 采集 UE 祈祷室关卡里每个 StaticMeshActor 的真实网格资产、材质与变换
+ * 采集 UE 祈祷室关卡里每个 StaticMeshActor 的真实网格资产、材质与变换，
+ * 并采集灯光 Actor（类型/位置/朝向/颜色/强度/范围）
  *
  * 只读：全部走 Remote Control 单请求（/remote/batch 会触发引擎断言崩溃，禁用）
  * 输出：server/data/ue-mesh-map.json
  *   - actors: 每个 Actor 的 label / 网格资产 / 材质 / 世界变换 / 世界包围盒
+ *   - lights: 每盏灯的 label / 类型 / 世界变换 / 颜色 / 强度 / 范围
  *   - meshBounds: 每个唯一网格的本地包围盒（厘米）
  *
  * 坐标：UE 厘米/度 → three.js 米/度
@@ -150,6 +152,61 @@ function materialKey(materials) {
   return materials.map((m) => String(m).split('.').pop()).join('|') || '(none)';
 }
 
+/** 采集一盏灯：类型从 Actor 类名取，光学参数从 LightComponent 读 */
+async function readLight(actorPath) {
+  const failures = [];
+  const safe = (label, promise, fallback = null) =>
+    promise.catch((err) => {
+      failures.push(`${label}: ${String(err).slice(0, 80)}`);
+      return fallback;
+    });
+
+  // actorPath 形如 ...:PersistentLevel.PointLight_2 → 类型 PointLight
+  const type = (String(actorPath).split('.').pop() ?? 'Light').replace(/_\d+$/, '') || 'Light';
+  const compList = await safe('lightComponent', call(actorPath, 'K2_GetComponentsByClass', {
+    ComponentClass: '/Script/Engine.LightComponent',
+  }));
+  const compPath = Array.isArray(compList) ? compList[0] : null;
+
+  const [label, transform, visible, color, intensity, attenuation, innerCone, outerCone, sourceWidth, sourceHeight] =
+    await Promise.all([
+      safe('label', call(actorPath, 'GetActorLabel')),
+      safe('transform', call(actorPath, 'GetTransform')),
+      compPath ? safe('visible', prop(compPath, 'bVisible'), true) : Promise.resolve(true),
+      compPath ? safe('color', prop(compPath, 'LightColor')) : Promise.resolve(null),
+      compPath ? safe('intensity', prop(compPath, 'Intensity')) : Promise.resolve(null),
+      compPath ? safe('attenuation', prop(compPath, 'AttenuationRadius')) : Promise.resolve(null),
+      compPath ? safe('innerCone', prop(compPath, 'InnerConeAngle')) : Promise.resolve(null),
+      compPath ? safe('outerCone', prop(compPath, 'OuterConeAngle')) : Promise.resolve(null),
+      compPath ? safe('sourceWidth', prop(compPath, 'SourceWidth')) : Promise.resolve(null),
+      compPath ? safe('sourceHeight', prop(compPath, 'SourceHeight')) : Promise.resolve(null),
+    ]);
+
+  const t = transform?.Translation;
+  if (!t) return { error: 'no transform', actorPath, failures };
+  const q = transform?.Rotation;
+  return {
+    actorPath,
+    label: label ?? type,
+    type,
+    /** three.js 空间位置（米）与旋转（XYZ 欧拉，弧度） */
+    position: toThree(t),
+    rotation: ueQuatToThreeEuler(q),
+    locationCm: [t.X, t.Y, t.Z].map((v) => +v.toFixed(2)),
+    color: color ? [color.R ?? 255, color.G ?? 255, color.B ?? 255] : null,
+    intensity: intensity ?? null,
+    /** 点光/聚光衰减半径（UE 厘米） */
+    attenuationRadiusCm: attenuation ?? null,
+    /** 聚光锥角（度） */
+    innerConeDeg: innerCone ?? null,
+    outerConeDeg: outerCone ?? null,
+    /** 面光源尺寸（UE 厘米） */
+    sourceSizeCm: sourceWidth ? [sourceWidth, sourceHeight ?? sourceWidth] : null,
+    visible: visible !== false,
+    ...(failures.length ? { failures } : {}),
+  };
+}
+
 async function main() {
   const listRes = await ue('/remote/object/call', {
     ObjectPath: '/Script/Engine.Default__GameplayStatics',
@@ -171,6 +228,27 @@ async function main() {
   const failed = results.filter((r) => !r || r.error);
   const actors = results.filter((r) => r && !r.error);
   console.log(`[mesh-map] 已读取: ${actors.length}, 失败: ${failed.length}`);
+
+  // 灯光采集：以 Light 基类一次抓全部（PointLight/SpotLight/RectLight/DirectionalLight/SkyLight）
+  let lights = [];
+  try {
+    const lightRes = await ue('/remote/object/call', {
+      ObjectPath: '/Script/Engine.Default__GameplayStatics',
+      FunctionName: 'GetAllActorsOfClass',
+      Parameters: { WorldContextObject: WORLD, ActorClass: '/Script/Engine.Light' },
+    });
+    const lightPaths = (lightRes?.OutActors ?? []).map(String);
+    console.log(`[mesh-map] Light: ${lightPaths.length}`);
+    if (lightPaths.length > 0) {
+      const lightResults = await pool(lightPaths, CONCURRENCY, readLight);
+      lights = lightResults.filter((r) => r && !r.error);
+      const lightFailed = lightResults.filter((r) => !r || r.error);
+      console.log(`[mesh-map] 灯光已读取: ${lights.length}, 失败: ${lightFailed.length}`);
+      for (const f of lightFailed) console.log(`  [灯光失败] ${f.actorPath}: ${f.error}`);
+    }
+  } catch (err) {
+    console.log(`[mesh-map] 灯光采集失败（不影响网格数据）: ${String(err).slice(0, 120)}`);
+  }
   if (failed.length) {
     const reasons = {};
     for (const f of failed) {
@@ -215,8 +293,10 @@ async function main() {
     world: WORLD,
     source: 'UE Remote Control (single-request, no /remote/batch)',
     actorTotal: actors.length,
+    lightTotal: lights.length,
     failedActors: failed.map((f) => ({ actorPath: f.actorPath, error: f.error, failures: f.failures })),
     actors,
+    lights,
     meshBounds,
     meshes: Object.entries(meshes)
       .sort((a, b) => b[1] - a[1])

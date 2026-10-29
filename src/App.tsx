@@ -69,11 +69,13 @@ function EnsembleTurnControl() {
   );
 }
 
-/** 棚切换器：数据来自后端扫描 UE 工程，棚固定于原点 */
+/** 棚切换器：形状参数来自后端扫描 UE 工程；「位置」开关进入拖拽模式，在视口中拖箭头整体移动 */
 function StageSwitcher() {
   const stages = useScene((s) => s.stages);
   const currentStageId = useScene((s) => s.currentStageId);
   const setStage = useScene((s) => s.setStage);
+  const stagePosEditing = useScene((s) => s.stagePosEditing);
+  const setStagePosEditing = useScene((s) => s.setStagePosEditing);
   const current = stages.find((s) => s.id === currentStageId);
 
   if (stages.length === 0) {
@@ -90,6 +92,16 @@ function StageSwitcher() {
           </option>
         ))}
       </select>
+      <button
+        className={stagePosEditing ? 'active' : ''}
+        onClick={(e) => {
+          e.preventDefault();
+          setStagePosEditing(!stagePosEditing);
+        }}
+        title="进入/退出棚位置拖拽模式（视口中拖动箭头整体移动棚）"
+      >
+        {stagePosEditing ? '退出位置' : '位置'}
+      </button>
     </label>
   );
 }

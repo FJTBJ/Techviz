@@ -10,7 +10,7 @@ import { MeasurementLayer } from './scene/MeasurementLayer';
 import { PeopleLayer } from './scene/PeopleLayer';
 import { TakePlayer } from './TakePlayer';
 import { ASPECTS } from '../types';
-import { frameFractions, lensMath } from '../lib/lens';
+import { frameFractions, lensMath, lensMathNum } from '../lib/lens';
 import { shotAt, shotPoseAt, shotLabel, rotatePoseY } from '../lib/previz';
 import { viewportBridge } from '../lib/viewportBridge';
 
@@ -30,6 +30,7 @@ function CameraDriver() {
   const activeShotId = useScene((s) => s.activeShotId);
   const previz = useScene((s) => s.previz);
   const ensembleYaw = useScene((s) => s.ensembleYaw);
+  const setOffset = useScene((s) => s.setOffset);
   const camera = useThree((s) => s.camera) as THREE.PerspectiveCamera;
   const size = useThree((s) => s.size);
   const lastMode = useRef(mode);
@@ -62,15 +63,21 @@ function CameraDriver() {
       }
       return;
     }
-    const lens = lensMath(shot.focal, shot.sensor, shot.aspect);
+    // take 视频实测画幅优先：机位取景与原视频保持同比例，无 take 时回落相机参数画幅
+    const takeEl = useScene.getState().takeVideoEl;
+    const frameAspect =
+      takeEl && takeEl.videoWidth > 0 && takeEl.videoHeight > 0
+        ? takeEl.videoWidth / takeEl.videoHeight
+        : ASPECTS[shot.aspect];
+    const lens = lensMathNum(shot.focal, shot.sensor, frameAspect);
     const canvasAspect = size.width / Math.max(1, size.height);
-    const frame = frameFractions(canvasAspect, ASPECTS[shot.aspect]);
+    const frame = frameFractions(canvasAspect, frameAspect);
     const camVfov = 2 * Math.atan(Math.tan(lens.vfov / 2) / frame.heightFraction);
 
     // 选中镜头时「机位取景」直接取该镜头当前帧，
     // 再按集合整体转向角旋转（机位与演员/布景一起转，相对关系不变）。
     const raw = activeShot ? shotPoseAt(activeShot, useScene.getState().timelineTime) : null;
-    const pose = raw ? rotatePoseY(raw, ensembleYaw) : null;
+    const pose = raw ? rotatePoseY(raw, ensembleYaw, setOffset) : null;
     if (activeShot && pose) {
       camera.position.set(...pose.position);
       camera.rotation.order = 'YXZ';
@@ -79,10 +86,10 @@ function CameraDriver() {
         THREE.MathUtils.degToRad(pose.yaw),
         0,
       );
-      const shotLens = lensMath(
+      const shotLens = lensMathNum(
         pose.focal ?? shot.focal,
         shot.sensor,
-        shot.aspect,
+        frameAspect,
       );
       const fovDeg = THREE.MathUtils.radToDeg(
         2 * Math.atan(Math.tan(shotLens.vfov / 2) / frame.heightFraction),
@@ -154,7 +161,7 @@ function PrevizPlayback() {
     const shot = shotAt(tl.shots, st.timelineTime);
     if (!shot) return; // 镜头间隙保持上一帧
     const raw = shotPoseAt(shot, st.timelineTime);
-    const pose = raw ? rotatePoseY(raw, st.ensembleYaw) : null;
+    const pose = raw ? rotatePoseY(raw, st.ensembleYaw, st.setOffset) : null;
     if (!pose) return;
 
     active.current = true;
@@ -172,9 +179,15 @@ function PrevizPlayback() {
       0,
     );
 
-    const lens = lensMath(pose.focal ?? st.camera.focal, st.camera.sensor, st.camera.aspect);
+    // take 视频实测画幅优先，与机位取景保持同一比例基准
+    const takeEl = st.takeVideoEl;
+    const frameAspect =
+      takeEl && takeEl.videoWidth > 0 && takeEl.videoHeight > 0
+        ? takeEl.videoWidth / takeEl.videoHeight
+        : ASPECTS[st.camera.aspect];
+    const lens = lensMathNum(pose.focal ?? st.camera.focal, st.camera.sensor, frameAspect);
     const canvasAspect = size.width / Math.max(1, size.height);
-    const frame = frameFractions(canvasAspect, ASPECTS[st.camera.aspect]);
+    const frame = frameFractions(canvasAspect, frameAspect);
     const fovDeg = THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(lens.vfov / 2) / frame.heightFraction));
     if (Math.abs(camera.fov - fovDeg) > 0.01) {
       camera.fov = fovDeg;
@@ -340,17 +353,45 @@ function SceneContent() {
   const activeShotId = useScene((s) => s.activeShotId);
   const previz = useScene((s) => s.previz);
   const stage = stages.find((s) => s.id === currentStageId);
+  const stagePosition = useScene((s) => s.stagePosition);
+  const setOffset = useScene((s) => s.setOffset);
   const activeShot = activeShotId
     ? (previz?.shots.find((shot) => shot.id === activeShotId) ?? null)
     : null;
   const ensembleYaw = useScene((s) => s.ensembleYaw);
+  const setPlan = useScene((s) => s.setPlan);
+  const planScene = useScene((s) => s.planScene);
+
+  // 置景筛选保留集：当前场次方案里判定为「与人物有交互」的置景实例。
+  // 镜头强制显示不得复活被筛掉的构件，这里先算好保留集再参与 forceVisible。
+  const setKeep = useMemo(() => {
+    const ids = setPlan && planScene ? setPlan.plans[planScene]?.setInstanceIds : null;
+    return ids ? new Set(ids) : null;
+  }, [setPlan, planScene]);
 
   // 镜头库选中某个镜头时，只渲染该镜头视锥内用到的元素（高空视角也一样，便于只看本镜头布景与机位运动）
+  // 骨骼角色的所属场次：instanceId 以场景后缀登记（如 ue-char-nuola-s079a → s079a）
+  const assetScene = (id: string): string | null => {
+    const m = /-s(\d+[a-z]?)$/i.exec(id);
+    return m ? `s${m[1].toLowerCase()}` : null;
+  };
+
   const visibleAssets = useMemo(() => {
     if (!usedIds) return assets;
     const used = new Set(usedIds);
-    return assets.filter((asset) => used.has(asset.instanceId));
-  }, [assets, usedIds]);
+    const scene = activeShot?.scene ?? null;
+    return assets.filter((asset) => {
+      // 骨骼角色不受镜头元素剔除影响，但只在其所属场次的镜头中出现
+      //（未登记场次的角色与完整场景视图保持始终显示）
+      if (asset.kind === 'skeletal') {
+        const sc = assetScene(asset.instanceId);
+        return !scene || !sc || sc === scene;
+      }
+      // 灯位标记始终保留（显隐走 asset.visible，可在场景大纲手工隐藏）
+      if (asset.kind === 'light') return true;
+      return used.has(asset.instanceId);
+    });
+  }, [assets, usedIds, activeShot]);
   // 镜头模式下手工隐藏的元素：仍保留在列表里，只是不再渲染
   const shotHidden = useMemo(() => new Set(shotHiddenIds), [shotHiddenIds]);
 
@@ -374,9 +415,10 @@ function SceneContent() {
         shadow-bias={-0.0005}
       />
       <Ground />
-      {/* 棚：固定于原点，仅可通过顶栏切换，不参与选中/变换 */}
+      {/* 棚：形状来自 UE 扫描，环心位置可经顶栏「位置」调整，不参与选中/变换 */}
       {stage && (
         <LedRing
+          position={stagePosition}
           diameter={stage.diameter}
           height={stage.height}
           arc={stage.arc}
@@ -397,13 +439,18 @@ function SceneContent() {
         infiniteGrid
         raycast={() => null}
       />
-      {/* 集合：布景 + 演员 + 预演机位一起整体转向（环屏 / 缺口固定不动） */}
+      {/* 集合：布景 + 演员 + 预演机位一起整体转向/平移（环屏棚固定不动）。
+          外层旋转（集合转向，每镜头自动对齐）> 内层平移（setOffset，每场次一个摆放，原始坐标系），
+          保证摆放平移不受转向影响 */}
       <group rotation={[0, THREE.MathUtils.degToRad(ensembleYaw), 0]}>
+        <group position={setOffset}>
         {visibleAssets.map((asset) => (
           <SceneObject
             key={asset.instanceId}
             asset={asset}
-            forceVisible={Boolean(usedIds)}
+            forceVisible={
+              Boolean(usedIds) && (asset.kind !== 'ue' || !setKeep || setKeep.has(asset.instanceId))
+            }
             forceHidden={shotHidden.has(asset.instanceId)}
           />
         ))}
@@ -411,6 +458,7 @@ function SceneContent() {
         <PeopleLayer shot={activeShot} />
         <CameraRig />
         <PrevizCameraMarker />
+        </group>
       </group>
       {/* 测量标注属于棚内空间坐标，不随集合转向 */}
       <MeasurementLayer />
@@ -532,7 +580,10 @@ export function Viewport() {
         gl={{ antialias: true, preserveDrawingBuffer: true }}
         camera={{ position: [0, 7.2, 8.5], fov: 48, near: 0.1, far: 400 }}
         onPointerMissed={() => {
-          if (!isGizmoActive()) selectAsset(null);
+          if (isGizmoActive()) return;
+          selectAsset(null);
+          // 点空白处同时退出棚位置编辑
+          if (useScene.getState().stagePosEditing) useScene.getState().setStagePosEditing(false);
         }}
       >
         <SceneContent />

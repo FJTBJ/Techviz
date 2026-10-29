@@ -1,8 +1,9 @@
 {
- "generatedAt": "2026-10-26T13:43:10.502Z",
+ "generatedAt": "2026-10-29T09:08:05.685Z",
  "world": "/Game/Techviz/Map/祈祷室.祈祷室",
  "source": "UE Remote Control (single-request, no /remote/batch)",
- "actorTotal": 362,
+ "actorTotal": 382,
+ "lightTotal": 0,
  "failedActors": [],
  "actors": [
   {
@@ -119,6 +120,236 @@
     0,
     0,
     0
+   ]
+  },
+  {
+   "actorPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_375",
+   "label": "主光1",
+   "componentPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_375.StaticMeshComponent0",
+   "mesh": "/Engine/BasicShapes/Cube.Cube",
+   "materials": [
+    "/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"
+   ],
+   "locationCm": [
+    -290.79,
+    729.12,
+    610
+   ],
+   "position": [
+    7.2912,
+    6.1,
+    2.9079
+   ],
+   "scale": [
+    0.3982,
+    2.177,
+    0.5391
+   ],
+   "rotationQuat": {
+    "x": 0.198212531931385,
+    "y": 0.06619775593851049,
+    "z": 0.30978025848683943,
+    "w": 0.9275590766877774
+   },
+   "bounds": {
+    "center": [
+     7.2912,
+     6.1,
+     2.9079
+    ],
+    "half": [
+     1.0018,
+     0.6909,
+     0.8223
+    ]
+   },
+   "visible": true,
+   "rotation": [
+    0,
+    -0.6447,
+    0.4211
+   ],
+   "size": [
+    2.004,
+    1.382,
+    1.645
+   ],
+   "offset": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "actorPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_376",
+   "label": "主光_借位",
+   "componentPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_376.StaticMeshComponent0",
+   "mesh": "/Engine/BasicShapes/Cube.Cube",
+   "materials": [
+    "/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"
+   ],
+   "locationCm": [
+    426.76,
+    699.29,
+    610
+   ],
+   "position": [
+    6.9929,
+    6.1,
+    -4.2676
+   ],
+   "scale": [
+    0.3982,
+    2.177,
+    0.5391
+   ],
+   "rotationQuat": {
+    "x": 0.20897450770751955,
+    "y": 0.00008214843086607952,
+    "z": 0.0003844233314071771,
+    "w": 0.9779210093861044
+   },
+   "bounds": {
+    "center": [
+     6.9929,
+     6.1,
+     -4.2676
+    ],
+    "half": [
+     1.1038,
+     0.6909,
+     0.2
+    ]
+   },
+   "visible": true,
+   "rotation": [
+    0,
+    -0.0008,
+    0.4211
+   ],
+   "size": [
+    2.208,
+    1.382,
+    0.4
+   ],
+   "offset": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "actorPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_377",
+   "label": "主光_接CG",
+   "componentPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_377.StaticMeshComponent0",
+   "mesh": "/Engine/BasicShapes/Cube.Cube",
+   "materials": [
+    "/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"
+   ],
+   "locationCm": [
+    -734.69,
+    90.89,
+    610
+   ],
+   "position": [
+    0.9089,
+    6.1,
+    7.3469
+   ],
+   "scale": [
+    0.3982,
+    2.177,
+    0.5391
+   ],
+   "rotationQuat": {
+    "x": 0.14798399046975183,
+    "y": 0.14755029713495352,
+    "z": 0.690479126341025,
+    "w": 0.6925086457708456
+   },
+   "bounds": {
+    "center": [
+     0.9089,
+     6.1,
+     7.3469
+    ],
+    "half": [
+     0.2024,
+     0.6909,
+     1.1042
+    ]
+   },
+   "visible": true,
+   "rotation": [
+    0,
+    -1.5679,
+    0.4211
+   ],
+   "size": [
+    0.405,
+    1.382,
+    2.208
+   ],
+   "offset": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "actorPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_395",
+   "label": "SM_Peng_B_24m",
+   "componentPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_395.StaticMeshComponent0",
+   "mesh": "/Game/Techviz/Mesh/Led/SM_Peng_B_24m.SM_Peng_B_24m",
+   "materials": [],
+   "locationCm": [
+    0,
+    0,
+    0
+   ],
+   "position": [
+    0,
+    0,
+    0
+   ],
+   "scale": [
+    1,
+    1,
+    1
+   ],
+   "rotationQuat": {
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "w": 1
+   },
+   "bounds": {
+    "center": [
+     -0.1445,
+     11.3758,
+     3.4803
+    ],
+    "half": [
+     16.5916,
+     11.6258,
+     22.7752
+    ]
+   },
+   "visible": true,
+   "rotation": [
+    0,
+    0,
+    0
+   ],
+   "size": [
+    33.183,
+    23.252,
+    45.55
+   ],
+   "offset": [
+    -0.144,
+    11.376,
+    3.48
    ]
   },
   {
@@ -2302,7 +2533,7 @@
      0.7292
     ]
    },
-   "visible": true,
+   "visible": false,
    "rotation": [
     -3.1416,
     -0.4721,
@@ -2532,7 +2763,7 @@
      0.2667
     ]
    },
-   "visible": true,
+   "visible": false,
    "rotation": [
     0,
     -0.0515,
@@ -2590,7 +2821,7 @@
      0.398
     ]
    },
-   "visible": true,
+   "visible": false,
    "rotation": [
     0,
     -0.7496,
@@ -2648,7 +2879,7 @@
      0.3127
     ]
    },
-   "visible": true,
+   "visible": false,
    "rotation": [
     0,
     -1.4477,
@@ -2706,7 +2937,7 @@
      0.389
     ]
    },
-   "visible": true,
+   "visible": false,
    "rotation": [
     -3.1416,
     -0.9957,
@@ -2764,7 +2995,7 @@
      0.3405
     ]
    },
-   "visible": true,
+   "visible": false,
    "rotation": [
     -3.1416,
     -0.4721,
@@ -2822,7 +3053,7 @@
      0.3405
     ]
    },
-   "visible": true,
+   "visible": false,
    "rotation": [
     -3.1416,
     -0.4721,
@@ -2880,7 +3111,7 @@
      0.2667
     ]
    },
-   "visible": true,
+   "visible": false,
    "rotation": [
     0,
     -0.0515,
@@ -2938,7 +3169,7 @@
      0.3571
     ]
    },
-   "visible": true,
+   "visible": false,
    "rotation": [
     0,
     -0.7496,
@@ -2996,7 +3227,7 @@
      0.2804
     ]
    },
-   "visible": true,
+   "visible": false,
    "rotation": [
     0,
     -1.4477,
@@ -3700,64 +3931,6 @@
    ],
    "size": [
     1.056,
-    2.299,
-    0.106
-   ],
-   "offset": [
-    0,
-    1.149,
-    0
-   ]
-  },
-  {
-   "actorPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_55",
-   "label": "SM_ChuangHu_39",
-   "componentPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_55.StaticMeshComponent0",
-   "mesh": "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_ChuangHu_10.SM_ChuangHu_10",
-   "materials": [
-    "/Game/Assets/SetType/QiDaoShi_A000A/Materials/MI_chuanhu6.MI_chuanhu6"
-   ],
-   "locationCm": [
-    -1012.95,
-    635.95,
-    29.33
-   ],
-   "position": [
-    6.3595,
-    0.2933,
-    10.1295
-   ],
-   "scale": [
-    2.0888,
-    1.9955,
-    2.2989
-   ],
-   "rotationQuat": {
-    "x": 0,
-    "y": 0,
-    "z": 0,
-    "w": 1
-   },
-   "bounds": {
-    "center": [
-     6.3595,
-     1.4427,
-     10.1295
-    ],
-    "half": [
-     0.5235,
-     1.1494,
-     0.0529
-    ]
-   },
-   "visible": true,
-   "rotation": [
-    0,
-    0,
-    0
-   ],
-   "size": [
-    1.047,
     2.299,
     0.106
    ],
@@ -20982,31 +21155,1012 @@
     0,
     0
    ]
+  },
+  {
+   "actorPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_365",
+   "label": "SM_合并",
+   "componentPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_365.StaticMeshComponent0",
+   "mesh": "/Game/Techviz/Mesh/SM_合并.SM_合并",
+   "materials": [],
+   "locationCm": [
+    0,
+    0,
+    0
+   ],
+   "position": [
+    0,
+    0,
+    0
+   ],
+   "scale": [
+    1,
+    1,
+    1
+   ],
+   "rotationQuat": {
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "w": 1
+   },
+   "bounds": {
+    "center": [
+     -3.0747,
+     1.105,
+     1.3192
+    ],
+    "half": [
+     4.2706,
+     1.305,
+     4.6415
+    ]
+   },
+   "visible": true,
+   "rotation": [
+    0,
+    0,
+    0
+   ],
+   "size": [
+    8.541,
+    2.61,
+    9.283
+   ],
+   "offset": [
+    -3.075,
+    1.105,
+    1.319
+   ]
+  },
+  {
+   "actorPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_366",
+   "label": "ZhuZi_89",
+   "componentPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_366.StaticMeshComponent0",
+   "mesh": "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/ZhuZi_4.ZhuZi_4",
+   "materials": [
+    "/Game/Assets/SetType/QiDaoShi_A000A/Materials/MI_ZhuZi3.MI_ZhuZi3"
+   ],
+   "locationCm": [
+    17874.76,
+    31840.3,
+    2677
+   ],
+   "position": [
+    318.403,
+    26.77,
+    -178.7476
+   ],
+   "scale": [
+    1.5,
+    1.5,
+    1.4369
+   ],
+   "rotationQuat": {
+    "x": 3.691293241567794e-17,
+    "y": -8.879402167736531e-18,
+    "z": 0.972265843468244,
+    "w": 0.23387845053570927
+   },
+   "bounds": {
+    "center": [
+     318.4027,
+     28.0473,
+     -178.7479
+    ],
+    "half": [
+     0.3392,
+     1.2773,
+     0.3405
+    ]
+   },
+   "visible": true,
+   "rotation": [
+    3.1416,
+    -0.4721,
+    3.1416
+   ],
+   "size": [
+    0.678,
+    2.555,
+    0.681
+   ],
+   "offset": [
+    0,
+    1.277,
+    0
+   ]
+  },
+  {
+   "actorPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_367",
+   "label": "ZhuZi_90",
+   "componentPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_367.StaticMeshComponent0",
+   "mesh": "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/ZhuZi_4.ZhuZi_4",
+   "materials": [
+    "/Game/Assets/SetType/QiDaoShi_A000A/Materials/MI_ZhuZi3.MI_ZhuZi3"
+   ],
+   "locationCm": [
+    17572.06,
+    31994.88,
+    2677
+   ],
+   "position": [
+    319.9488,
+    26.77,
+    -175.7206
+   ],
+   "scale": [
+    1.5,
+    1.5,
+    1.4369
+   ],
+   "rotationQuat": {
+    "x": 3.691293241567793e-17,
+    "y": -8.879402167736532e-18,
+    "z": 0.9722658434682439,
+    "w": 0.23387845053570924
+   },
+   "bounds": {
+    "center": [
+     319.9485,
+     28.0473,
+     -175.7209
+    ],
+    "half": [
+     0.3392,
+     1.2773,
+     0.3405
+    ]
+   },
+   "visible": false,
+   "rotation": [
+    3.1416,
+    -0.4721,
+    3.1416
+   ],
+   "size": [
+    0.678,
+    2.555,
+    0.681
+   ],
+   "offset": [
+    0,
+    1.277,
+    0
+   ]
+  },
+  {
+   "actorPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_368",
+   "label": "SM_DaMen01a6",
+   "componentPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_368.StaticMeshComponent0",
+   "mesh": "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_DaMen01a.SM_DaMen01a",
+   "materials": [
+    "/Game/Assets/SetType/QiDaoShi_A000A/Materials/MI_DaMen_3.MI_DaMen_3"
+   ],
+   "locationCm": [
+    17817.8,
+    32104.38,
+    2687
+   ],
+   "position": [
+    321.0438,
+    26.87,
+    -178.178
+   ],
+   "scale": [
+    3.487,
+    1.9628,
+    3.7906
+   ],
+   "rotationQuat": {
+    "x": -6.5426606982835765e-18,
+    "y": 1.5738367331530436e-18,
+    "z": -0.23387850144342928,
+    "w": 0.9722658312223956
+   },
+   "bounds": {
+    "center": [
+     321.0439,
+     28.8073,
+     -178.178
+    ],
+    "half": [
+     0.7087,
+     1.9384,
+     1.1674
+    ]
+   },
+   "visible": true,
+   "rotation": [
+    0,
+    0.4721,
+    0
+   ],
+   "size": [
+    1.417,
+    3.877,
+    2.335
+   ],
+   "offset": [
+    0,
+    1.937,
+    0
+   ]
+  },
+  {
+   "actorPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_369",
+   "label": "SM_ShuJia11",
+   "componentPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_369.StaticMeshComponent0",
+   "mesh": "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_ShuJia1.SM_ShuJia1",
+   "materials": [],
+   "locationCm": [
+    18028.35,
+    31865.38,
+    2687
+   ],
+   "position": [
+    318.6538,
+    26.87,
+    -180.2835
+   ],
+   "scale": [
+    1,
+    1,
+    0.9115
+   ],
+   "rotationQuat": {
+    "x": 3.691293241567794e-17,
+    "y": -8.879402167736531e-18,
+    "z": 0.972265843468244,
+    "w": 0.23387845053570927
+   },
+   "bounds": {
+    "center": [
+     318.6579,
+     27.9814,
+     -180.2854
+    ],
+    "half": [
+     0.5404,
+     1.1139,
+     0.7292
+    ]
+   },
+   "visible": true,
+   "rotation": [
+    3.1416,
+    -0.4721,
+    3.1416
+   ],
+   "size": [
+    1.081,
+    2.228,
+    1.458
+   ],
+   "offset": [
+    0.004,
+    1.111,
+    -0.002
+   ]
+  },
+  {
+   "actorPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_370",
+   "label": "ZhuZi_91",
+   "componentPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_370.StaticMeshComponent0",
+   "mesh": "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/ZhuZi_4.ZhuZi_4",
+   "materials": [
+    "/Game/Assets/SetType/QiDaoShi_A000A/Materials/MI_ZhuZi3.MI_ZhuZi3"
+   ],
+   "locationCm": [
+    18110.67,
+    31645.04,
+    2677
+   ],
+   "position": [
+    316.4504,
+    26.77,
+    -181.1067
+   ],
+   "scale": [
+    1.5,
+    -1.5,
+    1.4369
+   ],
+   "rotationQuat": {
+    "x": 2.5931811868034584e-17,
+    "y": -1.4094785983676204e-17,
+    "z": 0.878604465982523,
+    "w": 0.47755019878078336
+   },
+   "bounds": {
+    "center": [
+     316.4502,
+     28.0473,
+     -181.107
+    ],
+    "half": [
+     0.3498,
+     1.2773,
+     0.3489
+    ]
+   },
+   "visible": true,
+   "rotation": [
+    3.1416,
+    -0.9957,
+    3.1416
+   ],
+   "size": [
+    0.7,
+    2.555,
+    0.698
+   ],
+   "offset": [
+    0,
+    1.277,
+    0
+   ]
+  },
+  {
+   "actorPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_371",
+   "label": "SM_DaMen01b5",
+   "componentPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_371.StaticMeshComponent0",
+   "mesh": "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_DaMen01b.SM_DaMen01b",
+   "materials": [
+    "/Game/Assets/SetType/QiDaoShi_A000A/Materials/MI_DaMen_4.MI_DaMen_4"
+   ],
+   "locationCm": [
+    247.02,
+    54.6,
+    -0.18
+   ],
+   "position": [
+    0.546,
+    -0.0018,
+    -2.4702
+   ],
+   "scale": [
+    2.334,
+    -2.1403,
+    2.1403
+   ],
+   "rotationQuat": {
+    "x": 0,
+    "y": 0,
+    "z": -0.006336070021564767,
+    "w": 0.9999799269068764
+   },
+   "bounds": {
+    "center": [
+     0.4953,
+     1.0449,
+     -2.8602
+    ],
+    "half": [
+     0.0617,
+     1.0504,
+     0.393
+    ]
+   },
+   "visible": true,
+   "rotation": [
+    0,
+    0.0127,
+    0
+   ],
+   "size": [
+    0.123,
+    2.101,
+    0.786
+   ],
+   "offset": [
+    -0.051,
+    1.047,
+    -0.39
+   ]
+  },
+  {
+   "actorPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_386",
+   "label": "Cube27",
+   "componentPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_386.StaticMeshComponent0",
+   "mesh": "/Engine/BasicShapes/Cube.Cube",
+   "materials": [
+    "/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"
+   ],
+   "locationCm": [
+    181.06,
+    -433.1,
+    120.4
+   ],
+   "position": [
+    -4.331,
+    1.204,
+    -1.8106
+   ],
+   "scale": [
+    6,
+    0.1415,
+    2.4044
+   ],
+   "rotationQuat": {
+    "x": 0,
+    "y": 0,
+    "z": 0.7071067811865475,
+    "w": 0.7071067811865477
+   },
+   "bounds": {
+    "center": [
+     -4.331,
+     1.204,
+     -1.8106
+    ],
+    "half": [
+     3,
+     1.2022,
+     0.0708
+    ]
+   },
+   "visible": true,
+   "rotation": [
+    0,
+    -1.5708,
+    0
+   ],
+   "size": [
+    6,
+    2.404,
+    0.142
+   ],
+   "offset": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "actorPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_387",
+   "label": "Cube28",
+   "componentPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_387.StaticMeshComponent0",
+   "mesh": "/Engine/BasicShapes/Cube.Cube",
+   "materials": [
+    "/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"
+   ],
+   "locationCm": [
+    202.94,
+    -140.92,
+    120.4
+   ],
+   "position": [
+    -1.4092,
+    1.204,
+    -2.0294
+   ],
+   "scale": [
+    1.2583,
+    0.1666,
+    2.4044
+   ],
+   "rotationQuat": {
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "w": 1
+   },
+   "bounds": {
+    "center": [
+     -1.4092,
+     1.204,
+     -2.0294
+    ],
+    "half": [
+     0.0833,
+     1.2022,
+     0.6292
+    ]
+   },
+   "visible": true,
+   "rotation": [
+    0,
+    0,
+    0
+   ],
+   "size": [
+    0.167,
+    2.404,
+    1.258
+   ],
+   "offset": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "actorPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_388",
+   "label": "Cube29",
+   "componentPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_388.StaticMeshComponent0",
+   "mesh": "/Engine/BasicShapes/Cube.Cube",
+   "materials": [
+    "/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"
+   ],
+   "locationCm": [
+    203.11,
+    98.45,
+    120.4
+   ],
+   "position": [
+    0.9845,
+    1.204,
+    -2.0311
+   ],
+   "scale": [
+    1.2574,
+    0.1641,
+    2.4044
+   ],
+   "rotationQuat": {
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "w": 1
+   },
+   "bounds": {
+    "center": [
+     0.9845,
+     1.204,
+     -2.0311
+    ],
+    "half": [
+     0.082,
+     1.2022,
+     0.6287
+    ]
+   },
+   "visible": true,
+   "rotation": [
+    0,
+    0,
+    0
+   ],
+   "size": [
+    0.164,
+    2.404,
+    1.257
+   ],
+   "offset": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "actorPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_389",
+   "label": "Cube30",
+   "componentPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_389.StaticMeshComponent0",
+   "mesh": "/Engine/BasicShapes/Cube.Cube",
+   "materials": [
+    "/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"
+   ],
+   "locationCm": [
+    150.39,
+    112.79,
+    120.4
+   ],
+   "position": [
+    1.1279,
+    1.204,
+    -1.5039
+   ],
+   "scale": [
+    0.1305,
+    0.2042,
+    2.4044
+   ],
+   "rotationQuat": {
+    "x": 0,
+    "y": 0,
+    "z": 0.7071067811865475,
+    "w": 0.7071067811865477
+   },
+   "bounds": {
+    "center": [
+     1.1279,
+     1.204,
+     -1.5039
+    ],
+    "half": [
+     0.0653,
+     1.2022,
+     0.1021
+    ]
+   },
+   "visible": true,
+   "rotation": [
+    0,
+    -1.5708,
+    0
+   ],
+   "size": [
+    0.131,
+    2.404,
+    0.204
+   ],
+   "offset": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "actorPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_390",
+   "label": "Cube31",
+   "componentPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_390.StaticMeshComponent0",
+   "mesh": "/Engine/BasicShapes/Cube.Cube",
+   "materials": [
+    "/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"
+   ],
+   "locationCm": [
+    157.21,
+    -180.39,
+    120.4
+   ],
+   "position": [
+    -1.8039,
+    1.204,
+    -1.5721
+   ],
+   "scale": [
+    0.6145,
+    0.3379,
+    2.4044
+   ],
+   "rotationQuat": {
+    "x": 0,
+    "y": 0,
+    "z": 0.7071067811865475,
+    "w": 0.7071067811865477
+   },
+   "bounds": {
+    "center": [
+     -1.8039,
+     1.204,
+     -1.5721
+    ],
+    "half": [
+     0.3073,
+     1.2022,
+     0.169
+    ]
+   },
+   "visible": true,
+   "rotation": [
+    0,
+    -1.5708,
+    0
+   ],
+   "size": [
+    0.615,
+    2.404,
+    0.338
+   ],
+   "offset": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "actorPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_391",
+   "label": "Cube32",
+   "componentPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_391.StaticMeshComponent0",
+   "mesh": "/Engine/BasicShapes/Cube.Cube",
+   "materials": [
+    "/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"
+   ],
+   "locationCm": [
+    140.3,
+    -187.4,
+    120.4
+   ],
+   "position": [
+    -1.874,
+    1.204,
+    -1.403
+   ],
+   "scale": [
+    0.473,
+    0.3379,
+    2.4044
+   ],
+   "rotationQuat": {
+    "x": 0,
+    "y": 0,
+    "z": 0.7071067811865475,
+    "w": 0.7071067811865477
+   },
+   "bounds": {
+    "center": [
+     -1.874,
+     1.204,
+     -1.403
+    ],
+    "half": [
+     0.2365,
+     1.2022,
+     0.169
+    ]
+   },
+   "visible": true,
+   "rotation": [
+    0,
+    -1.5708,
+    0
+   ],
+   "size": [
+    0.473,
+    2.404,
+    0.338
+   ],
+   "offset": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "actorPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_392",
+   "label": "Cube33",
+   "componentPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_392.StaticMeshComponent0",
+   "mesh": "/Engine/BasicShapes/Cube.Cube",
+   "materials": [
+    "/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"
+   ],
+   "locationCm": [
+    250.61,
+    -111.7,
+    120.4
+   ],
+   "position": [
+    -1.117,
+    1.204,
+    -2.5061
+   ],
+   "scale": [
+    0.3007,
+    0.4227,
+    2.4044
+   ],
+   "rotationQuat": {
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "w": 1
+   },
+   "bounds": {
+    "center": [
+     -1.117,
+     1.204,
+     -2.5061
+    ],
+    "half": [
+     0.2114,
+     1.2022,
+     0.1503
+    ]
+   },
+   "visible": true,
+   "rotation": [
+    0,
+    0,
+    0
+   ],
+   "size": [
+    0.423,
+    2.404,
+    0.301
+   ],
+   "offset": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "actorPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_393",
+   "label": "Cube34",
+   "componentPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_393.StaticMeshComponent0",
+   "mesh": "/Engine/BasicShapes/Cube.Cube",
+   "materials": [
+    "/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"
+   ],
+   "locationCm": [
+    250.61,
+    71.48,
+    120.4
+   ],
+   "position": [
+    0.7148,
+    1.204,
+    -2.5061
+   ],
+   "scale": [
+    0.3007,
+    0.3741,
+    2.4044
+   ],
+   "rotationQuat": {
+    "x": 0,
+    "y": 0,
+    "z": 0,
+    "w": 1
+   },
+   "bounds": {
+    "center": [
+     0.7148,
+     1.204,
+     -2.5061
+    ],
+    "half": [
+     0.187,
+     1.2022,
+     0.1503
+    ]
+   },
+   "visible": true,
+   "rotation": [
+    0,
+    0,
+    0
+   ],
+   "size": [
+    0.374,
+    2.404,
+    0.301
+   ],
+   "offset": [
+    0,
+    0,
+    0
+   ]
+  },
+  {
+   "actorPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_398",
+   "label": "SM_合并2",
+   "componentPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_398.StaticMeshComponent0",
+   "mesh": "/Game/Techviz/Mesh/SM_合并1.SM_合并1",
+   "materials": [],
+   "locationCm": [
+    17687.88,
+    31886.27,
+    2687
+   ],
+   "position": [
+    318.8627,
+    26.87,
+    -176.8788
+   ],
+   "scale": [
+    1,
+    1,
+    1
+   ],
+   "rotationQuat": {
+    "x": -1.1636782959187182e-16,
+    "y": -1.6411346464571767e-16,
+    "z": 0.5224985647159505,
+    "w": 0.852640164354091
+   },
+   "bounds": {
+    "center": [
+     318.6803,
+     27.975,
+     -180.2368
+    ],
+    "half": [
+     3.6856,
+     1.305,
+     4.6951
+    ]
+   },
+   "visible": true,
+   "rotation": [
+    0,
+    -1.0996,
+    0
+   ],
+   "size": [
+    7.371,
+    2.61,
+    9.39
+   ],
+   "offset": [
+    -0.182,
+    1.105,
+    -3.358
+   ]
+  },
+  {
+   "actorPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_55",
+   "label": "SM_ChuangHu_39",
+   "componentPath": "/Game/Techviz/Map/祈祷室.祈祷室:PersistentLevel.StaticMeshActor_55.StaticMeshComponent0",
+   "mesh": "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_ChuangHu_10.SM_ChuangHu_10",
+   "materials": [
+    "/Game/Assets/SetType/QiDaoShi_A000A/Materials/MI_chuanhu6.MI_chuanhu6"
+   ],
+   "locationCm": [
+    -1012.95,
+    635.95,
+    29.33
+   ],
+   "position": [
+    6.3595,
+    0.2933,
+    10.1295
+   ],
+   "scale": [
+    2.0888,
+    1.9955,
+    2.2989
+   ],
+   "rotationQuat": {
+    "x": 0,
+    "y": -2.522645080524678e-32,
+    "z": 0,
+    "w": 1
+   },
+   "bounds": {
+    "center": [
+     6.3595,
+     1.4427,
+     10.1295
+    ],
+    "half": [
+     0.5235,
+     1.1494,
+     0.0529
+    ]
+   },
+   "visible": true,
+   "rotation": [
+    0,
+    0,
+    0
+   ],
+   "size": [
+    1.047,
+    2.299,
+    0.106
+   ],
+   "offset": [
+    0,
+    1.149,
+    0
+   ]
   }
  ],
+ "lights": [],
  "meshBounds": {
-  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/ZhuZi_2.ZhuZi_2": {
+  "/Engine/BasicShapes/Cube.Cube": {
    "extentCm": [
-    18.867,
-    18.672,
-    99.999
+    50,
+    50,
+    50
    ],
    "originCm": [
     0,
-    0.001,
-    100
+    0,
+    0
    ]
   },
-  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/ZhuZi_4.ZhuZi_4": {
+  "/Game/Techviz/Mesh/Led/SM_Peng_B_24m.SM_Peng_B_24m": {
    "extentCm": [
-    16.942,
-    16.738,
-    88.889
+    2277.517,
+    1659.161,
+    1162.578
    ],
    "originCm": [
-    -0.024,
-    0.011,
-    88.889
+    -348.029,
+    -14.451,
+    1137.578
    ]
   },
   "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_DaMen01a.SM_DaMen01a": {
@@ -21021,16 +22175,16 @@
     51.107
    ]
   },
-  "/Engine/BasicShapes/Cube.Cube": {
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/ZhuZi_4.ZhuZi_4": {
    "extentCm": [
-    50,
-    50,
-    50
+    16.942,
+    16.738,
+    88.889
    ],
    "originCm": [
-    0,
-    0,
-    0
+    -0.024,
+    0.011,
+    88.889
    ]
   },
   "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_ChuangHu_2.SM_ChuangHu_2": {
@@ -21045,28 +22199,16 @@
     49.998
    ]
   },
-  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_QiangTi01.SM_QiangTi01": {
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/ZhuZi_2.ZhuZi_2": {
    "extentCm": [
-    10,
-    359.08,
-    311.469
+    18.867,
+    18.672,
+    99.999
    ],
    "originCm": [
     0,
-    359.08,
-    0
-   ]
-  },
-  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_ChuangHu_10.SM_ChuangHu_10": {
-   "extentCm": [
-    2.533,
-    26.236,
-    50
-   ],
-   "originCm": [
-    0,
-    0,
-    50
+    0.001,
+    100
    ]
   },
   "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_ShuJia1.SM_ShuJia1": {
@@ -21081,6 +22223,18 @@
     121.923
    ]
   },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_QiangTi01.SM_QiangTi01": {
+   "extentCm": [
+    10,
+    359.08,
+    311.469
+   ],
+   "originCm": [
+    0,
+    359.08,
+    0
+   ]
+  },
   "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_DaChuangHu03.SM_DaChuangHu03": {
    "extentCm": [
     9.325,
@@ -21093,16 +22247,28 @@
     196.204
    ]
   },
-  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_MuHuBan_A000C_VTWElementLookDev1.SM_MuHuBan_A000C_VTWElementLookDev1": {
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_GongMen02.SM_GongMen02": {
    "extentCm": [
-    54.886,
-    6.222,
-    60
+    166.82,
+    89.681,
+    241.137
    ],
    "originCm": [
-    43.894,
-    -0.045,
-    59.712
+    0,
+    -19.416,
+    240.987
+   ]
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_ChuangHu_10.SM_ChuangHu_10": {
+   "extentCm": [
+    2.533,
+    26.236,
+    50
+   ],
+   "originCm": [
+    0,
+    0,
+    50
    ]
   },
   "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/Cube.Cube": {
@@ -21117,16 +22283,16 @@
     0
    ]
   },
-  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_GongMen02.SM_GongMen02": {
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_MuHuBan_A000C_VTWElementLookDev1.SM_MuHuBan_A000C_VTWElementLookDev1": {
    "extentCm": [
-    166.82,
-    89.681,
-    241.137
+    54.886,
+    6.222,
+    60
    ],
    "originCm": [
-    0,
-    -19.416,
-    240.987
+    43.894,
+    -0.045,
+    59.712
    ]
   },
   "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_MuHuBan_A000C_VTWElementLookDev.SM_MuHuBan_A000C_VTWElementLookDev": {
@@ -21153,16 +22319,16 @@
     255
    ]
   },
-  "/Game/Techviz/Mesh/SM_墙.SM_墙": {
+  "/Game/Techviz/Mesh/SM_门.SM_门": {
    "extentCm": [
-    370.229,
-    10,
-    118.5
+    164.943,
+    95.615,
+    107.745
    ],
    "originCm": [
-    -78.617,
-    -708.711,
-    198.5
+    433.479,
+    -748.887,
+    199.877
    ]
   },
   "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/ding2.ding2": {
@@ -21177,18 +22343,6 @@
     508.583
    ]
   },
-  "/Game/Techviz/Mesh/SM_门.SM_门": {
-   "extentCm": [
-    164.943,
-    95.615,
-    107.745
-   ],
-   "originCm": [
-    433.479,
-    -748.887,
-    199.877
-   ]
-  },
   "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/JieGou_16.JieGou_16": {
    "extentCm": [
     148.749,
@@ -21201,6 +22355,18 @@
     28.539
    ]
   },
+  "/Game/Techviz/Mesh/SM_墙.SM_墙": {
+   "extentCm": [
+    370.229,
+    10,
+    118.5
+   ],
+   "originCm": [
+    -78.617,
+    -708.711,
+    198.5
+   ]
+  },
   "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/ZhuZi_5.ZhuZi_5": {
    "extentCm": [
     18.865,
@@ -21211,18 +22377,6 @@
     0.002,
     14.552,
     11.111
-   ]
-  },
-  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_MenTou_2.SM_MenTou_2": {
-   "extentCm": [
-    5.133,
-    48.861,
-    48.85
-   ],
-   "originCm": [
-    0.015,
-    -0.02,
-    -0.075
    ]
   },
   "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/ZhuZi_6.ZhuZi_6": {
@@ -21249,6 +22403,30 @@
     -4.842
    ]
   },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_MenTou_2.SM_MenTou_2": {
+   "extentCm": [
+    5.133,
+    48.861,
+    48.85
+   ],
+   "originCm": [
+    0.015,
+    -0.02,
+    -0.075
+   ]
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/uebpbd3fa_LOD0.uebpbd3fa_LOD0": {
+   "extentCm": [
+    61.507,
+    8.895,
+    5.454
+   ],
+   "originCm": [
+    0,
+    0,
+    5.454
+   ]
+  },
   "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_diaohua_2.SM_diaohua_2": {
    "extentCm": [
     62.408,
@@ -21259,18 +22437,6 @@
     -0.097,
     0.033,
     30.701
-   ]
-  },
-  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_MenTou_new.SM_MenTou_new": {
-   "extentCm": [
-    2.485,
-    48.967,
-    21.768
-   ],
-   "originCm": [
-    -0.321,
-    0.001,
-    0.002
    ]
   },
   "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/jiegou/_Mesh517._Mesh517": {
@@ -21297,18 +22463,6 @@
     415
    ]
   },
-  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/uebpbd3fa_LOD0.uebpbd3fa_LOD0": {
-   "extentCm": [
-    61.507,
-    8.895,
-    5.454
-   ],
-   "originCm": [
-    0,
-    0,
-    5.454
-   ]
-  },
   "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/jiegou/_Mesh739._Mesh739": {
    "extentCm": [
     486.439,
@@ -21319,30 +22473,6 @@
     0,
     0,
     10
-   ]
-  },
-  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/jiegou/_Mesh1016._Mesh1016": {
-   "extentCm": [
-    10,
-    310,
-    275
-   ],
-   "originCm": [
-    250.656,
-    -18.728,
-    275
-   ]
-  },
-  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_MuHuBan_A000C_VTWElementLookDev5.SM_MuHuBan_A000C_VTWElementLookDev5": {
-   "extentCm": [
-    29.348,
-    6.182,
-    59.993
-   ],
-   "originCm": [
-    69.432,
-    -0.085,
-    59.719
    ]
   },
   "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_JingJia3.SM_JingJia3": {
@@ -21357,6 +22487,30 @@
     20.102
    ]
   },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_MenTou_new.SM_MenTou_new": {
+   "extentCm": [
+    2.485,
+    48.967,
+    21.768
+   ],
+   "originCm": [
+    -0.321,
+    0.001,
+    0.002
+   ]
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/jiegou/_Mesh1016._Mesh1016": {
+   "extentCm": [
+    10,
+    310,
+    275
+   ],
+   "originCm": [
+    250.656,
+    -18.728,
+    275
+   ]
+  },
   "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_MuTiao_12.SM_MuTiao_12": {
    "extentCm": [
     21.832,
@@ -21367,6 +22521,18 @@
     0,
     0,
     14.691
+   ]
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_MuHuBan_A000C_VTWElementLookDev5.SM_MuHuBan_A000C_VTWElementLookDev5": {
+   "extentCm": [
+    29.348,
+    6.182,
+    59.993
+   ],
+   "originCm": [
+    69.432,
+    -0.085,
+    59.719
    ]
   },
   "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_DaMen01b.SM_DaMen01b": {
@@ -21453,18 +22619,6 @@
     48.961
    ]
   },
-  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_QiangTi02.SM_QiangTi02": {
-   "extentCm": [
-    235.932,
-    15.371,
-    278.578
-   ],
-   "originCm": [
-    235.932,
-    0,
-    0
-   ]
-  },
   "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/Cube1.Cube1": {
    "extentCm": [
     50,
@@ -21501,6 +22655,18 @@
     0
    ]
   },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_QiangTi02.SM_QiangTi02": {
+   "extentCm": [
+    235.932,
+    15.371,
+    278.578
+   ],
+   "originCm": [
+    235.932,
+    0,
+    0
+   ]
+  },
   "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_Men_A218C_VTWElementLookDev1.SM_Men_A218C_VTWElementLookDev1": {
    "extentCm": [
     37.844,
@@ -21511,6 +22677,18 @@
     -37.844,
     0,
     0
+   ]
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_DiaoHua_A043C_VTWElementLookDev.SM_DiaoHua_A043C_VTWElementLookDev": {
+   "extentCm": [
+    12.206,
+    61.954,
+    39.214
+   ],
+   "originCm": [
+    0.017,
+    -0.167,
+    36.804
    ]
   },
   "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_diaohua_3.SM_diaohua_3": {
@@ -21537,16 +22715,16 @@
     0
    ]
   },
-  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_DiaoHua_A043C_VTWElementLookDev.SM_DiaoHua_A043C_VTWElementLookDev": {
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/pingding.pingding": {
    "extentCm": [
-    12.206,
-    61.954,
-    39.214
+    422.1,
+    200.72,
+    19.806
    ],
    "originCm": [
-    0.017,
-    -0.167,
-    36.804
+    0,
+    200.72,
+    19.806
    ]
   },
   "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_ChuangHuMen02.SM_ChuangHuMen02": {
@@ -21561,16 +22739,16 @@
     0
    ]
   },
-  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_GongMen06.SM_GongMen06": {
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_TianChuang04.SM_TianChuang04": {
    "extentCm": [
-    546.095,
-    23.274,
-    255.564
+    21.443,
+    1.785,
+    14.765
    ],
    "originCm": [
-    11.115,
-    -0.024,
-    645.488
+    1.749,
+    0.002,
+    27.514
    ]
   },
   "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_TianChuang05.SM_TianChuang05": {
@@ -21585,30 +22763,6 @@
     25.09
    ]
   },
-  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/pingding.pingding": {
-   "extentCm": [
-    422.1,
-    200.72,
-    19.806
-   ],
-   "originCm": [
-    0,
-    200.72,
-    19.806
-   ]
-  },
-  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_TianChuang04.SM_TianChuang04": {
-   "extentCm": [
-    21.443,
-    1.785,
-    14.765
-   ],
-   "originCm": [
-    1.749,
-    0.002,
-    27.514
-   ]
-  },
   "/Game/Assets/SetType/QiDaoShi_A000A/Map/_GENERATED/lifeng1/Boolean_8F9BBB0A1.Boolean_8F9BBB0A1": {
    "extentCm": [
     295.23,
@@ -21620,6 +22774,42 @@
     29.306,
     -0.067
    ]
+  },
+  "/Game/Techviz/Mesh/SM_合并1.SM_合并1": {
+   "extentCm": [
+    196.042,
+    427.058,
+    130.5
+   ],
+   "originCm": [
+    136.196,
+    -307.475,
+    110.5
+   ]
+  },
+  "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_GongMen06.SM_GongMen06": {
+   "extentCm": [
+    546.095,
+    23.274,
+    255.564
+   ],
+   "originCm": [
+    11.115,
+    -0.024,
+    645.488
+   ]
+  },
+  "/Game/Techviz/Mesh/SM_合并.SM_合并": {
+   "extentCm": [
+    464.154,
+    427.058,
+    130.5
+   ],
+   "originCm": [
+    -131.916,
+    -307.475,
+    110.5
+   ]
   }
  },
  "meshes": [
@@ -21629,11 +22819,15 @@
   },
   {
    "asset": "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/ZhuZi_4.ZhuZi_4",
-   "count": 36
+   "count": 39
   },
   {
    "asset": "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/Cube.Cube",
    "count": 33
+  },
+  {
+   "asset": "/Engine/BasicShapes/Cube.Cube",
+   "count": 29
   },
   {
    "asset": "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_ChuangHu_2.SM_ChuangHu_2",
@@ -21642,10 +22836,6 @@
   {
    "asset": "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_MuHuBan_A000C_VTWElementLookDev.SM_MuHuBan_A000C_VTWElementLookDev",
    "count": 22
-  },
-  {
-   "asset": "/Engine/BasicShapes/Cube.Cube",
-   "count": 18
   },
   {
    "asset": "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_MuHuBan_A000C_VTWElementLookDev1.SM_MuHuBan_A000C_VTWElementLookDev1",
@@ -21673,7 +22863,7 @@
   },
   {
    "asset": "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_ShuJia1.SM_ShuJia1",
-   "count": 8
+   "count": 9
   },
   {
    "asset": "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/ZhuZi_6.ZhuZi_6",
@@ -21685,7 +22875,7 @@
   },
   {
    "asset": "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_DaMen01a.SM_DaMen01a",
-   "count": 4
+   "count": 5
   },
   {
    "asset": "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_QiangTi01.SM_QiangTi01",
@@ -21702,6 +22892,10 @@
   {
    "asset": "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_QiangTi02.SM_QiangTi02",
    "count": 4
+  },
+  {
+   "asset": "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_DaMen01b.SM_DaMen01b",
+   "count": 3
   },
   {
    "asset": "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_tissu_1.SM_tissu_1",
@@ -21733,10 +22927,6 @@
   },
   {
    "asset": "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_MuTiao_12.SM_MuTiao_12",
-   "count": 2
-  },
-  {
-   "asset": "/Game/Assets/SetType/QiDaoShi_A000A/Meshes/SM_DaMen01b.SM_DaMen01b",
    "count": 2
   },
   {
@@ -21788,6 +22978,10 @@
    "count": 2
   },
   {
+   "asset": "/Game/Techviz/Mesh/Led/SM_Peng_B_24m.SM_Peng_B_24m",
+   "count": 1
+  },
+  {
    "asset": "/Game/Techviz/Mesh/SM_门.SM_门",
    "count": 1
   },
@@ -21834,6 +23028,14 @@
   {
    "asset": "/Game/Assets/SetType/QiDaoShi_A000A/Map/_GENERATED/lifeng1/Boolean_8F9BBB0A1.Boolean_8F9BBB0A1",
    "count": 1
+  },
+  {
+   "asset": "/Game/Techviz/Mesh/SM_合并.SM_合并",
+   "count": 1
+  },
+  {
+   "asset": "/Game/Techviz/Mesh/SM_合并1.SM_合并1",
+   "count": 1
   }
  ],
  "materials": [
@@ -21843,11 +23045,15 @@
   },
   {
    "asset": "/Game/Assets/SetType/QiDaoShi_A000A/Materials/MI_ZhuZi3.MI_ZhuZi3",
-   "count": 36
+   "count": 39
   },
   {
    "asset": "/Game/Assets/SetType/QiDaoShi_A000A/Temp/WALL/MI_B01_BaseWall01.MI_B01_BaseWall01",
    "count": 18
+  },
+  {
+   "asset": "/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial",
+   "count": 11
   },
   {
    "asset": "/Game/Assets/SetType/QiDaoShi_A000A/Materials/MI_chuanhu5.MI_chuanhu5",
@@ -21858,12 +23064,12 @@
    "count": 7
   },
   {
-   "asset": "/Game/Assets/SetType/QiDaoShi_A000A/Materials/MI_chuanhu6.MI_chuanhu6",
+   "asset": "/Game/Assets/SetType/QiDaoShi_A000A/Materials/MI_DaMen_3.MI_DaMen_3",
    "count": 6
   },
   {
-   "asset": "/Game/Assets/SetType/QiDaoShi_A000A/Materials/MI_DaMen_3.MI_DaMen_3",
-   "count": 5
+   "asset": "/Game/Assets/SetType/QiDaoShi_A000A/Materials/MI_chuanhu6.MI_chuanhu6",
+   "count": 6
   },
   {
    "asset": "/Game/Assets/SetType/QiDaoShi_A000A/Materials/MI_Men_a_A218C.MI_Men_a_A218C",
@@ -21872,6 +23078,10 @@
   {
    "asset": "/Game/Techviz/MTL/MTL_Taizi_w24m_Inst.MTL_Taizi_w24m_Inst",
    "count": 2
+  },
+  {
+   "asset": "/Game/Assets/SetType/QiDaoShi_A000A/Materials/MI_DaMen_4.MI_DaMen_4",
+   "count": 1
   }
  ]
 }

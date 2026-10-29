@@ -5,6 +5,8 @@ import { Panel } from './ui';
 
 /** 用 code 去掉尾部序号做分组键，便于整组显隐（CUBE / ZHUZI / SM_CHUANGHU…） */
 const groupKey = (asset: SceneAsset) => {
+  // 灯光单独一组，方便整组显隐
+  if (asset.kind === 'light') return '灯光';
   const code = asset.code.split('.')[0];
   return code.replace(/[\d_]+$/, '') || code;
 };

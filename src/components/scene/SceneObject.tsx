@@ -9,14 +9,15 @@ import {
   type ReactNode,
 } from 'react';
 import * as THREE from 'three';
-import { TransformControls } from '@react-three/drei';
+import { Line, TransformControls } from '@react-three/drei';
 import { useFrame, useLoader, type ThreeEvent } from '@react-three/fiber';
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { useScene, markGizmoDragEnd } from '../../store/sceneStore';
-import { lensMath } from '../../lib/lens';
+import { lensMathNum } from '../../lib/lens';
 import { rotatePoseY, shotPoseAt } from '../../lib/previz';
-import type { SceneAsset } from '../../types';
+import { ASPECTS, type SceneAsset } from '../../types';
+import { AnimatedActor } from './AnimatedActor';
 
 /** 模型加载失败（文件没部署/路径失效）时回退到代理体块，避免整块画布崩掉 */
 class ModelBoundary extends Component<{ fallback: ReactNode; children: ReactNode }, { failed: boolean }> {
@@ -125,7 +126,7 @@ function LedVideoScreen({
               vec2 ndc = clip.xy / clip.w;
               if (ndc.x < -1.0 || ndc.x > 1.0 || ndc.y < -1.0 || ndc.y > 1.0) discard;
               texUv = ndc * 0.5 + 0.5;
-              texUv.y = 1.0 - texUv.y;
+              // VideoTexture 默认 flipY=true（v=0 对应画面底部），NDC y 轴同向，无需再翻转
             } else {
               // 未选镜头时退回整圈平铺，从环内看圆柱背面需要翻转 U
               texUv = vec2(1.0 - vUv.x, vUv.y);
@@ -158,7 +159,13 @@ function LedVideoScreen({
       return;
     }
 
-    const lens = lensMath(pose.focal ?? st.camera.focal, st.camera.sensor, st.camera.aspect);
+    // 投影视锥画幅与 take 视频保持一致（机位取景同基准），无 take 时回落相机参数画幅
+    const takeEl = st.takeVideoEl;
+    const frameAspect =
+      takeEl && takeEl.videoWidth > 0 && takeEl.videoHeight > 0
+        ? takeEl.videoWidth / takeEl.videoHeight
+        : ASPECTS[st.camera.aspect];
+    const lens = lensMathNum(pose.focal ?? st.camera.focal, st.camera.sensor, frameAspect);
     const aspect = Math.tan(lens.hfov / 2) / Math.max(1e-4, Math.tan(lens.vfov / 2));
     cam.fov = THREE.MathUtils.radToDeg(lens.vfov);
     cam.aspect = aspect;
@@ -191,11 +198,14 @@ function LedVideoScreen({
 
 /** 环屏棚：按直径 / 高度 / 覆盖角度程序化生成，规格来自后端扫描 UE 工程 NDC 目录 */
 export function LedRing({
+  position = [0, 0, 0],
   diameter,
   height,
   arc,
   gapCenterDeg = 90,
 }: {
+  /** 环心整体位置（米），默认原点 */
+  position?: [number, number, number];
   diameter: number;
   height: number;
   arc: number;
@@ -208,8 +218,44 @@ export function LedRing({
   const thetaLength = THREE.MathUtils.degToRad(arcDeg);
   const segs = 128;
 
+  // 位置编辑模式：环心出现移动 gizmo，拖动松手后把位置写回 store；
+  // 点击环屏本体也可进入编辑，点空白处退出（见 Viewport 的 onPointerMissed）
+  const editing = useScene((s) => s.stagePosEditing);
+  const setStagePosEditing = useScene((s) => s.setStagePosEditing);
+  const groupRef = useRef<THREE.Group | null>(null);
+  const [object, setObject] = useState<THREE.Group | null>(null);
+  const attach = useCallback((node: THREE.Group | null) => {
+    groupRef.current = node;
+    setObject(node);
+  }, []);
+  const commit = useCallback(() => {
+    const node = groupRef.current;
+    markGizmoDragEnd();
+    if (!node) return;
+    const r = (n: number) => Math.round(n * 1000) / 1000;
+    useScene
+      .getState()
+      .setStagePosition([r(node.position.x), r(node.position.y), r(node.position.z)]);
+  }, []);
+
   return (
-    <group>
+    <>
+      <group
+        ref={attach}
+        position={position}
+        onClick={(event) => {
+          event.stopPropagation();
+          // 测量模式下点击环屏是打测量点，不进入位置编辑
+          if (useScene.getState().mode !== 'measure') setStagePosEditing(true);
+        }}
+        onPointerOver={(event) => {
+          event.stopPropagation();
+          document.body.style.cursor = 'move';
+        }}
+        onPointerOut={() => {
+          document.body.style.cursor = 'auto';
+        }}
+      >
       {/* 主屏体：通电状态的暗蓝发光 */}
       <mesh position={[0, height / 2, 0]} castShadow receiveShadow>
         <cylinderGeometry args={[radius, radius, height, segs, 1, true, thetaStart, thetaLength]} />
@@ -254,6 +300,89 @@ export function LedRing({
           <meshStandardMaterial color="#39424f" roughness={0.55} metalness={0.5} />
         </mesh>
       ))}
+      </group>
+      {editing && object && (
+        <TransformControls
+          object={object}
+          mode="translate"
+          space="world"
+          translationSnap={0.1}
+          onMouseUp={commit}
+        />
+      )}
+    </>
+  );
+}
+
+/**
+ * 灯位标记：发光小球 + 光照方向示意。
+ * 点光/面光画淡色衰减范围球；聚光画照射锥，定向灯画方向虚线。
+ * UE 灯默认朝 Actor -X，经基变换（x_ue → -Z）后在 three 空间默认朝 +Z。
+ */
+function LightMarker({ asset }: { asset: SceneAsset }) {
+  const color = asset.color || '#ffd9a0';
+  const type = asset.lightType ?? 'Light';
+  const isSpot = /spot/i.test(type);
+  const isDir = /directional/i.test(type);
+  const hasDirection = isSpot || isDir;
+  const range = asset.lightRange ?? 3;
+
+  const dir = useMemo(() => {
+    const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(...asset.rotation, 'XYZ'));
+    return new THREE.Vector3(0, 0, 1).applyQuaternion(q);
+  }, [asset.rotation]);
+
+  // 聚光锥：灯到照射方向 range 处的圆周（8 点）
+  const cone = useMemo(() => {
+    if (!isSpot) return null;
+    const outerDeg = asset.outerConeDeg ?? 35;
+    const r = Math.max(0.05, range * Math.sin(THREE.MathUtils.degToRad(outerDeg)));
+    const tip = dir.clone().multiplyScalar(range);
+    const basis = Math.abs(dir.y) < 0.9 ? new THREE.Vector3(0, 1, 0) : new THREE.Vector3(1, 0, 0);
+    const u = new THREE.Vector3().crossVectors(dir, basis).normalize();
+    const v = new THREE.Vector3().crossVectors(dir, u);
+    const ring: [number, number, number][] = [];
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * Math.PI * 2;
+      const p = tip.clone().addScaledVector(u, Math.cos(a) * r).addScaledVector(v, Math.sin(a) * r);
+      ring.push([p.x, p.y, p.z]);
+    }
+    ring.push(ring[0]);
+    return { ring };
+  }, [isSpot, dir, range, asset.outerConeDeg]);
+
+  const end = useMemo(() => {
+    const p = dir.clone().multiplyScalar(Math.min(range, 1.2));
+    return [p.x, p.y, p.z] as [number, number, number];
+  }, [dir, range]);
+
+  return (
+    <group>
+      {/* 灯泡本体 + 外圈淡光晕，可点选 */}
+      <mesh>
+        <sphereGeometry args={[0.09, 16, 12]} />
+        <meshBasicMaterial color={color} />
+      </mesh>
+      <mesh>
+        <sphereGeometry args={[0.18, 16, 12]} />
+        <meshBasicMaterial color={color} transparent opacity={0.18} depthWrite={false} />
+      </mesh>
+      {/* 点光/面光：淡色衰减范围球 */}
+      {!hasDirection && (
+        <mesh>
+          <sphereGeometry args={[Math.min(range, 8), 20, 14]} />
+          <meshBasicMaterial color={color} transparent opacity={0.04} depthWrite={false} />
+        </mesh>
+      )}
+      {isDir && <Line points={[[0, 0, 0], end]} color={color} lineWidth={1.5} dashed dashSize={0.12} gapSize={0.08} />}
+      {cone && (
+        <group>
+          {cone.ring.slice(0, 8).map((p, i) => (
+            <Line key={i} points={[[0, 0, 0], p]} color={color} lineWidth={1} transparent opacity={0.5} />
+          ))}
+          <Line points={cone.ring} color={color} lineWidth={1.5} transparent opacity={0.8} />
+        </group>
+      )}
     </group>
   );
 }
@@ -355,6 +484,21 @@ function ProxyMesh({ asset }: { asset: SceneAsset }) {
           </mesh>
         </group>
       );
+    case 'light':
+      return <LightMarker asset={asset} />;
+    case 'skeletal':
+      return asset.animUrl ? (
+        <Suspense
+          fallback={
+            <mesh position={[0, size[1] / 2, 0]}>
+              <boxGeometry args={size} />
+              <meshStandardMaterial color={color} wireframe />
+            </mesh>
+          }
+        >
+          <AnimatedActor animUrl={asset.animUrl} animOffset={asset.animOffset} height={size[1]} clothColor={asset.color} />
+        </Suspense>
+      ) : null;
     case 'glb':
       return asset.url ? (
         <Suspense

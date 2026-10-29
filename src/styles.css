@@ -122,6 +122,28 @@ textarea {
   border-color: #3d5a80;
 }
 
+/* 位置编辑开关：与顶栏暗色控件同风格，激活态用琥珀色 */
+.stage-switcher button {
+  background: #0b1118;
+  color: var(--fg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.stage-switcher button:hover {
+  border-color: #3d5a80;
+}
+
+.stage-switcher button.active {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 .stage-switcher.empty {
   color: var(--muted-2);
   font-size: 12px;

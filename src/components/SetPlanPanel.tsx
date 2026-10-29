@@ -21,6 +21,10 @@ export function SetPlanPanel() {
   const setPlanScene = useScene((s) => s.setPlanScene);
   const toggleSetPlan = useScene((s) => s.toggleSetPlan);
   const shotAim = useScene((s) => s.shotAim);
+  const setStagePosition = useScene((s) => s.setStagePosition);
+  const setOffset = useScene((s) => s.setOffset);
+  const setSetOffset = useScene((s) => s.setSetOffset);
+  const applySetAssetFilter = useScene((s) => s.applySetAssetFilter);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
@@ -103,6 +107,47 @@ export function SetPlanPanel() {
             {current.ring.arc}° · 缺口 {current.ring.gapDeg.toFixed(0)}° · 样本{' '}
             {current.summary.rayCount}
           </p>
+
+          {current.stagePosition && (
+            <>
+              <h3 className="sub-head">推荐置景摆放</h3>
+              <p className="setplan-meta mono" title={current.stagePosition.method}>
+                置景整体平移 ({-current.stagePosition.offset[0]}, {-current.stagePosition.offset[2]})m ·
+                演员 {current.stagePosition.actorBacked}%
+                {current.stagePosition.actorBacked !== current.stagePosition.actorBackedOrigin &&
+                  `（原位 ${current.stagePosition.actorBackedOrigin}%）`}
+                {current.stagePosition.assetBacked != null &&
+                  ` · 置景资产 ${current.stagePosition.assetBacked}%`}{' '}
+                · {current.stagePosition.shotCount} 镜 {current.stagePosition.sampleCount} 采样
+              </p>
+              {current.setInstanceIds?.length != null && (
+                <p className="setplan-meta mono">
+                  置景筛选：交互资产 {current.setInstanceIds.length} 件默认显示，其余默认隐藏
+                </p>
+              )}
+              <div className="panel-actions">
+                <button
+                  className="btn tiny"
+                  onClick={() => {
+                    // 1) 解算值是环心偏移；现场语义是棚固定、置景整体平移，取反作用到集合
+                    const o = current.stagePosition!.offset;
+                    setSetOffset([-o[0], -o[1], -o[2]]);
+                    setStagePosition([0, 0, 0]);
+                    // 2) 置景筛选：与人物有交互的资产默认显示，其余默认隐藏
+                    applySetAssetFilter();
+                  }}
+                  title="置景+演员+机位整体平移到推荐位置，交互置景资产默认显示、其余隐藏（环屏棚回原点；随当前方案自动保存）"
+                >
+                  应用摆放
+                </button>
+                {(setOffset[0] !== 0 || setOffset[2] !== 0) && (
+                  <span className="mono dim">
+                    当前摆放 ({setOffset[0]}, {setOffset[2]})
+                  </span>
+                )}
+              </div>
+            </>
+          )}
 
           <div className="divider" />
 

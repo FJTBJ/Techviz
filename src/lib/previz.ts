@@ -74,12 +74,18 @@ export function sampleShotAtTime(shot: PrevizShot, time: number): PrevizPose | n
  * 把整个集合（布景 / 演员 / 机位）绕环屏中心整体旋转 yawDeg。
  * 集合内相对关系不变，只是相对固定的 LED 缺口换了朝向。
  */
-export function rotatePoseY(pose: PrevizPose, yawDeg: number): PrevizPose {
-  if (!yawDeg) return pose;
+export function rotatePoseY(
+  pose: PrevizPose,
+  yawDeg: number,
+  translate: [number, number, number] = [0, 0, 0],
+): PrevizPose {
   const r = (yawDeg * Math.PI) / 180;
   const cos = Math.cos(r);
   const sin = Math.sin(r);
-  const [x, y, z] = pose.position;
+  // 置景摆放平移在原始坐标系生效（先平移后旋转），与视口中「旋转组 > 平移组」的嵌套顺序一致
+  const x = pose.position[0] + translate[0];
+  const y = pose.position[1] + translate[1];
+  const z = pose.position[2] + translate[2];
   return {
     ...pose,
     position: [x * cos + z * sin, y, -x * sin + z * cos],

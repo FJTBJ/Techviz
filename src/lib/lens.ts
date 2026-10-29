@@ -20,8 +20,12 @@ export interface LensResult {
  * 再由焦距反推水平/垂直视场角。
  */
 export function lensMath(focal: number, sensor: SensorKey, aspectKey: AspectKey): LensResult {
+  return lensMathNum(focal, sensor, ASPECTS[aspectKey]);
+}
+
+/** 同 lensMath，但画幅比例直接给数值（如 take 视频实测的宽高比 16/9） */
+export function lensMathNum(focal: number, sensor: SensorKey, aspect: number): LensResult {
   const s = SENSORS[sensor];
-  const aspect = ASPECTS[aspectKey];
   const sensorAspect = s.width / s.height;
 
   let effectiveWidth: number;

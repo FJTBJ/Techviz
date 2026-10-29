@@ -50,10 +50,32 @@ export interface SceneRevision {
   size: number;
 }
 
+/** 试运行角色：s079a 镜头的努拉，骨骼动画由全局时间轴驱动 */
+const DEMO_ACTOR: SceneAsset = {
+  instanceId: 'ue-char-nuola-s079a',
+  assetId: 'ue/Char_ShaoNianNvXing_A000C',
+  name: '努拉（骨骼动画）',
+  code: 'Char_ShaoNianNvXing_A000C',
+  kind: 'skeletal',
+  url: '/models/s079a/nuola_sk.glb',
+  animUrl: '/models/s079a/nuola_rig.json',
+  animOffset: 0,
+  size: [1.56, 1.72, 0.5],
+  color: '#e0b34a',
+  position: [2.98, 0, 5.62],
+  rotation: [0, 0, 0],
+  scale: [1, 1, 1],
+  visible: true,
+};
+
 export interface Scenario {
   version: 2;
   savedAt: string;
   currentStageId: string | null;
+  /** 棚整体位置偏移（米），可选兼容旧存档 */
+  stagePosition?: Vec3;
+  /** 置景摆放偏移（米）：布景+演员+预演机位整体平移量，每场次一个，可选兼容旧存档 */
+  setOffset?: Vec3;
   /** 方案关联的场次场景（一个场次一个方案） */
   sceneKey: string | null;
   camera: ShotCamera;
@@ -75,9 +97,16 @@ interface SceneState {
   measurements: Measurement[];
   clearanceThreshold: number;
   showFrustum: boolean;
-  /** 棚清单（后端扫描 UE 工程得到），棚固定于原点，仅可切换 */
+  /** 棚清单（后端扫描 UE 工程得到），形状参数来自 UE，位置可由用户整体调整 */
   stages: StageDef[];
   currentStageId: string | null;
+  /** 当前棚的整体位置偏移（米），环心 = 该坐标；切棚时归零 */
+  stagePosition: Vec3;
+  /** 置景摆放偏移（米）：布景+演员+预演机位整体平移，环屏棚固定在原点不动；随方案保存 */
+  setOffset: Vec3;
+  setSetOffset: (offset: Vec3) => void;
+  /** 置景筛选自动应用：交互置景资产默认显示，其余 UE 构件默认隐藏（加载方案/切场次时执行） */
+  applySetAssetFilter: () => Promise<void>;
   /** 后端连接状态，用于顶栏提示 */
   serverState: 'connecting' | 'online' | 'offline';
   /** 布景方案（由预演相机动画 + 环屏几何推导，后端生成） */
@@ -171,6 +200,10 @@ interface SceneState {
   setPlanScene: (scene: string) => void;
   toggleSetPlan: () => void;
   setStage: (id: string) => void;
+  setStagePosition: (pos: Vec3) => void;
+  /** 棚位置拖拽编辑模式（视口中环心显示移动 gizmo），不随方案保存 */
+  stagePosEditing: boolean;
+  setStagePosEditing: (v: boolean) => void;
   updateAsset: (id: string, patch: Partial<SceneAsset>) => void;
   /** 批量显隐，一次 set 只触发一次自动保存 */
   setAssetVisibility: (ids: string[], visible: boolean) => void;
@@ -205,6 +238,9 @@ export const useScene = create<SceneState>((set, get) => ({
   showFrustum: true,
   stages: [],
   currentStageId: null,
+  stagePosition: [0, 0, 0],
+  stagePosEditing: false,
+  setOffset: [0, 0, 0],
   serverState: 'connecting',
   setPlan: null,
   planScene: null,
@@ -233,7 +269,8 @@ export const useScene = create<SceneState>((set, get) => ({
   shotAim: null,
   aimMode: 'led',
   ensembleYaw: 0,
-  ensembleAuto: true,
+  // 默认不自动转向：机位取景不带集合旋转角，保持 0°，需要时手动旋转或开启自动
+  ensembleAuto: false,
   timelineTime: 0,
   playing: false,
   playbackSpeed: 1,
@@ -257,17 +294,40 @@ export const useScene = create<SceneState>((set, get) => ({
       const patch: Partial<SceneState> = { stages, serverState: 'online' };
       patch.sceneKey = saved?.sceneKey ?? null;
       if (saved && Array.isArray(saved.assets)) {
-        patch.assets = saved.assets;
+        // 已存档的骨骼角色：以最新导出参数为准，但保留用户手动调整过的位置与缩放
+        patch.assets = saved.assets.some((a) => a.kind === 'skeletal')
+          ? saved.assets.map((a) => {
+              if (a.kind !== 'skeletal') return a;
+              const isOldDefault =
+                (JSON.stringify(a.position) === JSON.stringify([0, 0, 3]) &&
+                  JSON.stringify(a.scale) === JSON.stringify([1, 1, 1])) ||
+                // 2.6 是旧网格渲染时代的默认缩放，预演小人按真人比例渲染，一并迁移
+                JSON.stringify(a.scale) === JSON.stringify([2.6, 2.6, 2.6]);
+              return isOldDefault
+                ? { ...DEMO_ACTOR, rotation: a.rotation, visible: a.visible }
+                : {
+                    ...DEMO_ACTOR,
+                    position: a.position,
+                    rotation: a.rotation,
+                    scale: a.scale,
+                    visible: a.visible,
+                  };
+            })
+          : [DEMO_ACTOR, ...saved.assets];
         patch.camera = { ...DEMO_SHOT, ...saved.camera };
         patch.measurements = Array.isArray(saved.measurements) ? saved.measurements : [];
         patch.clearanceThreshold =
           typeof saved.clearanceThreshold === 'number' ? saved.clearanceThreshold : 1;
       }
-      // 恢复棚选择；无存档时默认第一个棚
+      // 恢复棚选择与棚位置；无存档时默认第一个棚、原点
       const savedStage = saved?.currentStageId;
       patch.currentStageId = stages.some((s) => s.id === savedStage)
         ? (savedStage as string)
         : (stages[0]?.id ?? null);
+      patch.stagePosition =
+        Array.isArray(saved?.stagePosition) && saved.stagePosition.length === 3
+          ? saved.stagePosition
+          : [0, 0, 0];
       set(patch);
       hydrated = true;
       // 布景方案为可选数据：静默加载，缺失不影响工作台
@@ -279,11 +339,18 @@ export const useScene = create<SceneState>((set, get) => ({
           if (plan?.plans && Object.keys(plan.plans).length > 0) {
             const first = Object.keys(plan.plans)[0];
             const { planScene } = get();
+            // 优先用当前方案关联的场次，避免停在第一个场次的置景清单上
+            const preferred =
+              (planScene && plan.plans[planScene] ? planScene : null) ??
+              (patch.sceneKey && plan.plans[patch.sceneKey] ? patch.sceneKey : null) ??
+              first;
             set({
               setPlan: plan,
-              planScene: planScene && plan.plans[planScene] ? planScene : first,
+              planScene: preferred,
               showSetPlan: true,
             });
+            // 置景筛选自动生效：只默认显示与人物有交互的置景资产
+            await get().applySetAssetFilter();
           }
         }
       } catch {
@@ -372,6 +439,12 @@ export const useScene = create<SceneState>((set, get) => ({
         clearanceThreshold:
           typeof saved.clearanceThreshold === 'number' ? saved.clearanceThreshold : 1,
         currentStageId: saved.currentStageId ?? get().currentStageId,
+        stagePosition:
+          Array.isArray(saved.stagePosition) && saved.stagePosition.length === 3
+            ? saved.stagePosition
+            : [0, 0, 0],
+        setOffset:
+          Array.isArray(saved.setOffset) && saved.setOffset.length === 3 ? saved.setOffset : [0, 0, 0],
         sceneKey: saved.sceneKey ?? null,
         selectedId: null,
         pendingPoint: null,
@@ -498,6 +571,11 @@ export const useScene = create<SceneState>((set, get) => ({
       followPreviz: false,
       ensembleYaw: yawDeg,
     });
+    // 置景清单按场次维护：切到其他场次的镜头时，跟随切换置景筛选
+    const planScene = get().planScene;
+    if (shot.scene && shot.scene !== planScene && get().setPlan?.plans[shot.scene]) {
+      get().setPlanScene(shot.scene);
+    }
     const raw = shotPoseAt(shot, shot.start);
     // 高空视角由 AerialRig 接管相机，跳转会打断俯视观察
     if (raw && !get().aerialView) {
@@ -618,7 +696,7 @@ export const useScene = create<SceneState>((set, get) => ({
       const res = await apiFetch('/api/ue/prayer-room');
       if (!res.ok) return `UE 场景数据不可用（HTTP ${res.status}）`;
       const json = await res.json();
-      const data = json?.data as { assets?: SceneAsset[]; stageId?: string } | null;
+      const data = json?.data as { assets?: SceneAsset[]; lights?: SceneAsset[]; stageId?: string } | null;
       if (!data || !Array.isArray(data.assets) || data.assets.length === 0) {
         return 'UE 场景数据为空，请先在 UE 中打开祈祷室关卡后重新采集';
       }
@@ -626,7 +704,8 @@ export const useScene = create<SceneState>((set, get) => ({
       const stageId =
         data.stageId && stages.some((s) => s.id === data.stageId) ? data.stageId : currentStageId;
       set({
-        assets: data.assets,
+        // 灯光作为 kind 'light' 的资产与布景一起进入场景（视口画灯位标记，大纲列出）
+        assets: [...data.assets, ...(Array.isArray(data.lights) ? data.lights : [])],
         currentStageId: stageId,
         selectedId: null,
         measurements: [],
@@ -642,7 +721,31 @@ export const useScene = create<SceneState>((set, get) => ({
     }
   },
 
-  setStage: (id) => set({ currentStageId: id }),
+  setStage: (id) => set({ currentStageId: id, stagePosition: [0, 0, 0], stagePosEditing: false }),
+
+  setStagePosition: (pos) => set({ stagePosition: [...pos] as Vec3 }),
+
+  setStagePosEditing: (v) => set({ stagePosEditing: v }),
+
+  setSetOffset: (offset) => set({ setOffset: [...offset] as Vec3 }),
+
+  applySetAssetFilter: async () => {
+    const st = get();
+    const scene = st.planScene;
+    let plan = st.setPlan && scene ? st.setPlan.plans[scene] : null;
+    if (!plan) return;
+    if (!plan.setInstanceIds) {
+      // 旧版布景方案没有实例级置景清单：拉取最新方案后重试一次
+      const err = await st.loadSetPlan();
+      if (err) return;
+      plan = get().setPlan && scene ? get().setPlan!.plans[scene] : null;
+      if (!plan?.setInstanceIds) return;
+    }
+    const keep = new Set(plan.setInstanceIds);
+    set({
+      assets: get().assets.map((a) => (a.kind === 'ue' ? { ...a, visible: keep.has(a.instanceId) } : a)),
+    });
+  },
 
   loadSetPlan: async () => {
     try {
@@ -654,16 +757,24 @@ export const useScene = create<SceneState>((set, get) => ({
         return '尚无布景方案，请先在 UE 工程侧完成预演相机数据采集';
       }
       const scenes = Object.keys(data.plans);
-      const { planScene } = get();
-      const next = planScene && data.plans[planScene] ? planScene : scenes[0];
+      const { planScene, sceneKey } = get();
+      // 优先保持当前场次，其次方案关联场次，最后第一个
+      const next =
+        (planScene && data.plans[planScene] ? planScene : null) ??
+        (sceneKey && data.plans[sceneKey] ? sceneKey : null) ??
+        scenes[0];
       set({ setPlan: data, planScene: next, showSetPlan: true });
+      await get().applySetAssetFilter();
       return null;
     } catch {
       return '布景方案加载失败：后端不可达';
     }
   },
 
-  setPlanScene: (scene) => set({ planScene: scene }),
+  setPlanScene: (scene) => {
+    set({ planScene: scene });
+    get().applySetAssetFilter();
+  },
 
   toggleSetPlan: () => set((state) => ({ showSetPlan: !state.showSetPlan })),
 
@@ -765,11 +876,13 @@ export const useScene = create<SceneState>((set, get) => ({
     }),
 
   buildScenario: () => {
-    const { camera, assets, measurements, clearanceThreshold, currentStageId, sceneKey } = get();
+    const { camera, assets, measurements, clearanceThreshold, currentStageId, stagePosition, setOffset, sceneKey } = get();
     return {
       version: 2,
       savedAt: new Date().toISOString(),
       currentStageId,
+      stagePosition,
+      setOffset,
       sceneKey,
       camera,
       assets,
@@ -794,6 +907,12 @@ export const useScene = create<SceneState>((set, get) => ({
           typeof data.currentStageId === 'string' && get().stages.some((s) => s.id === data.currentStageId)
             ? data.currentStageId
             : get().currentStageId,
+        stagePosition:
+          Array.isArray(data.stagePosition) && data.stagePosition.length === 3
+            ? data.stagePosition
+            : [0, 0, 0],
+        setOffset:
+          Array.isArray(data.setOffset) && data.setOffset.length === 3 ? data.setOffset : [0, 0, 0],
         selectedId: null,
         pendingPoint: null,
         activeShotId: null,
@@ -820,6 +939,8 @@ useScene.subscribe((state, prev) => {
     state.measurements === prev.measurements &&
     state.clearanceThreshold === prev.clearanceThreshold &&
     state.currentStageId === prev.currentStageId &&
+    state.stagePosition === prev.stagePosition &&
+    state.setOffset === prev.setOffset &&
     state.sceneKey === prev.sceneKey
   ) {
     return;
@@ -827,7 +948,7 @@ useScene.subscribe((state, prev) => {
   if (saveTimer) clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
     saveTimer = null;
-    const { camera, assets, measurements, clearanceThreshold, currentStageId, sceneKey } =
+    const { camera, assets, measurements, clearanceThreshold, currentStageId, stagePosition, setOffset, sceneKey } =
       useScene.getState();
     apiFetch('/api/scene', {
       method: 'PUT',
@@ -835,6 +956,8 @@ useScene.subscribe((state, prev) => {
       body: JSON.stringify({
         version: 2,
         currentStageId,
+        stagePosition,
+        setOffset,
         sceneKey,
         camera,
         assets,
