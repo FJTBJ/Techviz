@@ -31,3 +31,6 @@ Thumbs.db
 # 临时验证截图、镜头卡产物
 tmp_probe/
 shot/
+
+# 本地产品文档（仅本地留存，不进仓库）
+/Techviz-*.md
