@@ -957,25 +957,6 @@ textarea {
   color: var(--muted);
 }
 
-/* 镜头人物名称牌 */
-.person-tag {
-  padding: 2px 7px;
-  border-radius: 5px;
-  border: 1px solid rgba(120, 190, 255, 0.5);
-  background: rgba(9, 13, 18, 0.78);
-  color: var(--text);
-  font-size: 10.5px;
-  line-height: 1.5;
-  white-space: nowrap;
-  backdrop-filter: blur(6px);
-  pointer-events: none;
-  user-select: none;
-}
-
-.person-tag b {
-  font-weight: 600;
-}
-
 .readout-main {
   display: flex;
   align-items: baseline;
@@ -1206,6 +1187,121 @@ textarea {
 }
 
 .take-reopen:hover {
+  background: rgba(255, 176, 32, 0.14);
+}
+
+/* ---------- 右下角机位取景画中画 ---------- */
+.cam-pip {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  width: 320px;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(9, 13, 18, 0.9);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+  z-index: 12;
+}
+
+/* 有 3D 机位数据时窗口透明，露出底下 scissor 渲染的机位画面 */
+.cam-pip.live {
+  background: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+
+/* 放大态：铺满视口（渲染器每帧按实际矩形重算 scissor，CSS 改尺寸即自然跟随） */
+.cam-pip.enlarged {
+  inset: 8px;
+  width: auto;
+  aspect-ratio: auto;
+}
+
+.cam-pip-head {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 5px 6px 5px 10px;
+  background: rgba(9, 13, 18, 0.72);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.cam-pip-title {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.cam-pip-toggle {
+  padding: 1px 8px;
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: transparent;
+  color: var(--muted);
+  font-size: 10.5px;
+  cursor: pointer;
+}
+
+.cam-pip-toggle:hover {
+  color: var(--text);
+  border-color: var(--accent-dim);
+}
+
+.cam-pip-empty {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* 标题栏右侧按钮组：放大/还原 + 最小化 */
+.cam-pip-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cam-pip-hide {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.cam-pip-hide:hover {
+  color: var(--text);
+}
+
+/* 最小化胶囊：与 take-reopen 同款，位置由 PipRenderer 每帧对齐到 take 上方 */
+.cam-pip-reopen {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 176, 32, 0.45);
+  background: rgba(9, 13, 18, 0.82);
+  color: var(--accent);
+  font-size: 11px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  z-index: 12;
+}
+
+.cam-pip-reopen:hover {
   background: rgba(255, 176, 32, 0.14);
 }
 
@@ -1477,6 +1573,15 @@ textarea {
   grid-template-columns: minmax(0, 1fr) 348px;
 }
 
+/* ---------- 数据面板（右栏）隐藏 ---------- */
+.layout.no-inspector {
+  grid-template-columns: 268px minmax(0, 1fr);
+}
+
+.layout.no-sidebar.no-inspector {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .sidebar-toggle {
   border: 1px solid var(--line-strong);
   background: #131c27;
@@ -1638,6 +1743,112 @@ textarea {
   border-radius: 999px;
   padding: 1px 6px;
   flex: 0 0 auto;
+}
+
+/* ---------- 左侧镜头树：场景资产 → 场次 → 镜头 ---------- */
+.shot-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.shot-group,
+.scene-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.asset-row,
+.scene-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  padding: 6px 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.asset-row {
+  background: var(--panel-2);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.scene-row {
+  padding-left: 22px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.asset-row:hover,
+.scene-row:hover {
+  border-color: var(--line-strong);
+}
+
+.scene-row:hover {
+  color: var(--text);
+}
+
+.asset-name {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.scene-code {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.twist {
+  flex: 0 0 auto;
+  display: inline-block;
+  font-size: 10px;
+  color: var(--muted-2);
+  transition: transform 0.15s;
+}
+
+.twist.open {
+  transform: rotate(90deg);
+}
+
+/* 场次下的镜头列表缩进 */
+.scene-group .shot-list {
+  padding-left: 28px;
+}
+
+/* 镜头缩略图（Kmoke 场记单，加载失败时隐藏占位） */
+.shot-thumb {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: #0e1621;
+  border: 1px solid var(--line);
+}
+
+/* 含 3D 机位数据的镜头标记（青色圆点） */
+.rig-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-left: 6px;
+  border-radius: 50%;
+  background: #35e0e0;
+  vertical-align: 1px;
 }
 
 /* ---------- 底部播放时间线 ---------- */

@@ -42,11 +42,11 @@ const STAGE_SPECS = {
     height: 8.064,
     arc: 270.18,
     gapCenterDeg: 0,
-    name: 'LED环屏棚 #1 · 22m',
+    name: '24m棚',
     code: 'STAGE_LED_B_24M',
   },
-  Led_05: { no: 5, diameter: 36, height: 7.5, arc: 250, name: 'LED环屏棚 #5 · 36m', code: 'STAGE_LED_C_36M' },
-  Led_07: { no: 7, diameter: 50, height: 9.0, arc: 270, name: 'LED环屏棚 #7 · 50m', code: 'STAGE_LED_D_50M' },
+  Led_05: { no: 5, diameter: 36, height: 7.5, arc: 250, name: '36m棚', code: 'STAGE_LED_C_36M' },
+  Led_07: { no: 7, diameter: 50, height: 9.0, arc: 270, name: '50m棚', code: 'STAGE_LED_D_50M' },
 };
 
 /** 线上无 UE 工程目录时，回退到本地导出的棚清单快照 */
@@ -323,6 +323,32 @@ app.get('/api/previz/timeline', (_req, res) => {
       }
     }
     res.json({ code: 0, data });
+  } catch (err) {
+    res.status(500).json({ code: 1, message: String(err) });
+  }
+});
+
+/** 全量镜头清单（Kmoke 场记单 shot-names.json）：左侧镜头树数据源 */
+app.get('/api/shot-names', (_req, res) => {
+  try {
+    if (!fs.existsSync(SHOT_NAMES_FILE)) {
+      return res.status(404).json({ code: 1, message: '尚无镜头清单' });
+    }
+    res.json({ code: 0, data: JSON.parse(fs.readFileSync(SHOT_NAMES_FILE, 'utf8')) });
+  } catch (err) {
+    res.status(500).json({ code: 1, message: String(err) });
+  }
+});
+
+/** 场次 → 场景资产名映射（scene-asset-map.json）：镜头树一级分组用 */
+const SCENE_ASSET_MAP_FILE = path.join(DATA_DIR, 'scene-asset-map.json');
+
+app.get('/api/scene-asset-map', (_req, res) => {
+  try {
+    if (!fs.existsSync(SCENE_ASSET_MAP_FILE)) {
+      return res.status(404).json({ code: 1, message: '尚无场次场景映射' });
+    }
+    res.json({ code: 0, data: JSON.parse(fs.readFileSync(SCENE_ASSET_MAP_FILE, 'utf8')) });
   } catch (err) {
     res.status(500).json({ code: 1, message: String(err) });
   }

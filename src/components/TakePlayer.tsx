@@ -5,12 +5,14 @@ import { useScene } from '../store/sceneStore';
 
 /**
  * 右下角 take 视频小窗：播放 Kmoke 场记单里当前镜头的 take，可隐藏/展开。
- * 播放/暂停、速度、播放头位置全部由底部时间线统一驱动（共用一套播放器）；
+ * 有 3D 机位数据的镜头：播放/暂停、速度、播放头位置全部由底部时间线统一驱动；
+ * 无 3D 机位数据的镜头没有时间线，take 小窗独立播放（点击画面切换播放/暂停）。
  * 小窗最小化（隐藏）时视频卸载，不再受时间线控制。
  */
 export function TakePlayer() {
   const previz = useScene((s) => s.previz);
   const activeShotId = useScene((s) => s.activeShotId);
+  const noDataShot = useScene((s) => s.activeNoDataShot);
   const visible = useScene((s) => s.takeVisible);
   const toggleTake = useScene((s) => s.toggleTake);
   const playing = useScene((s) => s.playing);
@@ -19,24 +21,29 @@ export function TakePlayer() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [failed, setFailed] = useState(false);
   const [useRemote, setUseRemote] = useState(false);
+  const [localPlaying, setLocalPlaying] = useState(false);
 
   useEffect(() => {
     setFailed(false);
     setUseRemote(false);
-  }, [activeShotId]);
+    setLocalPlaying(false);
+  }, [activeShotId, noDataShot?.key]);
 
   const shot = activeShotId
     ? (previz?.shots.find((s) => s.id === activeShotId) ?? null)
     : null;
+  const isTimeline = Boolean(shot);
 
   const token = getToken();
+  const short = shot?.short ?? noDataShot?.short ?? null;
+  // 时间线镜头按 takeLocal 门控走本地缓存；无机位数据镜头直接尝试本地缓存（签名 URL 会过期），失败回落远端
   const localSrc =
-    shot?.takeLocal && shot.short
-      ? `/api/takes/${encodeURIComponent(shot.short)}.mp4${token ? `?token=${encodeURIComponent(token)}` : ''}`
+    short && (shot ? Boolean(shot.takeLocal) : true)
+      ? `/api/takes/${encodeURIComponent(short)}.mp4${token ? `?token=${encodeURIComponent(token)}` : ''}`
       : null;
-  const remoteSrc = shot?.takeUrl ?? null;
+  const remoteSrc = shot?.takeUrl ?? noDataShot?.videoUrl ?? null;
   const src = localSrc && !useRemote ? localSrc : remoteSrc;
-  const label = shot ? shotLabel(shot) : '';
+  const label = shot ? shotLabel(shot) : (noDataShot?.short ?? '');
   // 环屏投屏：Kmoke 视频 CDN 会回显 Access-Control-Allow-Origin，
   // 远端签名 URL 配合 crossOrigin=anonymous 可直接作为 WebGL 纹理，无需本地缓存
   const projectable = Boolean(src);
@@ -49,13 +56,14 @@ export function TakePlayer() {
     return () => setTakeVideoEl(null);
   }, [projectable, src, visible, setTakeVideoEl]);
 
-  // 播放 / 暂停跟随时间线
+  // 播放 / 暂停：时间线镜头跟随时间线，无机位数据镜头由本地状态驱动
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
-    if (playing && visible) void video.play().catch(() => {});
+    const shouldPlay = isTimeline ? playing && visible : localPlaying && visible;
+    if (shouldPlay) void video.play().catch(() => {});
     else video.pause();
-  }, [playing, visible, src]);
+  }, [playing, localPlaying, visible, src, isTimeline]);
 
   // 播放速度跟随时间线
   useEffect(() => {
@@ -81,7 +89,7 @@ export function TakePlayer() {
     return useScene.subscribe(apply);
   }, [visible, shot, src]);
 
-  if (!shot) return null;
+  if (!shot && !noDataShot) return null;
 
   if (!visible) {
     return (
@@ -93,6 +101,7 @@ export function TakePlayer() {
 
   /** 元数据就绪时对齐到时间线播放头（含速度与播放状态），保证展开即可用 */
   const syncVideo = (video: HTMLVideoElement) => {
+    if (!shot) return;
     const span = Math.max(0.1, shot.end - shot.start);
     const state = useScene.getState();
     const rel = Math.max(0, Math.min(span, state.timelineTime - shot.start));
@@ -107,7 +116,7 @@ export function TakePlayer() {
     <section className="take-player">
       <header>
         <span className="take-title">
-          <i>take {shot.take ?? '—'}</i>
+          <i>take {shot?.take ?? noDataShot?.take ?? '—'}</i>
           {label}
         </span>
         <button className="take-hide" onClick={toggleTake} title="隐藏 take 视频">
@@ -128,15 +137,24 @@ export function TakePlayer() {
             crossOrigin="anonymous"
             playsInline
             preload="metadata"
-            onClick={togglePlayback}
-            onLoadedMetadata={(e) => syncVideo(e.currentTarget)}
+            onClick={isTimeline ? togglePlayback : () => setLocalPlaying((v) => !v)}
+            onLoadedMetadata={isTimeline ? (e) => syncVideo(e.currentTarget) : undefined}
             onError={() => {
               if (localSrc && remoteSrc && !useRemote) setUseRemote(true);
               else setFailed(true);
             }}
           />
-          <span className="take-sync" title="播放 / 暂停、速度、进度均跟随底部时间线">
-            {playing ? '❚❚' : '▶'} {speed}× 跟随时间线
+          <span
+            className="take-sync"
+            title={
+              isTimeline
+                ? '播放 / 暂停、速度、进度均跟随底部时间线'
+                : '该镜头无 3D 机位数据，点击画面播放 / 暂停'
+            }
+          >
+            {isTimeline
+              ? `${playing ? '❚❚' : '▶'} ${speed}× 跟随时间线`
+              : `${localPlaying ? '❚❚' : '▶'} 点击播放`}
           </span>
         </div>
       )}

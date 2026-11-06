@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+// 仅展示页：机位标记点已隐藏，useMemo 暂不使用，恢复时加回
+// import { useMemo } from 'react';
 import { Edges } from '@react-three/drei';
 import { useScene } from '../../store/sceneStore';
 
@@ -8,29 +9,31 @@ const CATEGORY_COLOR: Record<string, string> = {
   backing: '#2f8a6f',
 };
 
-/** 布景方案层：把推导出的实体搭建条目画在环屏里，并标出预演机位 */
+/** 布景方案层：把推导出的实体搭建条目画在环屏里 */
 export function SetPlanLayer() {
   const plan = useScene((s) => s.setPlan);
   const scene = useScene((s) => s.planScene);
   const showSetPlan = useScene((s) => s.showSetPlan);
-  const showShotMarkers = useScene((s) => s.showShotMarkers);
+  // 仅展示页：黄色机位标记点已隐藏，恢复时取消注释并还原下方渲染块
+  // const showShotMarkers = useScene((s) => s.showShotMarkers);
   const current = plan?.plans?.[scene ?? ''] ?? null;
 
-  const cameraMarkers = useMemo(() => {
-    if (!current) return [];
-    const seen = new Set<string>();
-    const out: { id: string; p: [number, number, number] }[] = [];
-    for (const shot of current.shots) {
-      if (!shot.camera) continue;
-      const key = shot.camera.map((n) => n.toFixed(1)).join(',');
-      if (seen.has(key)) continue;
-      seen.add(key);
-      out.push({ id: shot.id, p: shot.camera });
-    }
-    return out;
-  }, [current]);
+  // 仅展示页：机位标记点已隐藏，恢复时取消注释
+  // const cameraMarkers = useMemo(() => {
+  //   if (!current) return [];
+  //   const seen = new Set<string>();
+  //   const out: { id: string; p: [number, number, number] }[] = [];
+  //   for (const shot of current.shots) {
+  //     if (!shot.camera) continue;
+  //     const key = shot.camera.map((n) => n.toFixed(1)).join(',');
+  //     if (seen.has(key)) continue;
+  //     seen.add(key);
+  //     out.push({ id: shot.id, p: shot.camera });
+  //   }
+  //   return out;
+  // }, [current]);
 
-  if ((!showSetPlan && !showShotMarkers) || !current) return null;
+  if (!showSetPlan || !current) return null;
 
   return (
     <group>
@@ -58,13 +61,14 @@ export function SetPlanLayer() {
           );
         })}
 
-      {showShotMarkers &&
+      {/* 仅展示页：黄色机位标记点已隐藏，恢复时取消注释 */}
+      {/* {showShotMarkers &&
         cameraMarkers.map((marker) => (
           <mesh key={marker.id} position={marker.p}>
             <octahedronGeometry args={[0.16, 0]} />
             <meshBasicMaterial color="#ffb020" />
           </mesh>
-        ))}
+        ))} */}
     </group>
   );
 }

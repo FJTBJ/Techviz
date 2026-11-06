@@ -15,16 +15,19 @@ export function Timeline() {
   const time = useScene((s) => s.timelineTime);
   const playing = useScene((s) => s.playing);
   const speed = useScene((s) => s.playbackSpeed);
-  const follow = useScene((s) => s.followPreviz);
+  // 跟随机位切换按钮暂不显示（仅展示页）
+  // const follow = useScene((s) => s.followPreviz);
   const togglePlayback = useScene((s) => s.togglePlayback);
   const setTimelineTime = useScene((s) => s.setTimelineTime);
   const setSpeed = useScene((s) => s.setPlaybackSpeed);
-  const toggleFollow = useScene((s) => s.toggleFollowPreviz);
-  const aerialView = useScene((s) => s.aerialView);
-  const toggleAerialView = useScene((s) => s.toggleAerialView);
-  const shotAim = useScene((s) => s.shotAim);
-  const aimMode = useScene((s) => s.aimMode);
-  const toggleAimMode = useScene((s) => s.toggleAimMode);
+  // const toggleFollow = useScene((s) => s.toggleFollowPreviz);
+  // 高空视角切换按钮暂不显示（仅展示页）
+  // const aerialView = useScene((s) => s.aerialView);
+  // const toggleAerialView = useScene((s) => s.toggleAerialView);
+  // const shotAim = useScene((s) => s.shotAim);
+  // 集合转向切换审阅场景暂不显示（仅展示页），恢复时取消下方按钮注释并还原这两行
+  // const aimMode = useScene((s) => s.aimMode);
+  // const toggleAimMode = useScene((s) => s.toggleAimMode);
   const selectShot = useScene((s) => s.selectShot);
   const trackRef = useRef<HTMLDivElement>(null);
 
@@ -110,8 +113,8 @@ export function Timeline() {
   };
 
   const label = shotLabel(shot);
-  // 本镜头的机位朝向计算（计算前 / 计算后）
-  const aim = shotAim?.shots.find((row) => row.id === shot.id) ?? null;
+  // 本镜头的机位朝向计算（LED 覆盖信息暂不显示，仅展示页）
+  // const aim = shotAim?.shots.find((row) => row.id === shot.id) ?? null;
 
   return (
     <div className="timeline">
@@ -155,11 +158,13 @@ export function Timeline() {
       </div>
 
       <div className="tl-right">
-        <span className="tl-shot" title={shot.id}>
+        {/* 镜头信息 / LED 覆盖 / 跟随机位 / 高空视角暂不显示（仅展示页），恢复时取消注释 */}
+        {/* <span className="tl-shot" title={shot.id}>
           {label}
         </span>
-        <span className="tl-dur mono">{fmtDur(duration)}</span>
-        {aim && (
+        <span className="tl-dur mono">{fmtDur(duration)}</span> */}
+        {/* 集合转向切换审阅场景暂不显示（仅展示页） */}
+        {/* {aim && (
           <button
             className={`tl-follow ${aimMode === 'led' ? 'active' : ''}`}
             onClick={toggleAimMode}
@@ -171,13 +176,13 @@ export function Timeline() {
           >
             {aimMode === 'led' ? `集合转向 +${aim.deltaDeg}°` : '原始方位'}
           </button>
-        )}
-        {aim && (
+        )} */}
+        {/* {aim && (
           <span className="tl-aim mono" title="画面落在 LED 环屏上的比例（计算前 → 计算后）">
             LED {Math.round(aim.before.led)}→{Math.round(aim.after.led)}%
           </span>
-        )}
-        <button
+        )} */}
+        {/* <button
           className={`tl-follow ${follow ? 'active' : ''}`}
           onClick={toggleFollow}
           title="视口相机跟随本镜头机位"
@@ -190,7 +195,7 @@ export function Timeline() {
           title="高空俯视：不跟随镜头，从场景上方观察机位怎么运动（黄色轨迹）"
         >
           高空视角
-        </button>
+        </button> */}
         <select
           className="tl-speed"
           value={speed}
@@ -208,8 +213,9 @@ export function Timeline() {
   );
 }
 
-function fmtDur(sec: number) {
-  const m = Math.floor(sec / 60);
-  const s = Math.round(sec % 60);
-  return `${m}:${String(s).padStart(2, '0')}`;
-}
+// 镜头时长展示暂不显示（仅展示页），恢复时取消注释并还原 tl-dur 引用
+// function fmtDur(sec: number) {
+//   const m = Math.floor(sec / 60);
+//   const s = Math.round(sec % 60);
+//   return `${m}:${String(s).padStart(2, '0')}`;
+// }

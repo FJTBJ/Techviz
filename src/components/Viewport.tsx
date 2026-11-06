@@ -8,10 +8,15 @@ import { CameraRig } from './scene/CameraRig';
 import { SetPlanLayer } from './scene/SetPlanLayer';
 import { MeasurementLayer } from './scene/MeasurementLayer';
 import { PeopleLayer } from './scene/PeopleLayer';
+import { RigViewRig } from './scene/RigViewRig';
 import { TakePlayer } from './TakePlayer';
+import { CameraPipWindow, PipRenderer } from './CameraPip';
 import { ASPECTS } from '../types';
-import { frameFractions, lensMath, lensMathNum } from '../lib/lens';
-import { shotAt, shotPoseAt, shotLabel, rotatePoseY } from '../lib/previz';
+// 仅展示页：相机参数读数已隐藏，恢复时在 import 中加回 lensMath
+import { frameFractions, lensMathNum } from '../lib/lens';
+// 仅展示页：镜头元素计数徽章已隐藏，shotLabel 暂不使用，恢复时加回
+import { shotAt, shotPoseAt, rotatePoseY } from '../lib/previz';
+import { resolveCameraView } from '../lib/cameraView';
 import { viewportBridge } from '../lib/viewportBridge';
 
 function Bridge() {
@@ -63,55 +68,27 @@ function CameraDriver() {
       }
       return;
     }
-    // take 视频实测画幅优先：机位取景与原视频保持同比例，无 take 时回落相机参数画幅
-    const takeEl = useScene.getState().takeVideoEl;
-    const frameAspect =
-      takeEl && takeEl.videoWidth > 0 && takeEl.videoHeight > 0
-        ? takeEl.videoWidth / takeEl.videoHeight
-        : ASPECTS[shot.aspect];
-    const lens = lensMathNum(shot.focal, shot.sensor, frameAspect);
-    const canvasAspect = size.width / Math.max(1, size.height);
-    const frame = frameFractions(canvasAspect, frameAspect);
-    const camVfov = 2 * Math.atan(Math.tan(lens.vfov / 2) / frame.heightFraction);
-
-    // 选中镜头时「机位取景」直接取该镜头当前帧，
-    // 再按集合整体转向角旋转（机位与演员/布景一起转，相对关系不变）。
-    const raw = activeShot ? shotPoseAt(activeShot, useScene.getState().timelineTime) : null;
-    const pose = raw ? rotatePoseY(raw, ensembleYaw, setOffset) : null;
-    if (activeShot && pose) {
-      camera.position.set(...pose.position);
-      camera.rotation.order = 'YXZ';
-      camera.rotation.set(
-        THREE.MathUtils.degToRad(pose.pitch),
-        THREE.MathUtils.degToRad(pose.yaw),
-        0,
-      );
-      const shotLens = lensMathNum(
-        pose.focal ?? shot.focal,
-        shot.sensor,
-        frameAspect,
-      );
-      const fovDeg = THREE.MathUtils.radToDeg(
-        2 * Math.atan(Math.tan(shotLens.vfov / 2) / frame.heightFraction),
-      );
-      if (Math.abs(camera.fov - fovDeg) > 0.01) {
-        camera.fov = fovDeg;
-        camera.updateProjectionMatrix();
-      }
-      return;
-    }
-
-    camera.position.set(...shot.position);
+    // 机位取景解算与右下画中画共用一份（lib/cameraView）：
+    // 选中镜头时取该镜头当前帧机位，画幅优先用 take 视频实测比例
+    const view = resolveCameraView({
+      cam: shot,
+      activeShot,
+      time: useScene.getState().timelineTime,
+      ensembleYaw,
+      setOffset,
+      aspect: size.width / Math.max(1, size.height),
+      takeEl: useScene.getState().takeVideoEl,
+    });
+    if (!view) return;
+    camera.position.set(...view.position);
     camera.rotation.order = 'YXZ';
     camera.rotation.set(
-      THREE.MathUtils.degToRad(shot.pitch),
-      THREE.MathUtils.degToRad(shot.yaw),
-      THREE.MathUtils.degToRad(shot.roll),
+      THREE.MathUtils.degToRad(view.pitch),
+      THREE.MathUtils.degToRad(view.yaw),
+      THREE.MathUtils.degToRad(view.roll),
     );
-
-    const fovDeg = THREE.MathUtils.radToDeg(camVfov);
-    if (Math.abs(camera.fov - fovDeg) > 0.01) {
-      camera.fov = fovDeg;
+    if (Math.abs(camera.fov - view.fovDeg) > 0.01) {
+      camera.fov = view.fovDeg;
       camera.updateProjectionMatrix();
     }
   });
@@ -128,6 +105,12 @@ function PrevizPlayback() {
   /** 最后一帧镜头姿态：退出跟随时据此保持取景，避免 OrbitControls 把镜头掰回缺口 */
   const last = useRef<{ position: THREE.Vector3; yaw: number; pitch: number } | null>(null);
   const active = useRef(false);
+
+  // 主相机额外看 layer 1（机位可视化模型专用层）；
+  // 机位取景画中画相机只看 layer 0，避免拍到贴在自己身上的机位模型而整窗糊黑
+  useEffect(() => {
+    camera.layers.enable(1);
+  }, [camera]);
 
   useFrame(() => {
     const st = useScene.getState();
@@ -271,6 +254,12 @@ function PrevizCameraMarker() {
   const previz = useScene((s) => s.previz);
   const activeShotId = useScene((s) => s.activeShotId);
   const ref = useRef<THREE.Group>(null);
+
+  // 标记模型放 layer 1：主相机可见（已启用该层），画中画相机（layer 0）不可见，
+  // 否则画中画相机会拍到套在自己身上的标记盒/视锥线框
+  useEffect(() => {
+    ref.current?.traverse((o) => o.layers.set(1));
+  });
 
   const shot = useMemo(
     () => (activeShotId ? (previz?.shots.find((s) => s.id === activeShotId) ?? null) : null),
@@ -466,6 +455,7 @@ function SceneContent() {
       <PrevizPlayback />
       <AerialRig />
       <ViewCommander />
+      <RigViewRig />
       <Bridge />
       <OrbitControls
         enabled={mode !== 'camera' && !follow}
@@ -521,29 +511,30 @@ function FrameOverlay() {
   );
 }
 
-function Readout() {
-  const shot = useScene((s) => s.camera);
-  const mode = useScene((s) => s.mode);
-  const lens = lensMath(shot.focal, shot.sensor, shot.aspect);
-  const coverage = lens.coverageAt(5);
-
-  return (
-    <div className="viewport-readout">
-      <div className="readout-main">
-        <span className="mono">{shot.focal}mm</span>
-        <span>{shot.aspect}</span>
-        <span className="mono">H {shot.position[1].toFixed(2)}m</span>
-      </div>
-      <div className="readout-sub">
-        水平视角 {lens.hfovDeg.toFixed(1)}° · 垂直 {lens.vfovDeg.toFixed(1)}° · 5m 处画面{' '}
-        {coverage.width.toFixed(2)}×{coverage.height.toFixed(2)}m
-      </div>
-      {mode === 'measure' && (
-        <div className="readout-hint">依次点击两个位置完成测量（可点在资产表面）</div>
-      )}
-    </div>
-  );
-}
+// 仅展示页：视口左下角相机参数读数已隐藏，恢复时取消注释并同步加回 lensMath import
+// function Readout() {
+//   const shot = useScene((s) => s.camera);
+//   const mode = useScene((s) => s.mode);
+//   const lens = lensMath(shot.focal, shot.sensor, shot.aspect);
+//   const coverage = lens.coverageAt(5);
+//
+//   return (
+//     <div className="viewport-readout">
+//       <div className="readout-main">
+//         <span className="mono">{shot.focal}mm</span>
+//         <span>{shot.aspect}</span>
+//         <span className="mono">H {shot.position[1].toFixed(2)}m</span>
+//       </div>
+//       <div className="readout-sub">
+//         水平视角 {lens.hfovDeg.toFixed(1)}° · 垂直 {lens.vfovDeg.toFixed(1)}° · 5m 处画面{' '}
+//         {coverage.width.toFixed(2)}×{coverage.height.toFixed(2)}m
+//       </div>
+//       {mode === 'measure' && (
+//         <div className="readout-hint">依次点击两个位置完成测量（可点在资产表面）</div>
+//       )}
+//     </div>
+//   );
+// }
 
 function HoverName() {
   const hoveredId = useScene((s) => s.hoveredId);
@@ -562,15 +553,21 @@ export function Viewport() {
   const mode = useScene((s) => s.mode);
   const aerial = useScene((s) => s.aerialView);
   const toggleAerialView = useScene((s) => s.toggleAerialView);
+  // 仅展示页：第三视角设备按钮已隐藏，恢复时取消注释并还原下方按钮
+  // const rigView = useScene((s) => s.rigView);
+  // const setRigView = useScene((s) => s.setRigView);
   const selectAsset = useScene((s) => s.selectAsset);
-  const activeShotId = useScene((s) => s.activeShotId);
-  const usedIds = useScene((s) => s.activeShotUsedIds);
-  const shotHiddenIds = useScene((s) => s.shotHiddenIds);
-  const assets = useScene((s) => s.assets);
-  const previz = useScene((s) => s.previz);
-  const activeShot = activeShotId
-    ? (previz?.shots.find((shot) => shot.id === activeShotId) ?? null)
-    : null;
+  // 仅展示页：镜头元素计数徽章已隐藏，其专属数据订阅一并停用，恢复时取消注释
+  // const activeShotId = useScene((s) => s.activeShotId);
+  // const usedIds = useScene((s) => s.activeShotUsedIds);
+  // const shotHiddenIds = useScene((s) => s.shotHiddenIds);
+  // const assets = useScene((s) => s.assets);
+  // const previz = useScene((s) => s.previz);
+  /** 机位取景画中画小窗：3D 渲染器（canvas 内）与覆盖层共用的跟踪节点 */
+  const camPipRef = useRef<HTMLElement>(null);
+  // const activeShot = activeShotId
+  //   ? (previz?.shots.find((shot) => shot.id === activeShotId) ?? null)
+  //   : null;
 
   return (
     <div className="viewport">
@@ -587,18 +584,23 @@ export function Viewport() {
         }}
       >
         <SceneContent />
+        <PipRenderer winRef={camPipRef} />
       </Canvas>
       {mode === 'camera' && <FrameOverlay />}
-      <Readout />
+      {/* 仅展示页：相机参数读数已隐藏，恢复时取消注释 */}
+      {/* <Readout /> */}
       <HoverName />
       <TakePlayer />
-      {aerial && (
+      <CameraPipWindow winRef={camPipRef} />
+      {/* 仅展示页：高空视角提示徽章已隐藏，恢复时取消注释 */}
+      {/* {aerial && (
         <div className="shot-filter-badge">
           <b>高空视角</b>
           <span>俯视观察机位运动 · 黄色虚线为机位轨迹</span>
         </div>
-      )}
-      {!aerial && activeShot && usedIds && (
+      )} */}
+      {/* 仅展示页：镜头元素剔除计数徽章已隐藏，恢复时取消注释 */}
+      {/* {!aerial && activeShot && usedIds && (
         <div className="shot-filter-badge">
           <b>{shotLabel(activeShot)}</b>
           <span>
@@ -606,7 +608,7 @@ export function Viewport() {
             {shotHiddenIds.length > 0 ? `（手工隐藏 ${shotHiddenIds.length}）` : ''} · 其余已按视锥剔除
           </span>
         </div>
-      )}
+      )} */}
       <div className={`mode-badge ${mode}`}>
         {aerial
           ? '高空视角'
@@ -622,8 +624,16 @@ export function Viewport() {
           onClick={toggleAerialView}
           title="不跟随镜头，从场景上方俯视观察机位怎么运动（黄色虚线为机位轨迹）"
         >
-          {aerial ? '退出高空视角' : '高空视角'}
+          俯视
         </button>
+        {/* 仅展示页：第三视角设备按钮已隐藏，恢复时取消注释 */}
+        {/* <button
+          className={rigView ? 'active' : ''}
+          onClick={() => setRigView(!rigView)}
+          title="从轨迹外斜上方观察轨道机械臂跟随机位运动"
+        >
+          第三视角设备
+        </button> */}
       </div>
     </div>
   );

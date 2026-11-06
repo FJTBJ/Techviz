@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { useScene } from '../../store/sceneStore';
 import { apiFetch } from '../../lib/api';
@@ -77,18 +76,9 @@ function PersonActor({ person, index, offset, shotStart }: {
         height={personHeight(person.label)}
         clothColor={color}
       />
-      <Html position={[0, 1.95, 0]} center distanceFactor={16} zIndexRange={[8, 0]}>
-        <div className="person-tag" style={{ borderColor: color }}>
-          <b>{displayLabel(person)}</b>
-        </div>
-      </Html>
     </group>
   );
 }
-
-/** 展示名去掉 UE 资产前缀，只留角色代号与姓名 */
-const displayLabel = (person: UePerson) =>
-  person.label.replace(/^(Char_|FIX\s*)/i, '').trim() || person.label;
 
 /** 同一演员在 UE 里可能被重复引用（Char_ / FIX 两份、名字多一个 2），按轨迹去重 */
 const trackSignature = (person: UePerson) => {

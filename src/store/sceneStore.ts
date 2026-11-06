@@ -6,10 +6,11 @@ import { rotatePoseY, shotPoseAt } from '../lib/previz';
 import type {
   GizmoMode,
   Measurement,
-  PlanMeta,
   SceneAsset,
   SetPlanFile,
   ShotCamera,
+  ShotCatalogEntry,
+  ShotNameMeta,
   StageDef,
   Vec3,
   ViewMode,
@@ -38,17 +39,14 @@ const normDeg = (deg: number) => ((deg % 360) + 540) % 360 - 180;
 /** 是否已从后端恢复过数据；恢复完成后才开启自动保存，避免用 demo 数据覆盖存档 */
 let hydrated = false;
 
-/** 自动保存定时器；恢复历史版本后短暂抑制保存，避免回退动作本身又生成一条重复快照 */
+/** 自动保存定时器 */
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
-let suppressSaveUntil = 0;
 
-/** 方案历史版本（只含元信息，正文在后端） */
-export interface SceneRevision {
-  id: number;
-  source: string;
-  createdAt: string;
-  size: number;
-}
+/** 从镜头短名 / 文件名解析场次码（如 s079a_c004_A → s079a），解析不到返回 null */
+const parseSceneCode = (name: string): string | null => {
+  const m = /s\d+[a-z]?/i.exec(name);
+  return m ? m[0].toLowerCase() : null;
+};
 
 /** 试运行角色：s079a 镜头的努拉，骨骼动画由全局时间轴驱动 */
 const DEMO_ACTOR: SceneAsset = {
@@ -117,20 +115,16 @@ interface SceneState {
   showShotMarkers: boolean;
   toggleShotMarkers: () => void;
 
-  /** 方案管理：后端按用户隔离的方案列表、当前方案、关联场次 */
-  plans: PlanMeta[];
-  planName: string | null;
+  /** 方案关联的场次场景（一个场次一个方案）；方案管理 UI 已停用，仅随存档保留 */
   sceneKey: string | null;
-  refreshPlans: () => Promise<void>;
-  /** 以场次新建方案（同名/同场次已存在时返回错误信息） */
-  createPlan: (scene: string) => Promise<string | null>;
-  switchPlan: (name: string) => Promise<string | null>;
-  deletePlan: (name: string) => Promise<string | null>;
-  loadCurrentScene: () => Promise<void>;
-  /** 方案历史版本（每次自动保存生成一条，可回退） */
-  revisions: SceneRevision[];
-  loadRevisions: () => Promise<string | null>;
-  restoreRevision: (id: number) => Promise<string | null>;
+
+  /** 全量镜头清单（Kmoke 场记 shot-names.json），左侧镜头树数据源；hasRig = 有 3D 机位数据 */
+  shotCatalog: ShotCatalogEntry[] | null;
+  /** 场次码 → 场景资产名数组（scene-asset-map.json），镜头树一级分组 */
+  sceneAssetMap: Record<string, string[]> | null;
+  /** 当前选中的「无 3D 机位数据」镜头：take 小窗照播，机位取景小窗显示占位 */
+  activeNoDataShot: ShotCatalogEntry | null;
+  selectNoDataShot: (shot: ShotCatalogEntry | null) => void;
 
   /** 镜头库：activeShotId 为 null 表示「完整场景」 */
   activeShotId: string | null;
@@ -152,6 +146,11 @@ interface SceneState {
   /** 右下角 take 视频小窗是否展开 */
   takeVisible: boolean;
   toggleTake: () => void;
+  /** 右下机位取景画中画：显隐（顶栏开关）与放大/还原 */
+  camPipVisible: boolean;
+  camPipEnlarged: boolean;
+  toggleCamPip: () => void;
+  toggleCamPipEnlarged: () => void;
   /** 右下角 take 视频元素：与 3D 环屏共用同一个 video，避免两路播放不同步 */
   takeVideoEl: HTMLVideoElement | null;
   setTakeVideoEl: (el: HTMLVideoElement | null) => void;
@@ -161,6 +160,10 @@ interface SceneState {
   /** 进入高空视角前的操作模式，退出时恢复 */
   aerialPrevMode: ViewMode | null;
   toggleAerialView: () => void;
+
+  /** 第三视角设备视图：斜上方观察轨道机械臂跟随机位运动 */
+  rigView: boolean;
+  setRigView: (v: boolean) => void;
 
   /** 预演播放时间线（master 时间码 + 相机关键帧） */
   previz: PrevizTimeline | null;
@@ -246,10 +249,10 @@ export const useScene = create<SceneState>((set, get) => ({
   planScene: null,
   showSetPlan: false,
   showShotMarkers: true,
-  plans: [],
-  planName: null,
   sceneKey: null,
-  revisions: [],
+  shotCatalog: null,
+  sceneAssetMap: null,
+  activeNoDataShot: null,
   activeShotId: null,
   activeShotUsedIds: null,
   shotHiddenIds: [],
@@ -261,10 +264,13 @@ export const useScene = create<SceneState>((set, get) => ({
     nonce: 0,
   },
   takeVisible: true,
+  camPipVisible: true,
+  camPipEnlarged: false,
   takeVideoEl: null,
   setTakeVideoEl: (el) => set({ takeVideoEl: el }),
   aerialView: false,
   aerialPrevMode: null,
+  rigView: false,
   previz: null,
   shotAim: null,
   aimMode: 'led',
@@ -378,6 +384,36 @@ export const useScene = create<SceneState>((set, get) => ({
       } catch {
         /* 无机位朝向数据时忽略 */
       }
+      // 全量镜头清单 + 场次场景映射（可选）：左侧三级分组镜头树的数据源
+      try {
+        const [namesRes, mapRes] = await Promise.all([
+          apiFetch('/api/shot-names'),
+          apiFetch('/api/scene-asset-map'),
+        ]);
+        if (namesRes.ok && mapRes.ok) {
+          const namesJson = await namesRes.json();
+          const mapJson = await mapRes.json();
+          const record = (namesJson?.data?.shots ?? {}) as Record<string, ShotNameMeta>;
+          // 预演时间线里的镜头（按 file_name 同源键匹配）才有 3D 机位数据
+          const rigKeys = new Set((get().previz?.shots ?? []).map((s) => s.name));
+          const catalog: ShotCatalogEntry[] = Object.entries(record).map(([key, meta]) => ({
+            key,
+            short: meta.short || key,
+            take: typeof meta.take === 'number' ? meta.take : null,
+            videoUrl: meta.videoUrl ?? null,
+            thumbnailUrl: meta.thumbnailUrl ?? null,
+            durationSec: typeof meta.durationSec === 'number' ? meta.durationSec : 0,
+            scene: parseSceneCode(meta.short || key),
+            hasRig: rigKeys.has(key),
+          }));
+          set({
+            shotCatalog: catalog,
+            sceneAssetMap: (mapJson?.data ?? {}) as Record<string, string[]>,
+          });
+        }
+      } catch {
+        /* 缺失时镜头树为空，不影响其他功能 */
+      }
       // 默认视角：取本场第一镜的机位，并把整个集合按该镜头的朝环屏角度整体转向。
       // 棚中央是石拱布景，随便放一个自由机位很容易被布景挡死或正对缺口，
       // 直接用真实预演机位取景，保证打开页面就朝 LED 环屏。
@@ -404,140 +440,8 @@ export const useScene = create<SceneState>((set, get) => ({
           }
         }
       }
-      // 方案列表：与场次关联，供左侧方案管理使用
-      await get().refreshPlans();
     } catch {
       set({ serverState: 'offline' });
-    }
-  },
-
-  refreshPlans: async () => {
-    try {
-      const res = await apiFetch('/api/scenes');
-      if (!res.ok) return;
-      const json = await res.json();
-      set({
-        plans: (json?.data ?? []) as PlanMeta[],
-        planName: typeof json?.current === 'string' ? json.current : get().planName,
-      });
-    } catch {
-      /* 后端不可达时保留现有列表 */
-    }
-  },
-
-  loadCurrentScene: async () => {
-    try {
-      const res = await apiFetch('/api/scene');
-      if (!res.ok) return;
-      const json = await res.json();
-      const saved = json?.data as Partial<Scenario> | null;
-      if (!saved || !Array.isArray(saved.assets)) return;
-      set({
-        assets: saved.assets,
-        camera: { ...DEMO_SHOT, ...saved.camera },
-        measurements: Array.isArray(saved.measurements) ? saved.measurements : [],
-        clearanceThreshold:
-          typeof saved.clearanceThreshold === 'number' ? saved.clearanceThreshold : 1,
-        currentStageId: saved.currentStageId ?? get().currentStageId,
-        stagePosition:
-          Array.isArray(saved.stagePosition) && saved.stagePosition.length === 3
-            ? saved.stagePosition
-            : [0, 0, 0],
-        setOffset:
-          Array.isArray(saved.setOffset) && saved.setOffset.length === 3 ? saved.setOffset : [0, 0, 0],
-        sceneKey: saved.sceneKey ?? null,
-        selectedId: null,
-        pendingPoint: null,
-        activeShotId: null,
-        activeShotUsedIds: null,
-        shotHiddenIds: [],
-        playing: false,
-        followPreviz: false,
-        mode: 'orbit',
-      });
-    } catch {
-      /* 后端不可达时保留当前数据 */
-    }
-  },
-
-  loadRevisions: async () => {
-    try {
-      const res = await apiFetch('/api/scene/revisions');
-      if (!res.ok) return '历史版本加载失败';
-      const json = await res.json();
-      set({ revisions: (json?.data ?? []) as SceneRevision[] });
-      return null;
-    } catch {
-      return '历史版本加载失败：后端不可达';
-    }
-  },
-
-  restoreRevision: async (id) => {
-    try {
-      const res = await apiFetch(`/api/scene/revisions/${id}/restore`, { method: 'POST' });
-      if (!res.ok) {
-        const json = await res.json().catch(() => null);
-        return json?.message ?? '恢复失败';
-      }
-      // 回退后短时间内不自动保存：后端已写入该版本，避免又多生成一条相同快照
-      if (saveTimer) clearTimeout(saveTimer);
-      suppressSaveUntil = Date.now() + 2000;
-      await get().loadCurrentScene();
-      await get().loadRevisions();
-      return null;
-    } catch {
-      return '恢复失败：后端不可达';
-    }
-  },
-
-  createPlan: async (scene) => {
-    try {
-      const res = await apiFetch('/api/scenes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ scene }),
-      });
-      const json = await res.json().catch(() => null);
-      if (!res.ok) return json?.message ?? '新建方案失败';
-      await get().loadCurrentScene();
-      await get().refreshPlans();
-      return null;
-    } catch {
-      return '新建方案失败：后端不可达';
-    }
-  },
-
-  switchPlan: async (name) => {
-    try {
-      const res = await apiFetch('/api/scenes/current', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name }),
-      });
-      if (!res.ok) {
-        const json = await res.json().catch(() => null);
-        return json?.message ?? '切换方案失败';
-      }
-      await get().loadCurrentScene();
-      await get().refreshPlans();
-      return null;
-    } catch {
-      return '切换方案失败：后端不可达';
-    }
-  },
-
-  deletePlan: async (name) => {
-    try {
-      const res = await apiFetch(`/api/scenes/${encodeURIComponent(name)}`, { method: 'DELETE' });
-      if (!res.ok) {
-        const json = await res.json().catch(() => null);
-        return json?.message ?? '删除方案失败';
-      }
-      await get().loadCurrentScene();
-      await get().refreshPlans();
-      return null;
-    } catch {
-      return '删除方案失败：后端不可达';
     }
   },
 
@@ -548,6 +452,7 @@ export const useScene = create<SceneState>((set, get) => ({
         activeShotId: null,
         activeShotUsedIds: null,
         shotHiddenIds: [],
+        activeNoDataShot: null,
         playing: false,
         followPreviz: false,
       });
@@ -566,6 +471,7 @@ export const useScene = create<SceneState>((set, get) => ({
       activeShotUsedIds: ids,
       // 换镜头即恢复默认：上个镜头里手工隐藏的元素不应影响这一镜
       shotHiddenIds: [],
+      activeNoDataShot: null,
       timelineTime: shot.start,
       playing: false,
       followPreviz: false,
@@ -596,16 +502,58 @@ export const useScene = create<SceneState>((set, get) => ({
       viewRequest: { position, target, nonce: (state.viewRequest?.nonce ?? 0) + 1 },
     })),
 
+  /**
+   * 选中无 3D 机位数据的镜头：3D 视口不摆机位（保持自由视角），
+   * take 小窗照播该镜头视频，机位取景画中画显示占位。
+   */
+  selectNoDataShot: (shot) =>
+    set({
+      activeNoDataShot: shot,
+      activeShotId: null,
+      activeShotUsedIds: null,
+      shotHiddenIds: [],
+      playing: false,
+      followPreviz: false,
+    }),
+
   toggleTake: () => set((state) => ({ takeVisible: !state.takeVisible })),
+
+  toggleCamPip: () => set((state) => ({ camPipVisible: !state.camPipVisible })),
+
+  toggleCamPipEnlarged: () => set((state) => ({ camPipEnlarged: !state.camPipEnlarged })),
 
   toggleAerialView: () =>
     set((state) =>
       state.aerialView
         ? // 退出高空：恢复进入前的操作模式
           { aerialView: false, mode: state.aerialPrevMode ?? 'orbit', aerialPrevMode: null }
-        : // 进入高空：不跟随镜头，记录原模式后切到自由视角
-          { aerialView: true, followPreviz: false, aerialPrevMode: state.mode, mode: 'orbit' },
+        : // 进入高空：不跟随镜头，记录原模式后切到自由视角；第三视角互斥自动关闭
+          {
+            aerialView: true,
+            followPreviz: false,
+            aerialPrevMode: state.mode,
+            mode: 'orbit',
+            rigView: false,
+          },
     ),
+
+  setRigView: (v) => {
+    const state = get();
+    if (v === state.rigView) return;
+    if (!v) {
+      // 关闭第三视角：RigViewRig 负责恢复进入前的相机位姿
+      set({ rigView: false });
+      return;
+    }
+    // 开启第三视角：俯视互斥自动关，退出机位取景/测量回到自由视角交给 RigViewRig 接管相机
+    set({
+      rigView: true,
+      aerialView: false,
+      aerialPrevMode: null,
+      followPreviz: false,
+      mode: 'orbit',
+    });
+  },
 
   setEnsembleYaw: (deg) => set({ ensembleYaw: normDeg(deg) }),
 
@@ -932,7 +880,6 @@ export const useScene = create<SceneState>((set, get) => ({
  */
 useScene.subscribe((state, prev) => {
   if (!hydrated) return;
-  if (Date.now() < suppressSaveUntil) return;
   if (
     state.assets === prev.assets &&
     state.camera === prev.camera &&

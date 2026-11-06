@@ -1,0 +1,145 @@
+{
+  "generatedAt": "2026-11-06T15:58:00+08:00",
+  "record": {
+    "s001_c022_A": {
+      "fieldRecordId": 1797,
+      "videoUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/4319eeca/browser.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075436Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=7c2a0c327a5c07b049e71b9e521366bcd6b0f8027b1a19315b63ca117388be19",
+      "thumbnailUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/4319eeca/thumbnail.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075436Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=f388a68597628f770410858ef8b493d1f72ddcf849d7df1216a9970d3cdfca1f"
+    },
+    "s079a_c005_A": {
+      "fieldRecordId": 1855,
+      "videoUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/b6935535/browser.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075446Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=d055e065a202e1312111a4ca5bbc94c56c1710b6cadb29497b81f9ca0b3d6dd9",
+      "thumbnailUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/b6935535/thumbnail.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075446Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=2342a6ed97acd24aec5f662fad5e7f781250babac77976d7068494a0a07ed761"
+    },
+    "s079a_c004_A": {
+      "fieldRecordId": 1854,
+      "videoUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/ca00f3bc/browser.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075446Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=61b1c21bcb9c45ebfe92fbda35e6343c2b925e1e803d05bf72a8d4f9502ba43f",
+      "thumbnailUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/ca00f3bc/thumbnail.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075446Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=6dcace0c9c65f27451914261b6465a0154ab471e51d39e555f89e678d91e2640"
+    },
+    "s001_c038_B": {
+      "fieldRecordId": 1820,
+      "videoUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/7b2734fb/browser.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T070536Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=adae60be9ea29c65830e5f1539830f5b8b879cff7240d7f58cc9e290295e07a7",
+      "thumbnailUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/7b2734fb/thumbnail.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T070536Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=390fd30e70e408a73d8a7a60f3d492e9b74702dd6154ef14a4804441495e817a"
+    },
+    "s136_c008_B": {
+      "fieldRecordId": 1864,
+      "videoUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/ffce7752/browser.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075729Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=49e2bbadfa154a8afcc72b39dd3889df486e5e0dc87f110532431a1bdcfa813d",
+      "thumbnailUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/ffce7752/thumbnail.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075729Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=c7238a0080a94252bc0c0d1885d74f840f711f0a41a30f937375852c98e2200e"
+    },
+    "s136_c005_B": {
+      "fieldRecordId": 1861,
+      "videoUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/6bee563f/browser.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075729Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=a1471b13c8d206e381570a29256122b41fd8a6338b278fddeb72411c715cf770",
+      "thumbnailUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/6bee563f/thumbnail.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075729Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=c1dd4558986330afb3f68969cfd7fb23163ea28ef71d60530e063f66e69fc4c1"
+    },
+    "s138_c017_A": {
+      "fieldRecordId": 1871,
+      "videoUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/8459169b/browser.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075446Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=01aeffc227b59665c1c03d1b17889b447a2692c88419c8ff0a33e54091ad71c2",
+      "thumbnailUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/8459169b/thumbnail.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075446Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=873b9d177b5071e253a29cd9933a15d4a069a0dc7bd06d46fb479d504c83b627"
+    },
+    "s057_c006_B": {
+      "fieldRecordId": 1845,
+      "videoUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/uploads/default/derivatives/2026/09/32f0c039/browser.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075350Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=2548df9d7e0bce5d3d56db21b175f52be79877ab6b52e6e37ba667d1f637e370",
+      "thumbnailUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/uploads/default/derivatives/2026/09/32f0c039/thumbnail.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075351Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=97637800c3a3dff96704f3d1a454610a043764b7d8679b1f7c13f7aad8443166"
+    },
+    "s001_c032_B": {
+      "fieldRecordId": 1814,
+      "videoUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/a22210c8/browser.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075446Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=258d66dafb9928ddb2087d2b059bb49850df52ec21c98c4f751ca0b369da7cf1",
+      "thumbnailUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/a22210c8/thumbnail.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075446Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=ac44e41e64925e718796745a48568b51e043e30358764fea3888891abd3922d8"
+    },
+    "s001_c034_B": {
+      "fieldRecordId": 1816,
+      "videoUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/12f05801/browser.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075743Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=43b418f9c5f297f837bef80e50ab28d28d1b775004828763087d3bb615142325",
+      "thumbnailUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/12f05801/thumbnail.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075743Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=6f655d9099ad272a0c4ee519eab1936a6526aade7dcf037b73d8f6d1b99cdc70"
+    },
+    "s001_c035_B": {
+      "fieldRecordId": 1817,
+      "videoUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/bb174e5e/browser.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075743Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=5284507e396cf8cd000354adb619ae678d9e12ddf082441ab30e1b8f28997e3e",
+      "thumbnailUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/bb174e5e/thumbnail.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075743Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=376d8172123617671291964394a459ac6b1be070d65088c39facf6058de9de3f"
+    },
+    "s001_c037_B": {
+      "fieldRecordId": 1819,
+      "videoUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/8eb61763/browser.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075743Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=42e0bd6a532d6f453eec9277a6565944c8c230de20b966fb3bb1c8363f933bad",
+      "thumbnailUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/8eb61763/thumbnail.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075743Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=085fe3235185f09c9d2c1959b93528537c0a49dbc459212fb6e59fa7b4396d24"
+    },
+    "s015_c005_A": {
+      "fieldRecordId": 1832,
+      "videoUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/b18048e8/browser.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075756Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=0eb9ea93da4388fd41a6a9c87b851cf91103fdfc37232e9acb28b61ba884ecd9",
+      "thumbnailUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/b18048e8/thumbnail.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075756Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=ce1bccdfd16c6ed2811378d4a2c7e390b64a9703aa0a86b3ac9be92e52933988"
+    },
+    "s001_c025_A": {
+      "fieldRecordId": 1800,
+      "videoUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/dee36361/browser.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075350Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=75aecee725baccd81e9cc544f082e869ebc2299dce2a71e76abe270a00e105e5",
+      "thumbnailUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/dee36361/thumbnail.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075351Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=858318b4ab5bedf87bbe2d9592e7d09c3da959b9b42630fcf1240362647829a1"
+    },
+    "s138_c036_A": {
+      "fieldRecordId": 1890,
+      "videoUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/1e86007d/browser.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075756Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=0e75aea2009f5fc416731c152a1859117ff637d2b622f6dc898a0e5a2792141f",
+      "thumbnailUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/1e86007d/thumbnail.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075756Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=2d4b9d27d3376e9ea3294d63ca00e50a241dfb8e34ca36b5489ebcf2030782f0"
+    },
+    "s138_c025_A": {
+      "fieldRecordId": 1879,
+      "videoUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/0958f60a/browser.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075756Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=9fb8d3d3fee96202256f2ef93ee312e297c0469374f95ce6adaaf5f7029f6c2a",
+      "thumbnailUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/0958f60a/thumbnail.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075756Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=2240611cb3a0e61a1c9b34c19953584b32db4d9686a706703adab91a9b0c6ed5"
+    },
+    "s079a_c006_A": {
+      "fieldRecordId": 1856,
+      "videoUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/c100fca4/browser.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075756Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=1be410cea0b099cea3b7b06d3aecf563fbe32ce11f05999df9544f215e6a1637",
+      "thumbnailUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/c100fca4/thumbnail.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075756Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=c4d6088316efc8579193a54fa69bb6d14189ffea53d8f980e877321ace1f999a"
+    },
+    "s138_c033_A": {
+      "fieldRecordId": 1887,
+      "videoUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/a9e80fe9/browser.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075756Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=98d9f08e5adb6ae1f12dbfb733028ebd6a2f1ba12f365d2c6aa37d980a174929",
+      "thumbnailUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/a9e80fe9/thumbnail.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075756Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=f754db100ee3152e15027e08a251204d52785839a77cdb58948b618e21814452"
+    },
+    "s138_c027_A": {
+      "fieldRecordId": 1881,
+      "videoUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/0f07de59/browser.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075810Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=7a111442566554cf591b6c0fd26d2c27895fe8a520c072d63b156a68f85e0386",
+      "thumbnailUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/0f07de59/thumbnail.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075810Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=8dfd20a39949faf4f5d8ee710563d95b4469ef7ff4c632e4afbc14c75874f2a0"
+    },
+    "s138_c019_A": {
+      "fieldRecordId": 1873,
+      "videoUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/b0e7b739/browser.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T070536Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=ffcf267ef3a2e8714be8274c128e85f3c2e09780c8a8df4361c04a4c1a2d6bbe",
+      "thumbnailUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/b0e7b739/thumbnail.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T070536Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=c8c20cecc81e3a575c5b5955b8b6cae42e9063057a6b34607c014ff571d95cad"
+    },
+    "s001_c039_B": {
+      "fieldRecordId": 1821,
+      "videoUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/27da9866/browser.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T070536Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=555fc69e6872c0b033f91d1da5e85d02910cc6b0ee18e5291f9711efbe0fc6cf",
+      "thumbnailUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/27da9866/thumbnail.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T070536Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=4862618abcf9125f0cebaafb4a1ce3d4ff0caf06249153963000a432956ba042"
+    },
+    "s057_c009_B": {
+      "fieldRecordId": 1848,
+      "videoUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/uploads/default/derivatives/2026/09/95d72853/browser.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T070536Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=2ee03a5cd1f3ee01098b8dd2f094a44053e72df5b5d757379852c6d07488229e",
+      "thumbnailUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/uploads/default/derivatives/2026/09/95d72853/thumbnail.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T070536Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=a4b5d16835207686b17ee47fd7ad8a1ab72908a2eebb4e7870ee60934649508a"
+    },
+    "s015_c008_A": {
+      "fieldRecordId": 1836,
+      "videoUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/6719d30c/browser.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T070536Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=647ae72d9d3b5777bbaee9275ed0c3cbe79d2afc47871188ab0777c7f5eb31a6",
+      "thumbnailUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/6719d30c/thumbnail.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T070536Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=e8c8fccc62fb6cbb516d65eb0dfdee954733fab6e04f6e428e5f828c5087bd31"
+    },
+    "s015_c007_A": {
+      "fieldRecordId": 1835,
+      "videoUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/70818094/browser.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T070536Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=a90a5b5f1816ac5208dfb5d7a71740fa9f5db29511cff94051eaac6d66d5cc7f",
+      "thumbnailUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/70818094/thumbnail.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T070536Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=c19f83d7f1c97c3beaddf91ab5fbdc1f431d599b97a472be77678a2dfdd896f8"
+    },
+    "s138_c022_A": {
+      "fieldRecordId": 1876,
+      "videoUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/ac934dd1/browser.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T070536Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=ae2ffe9ab9e07f489e7bef581aaa123b9612d61e41bcfed4fa314393981322e2",
+      "thumbnailUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/ac934dd1/thumbnail.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T070536Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=a89c18893aeac50cb3fe25364d24f50cd712dd326519fbbf3968217d601ac862"
+    },
+    "s001_c029_A": {
+      "fieldRecordId": 1804,
+      "videoUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/b0e5cc4d/browser.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T070536Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=333732d727cc0a14e58a346fda0070ab248ca00f323bf469457c4dcb13e1671d",
+      "thumbnailUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/b0e5cc4d/thumbnail.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T070536Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=c6fc6ebbe7887f66e7d6376fccb8819ec14d5b7c20690a47776864cfc7c88834"
+    },
+    "s136_c010_B": {
+      "fieldRecordId": 1866,
+      "videoUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/496dd709/browser.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075822Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=bf3d8b8ef4152a439b498357aa245abe96b0d08631395d6b74cc79cc5e6ccc94",
+      "thumbnailUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/496dd709/thumbnail.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T075822Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=04e06a98a2ba44007b96a1df563de99dd0ef6fe96138ffbef70b0592a7a133fe"
+    },
+    "s001_c044_B": {
+      "fieldRecordId": 1826,
+      "videoUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/ebd86ee9/browser.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T070536Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=0ee47c2310371ba006cc9792c002136f10ea7eefd23cdfcda6a059ba3b1e7396",
+      "thumbnailUrl": "https://kmoke4.ver.cn:8116/preview/kmoke4/third_party/kmoke3_obs_recording/gray_ingest/derivatives/2026/09/ebd86ee9/thumbnail.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=kmoke%2F20261106%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261106T070536Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&X-Amz-Signature=81261974b9477b5324a8e2c1a2af1c5b8c337f09469d3b899e16c0473eb8dd4c"
+    }
+  }
+}

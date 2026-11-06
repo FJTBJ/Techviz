@@ -10,21 +10,24 @@ import { SetPlanPanel } from './components/SetPlanPanel';
 import { ExportPanel } from './components/ExportPanel';
 import { Timeline } from './components/Timeline';
 import { LoginView } from './components/LoginView';
-import { GizmoMode, ViewMode } from './types';
+// GizmoMode 已随 gizmo 切换一起停用（仅展示页），恢复时取消注释
+// import { GizmoMode, ViewMode } from './types';
+import type { ViewMode } from './types';
 import { clearAuth, getStoredUser, getToken, toAuthUser, type AuthUser } from './lib/auth';
 import { setUnauthorizedHandler } from './lib/api';
 import {
   fetchAuthPublicConfig,
   fetchCurrentUser,
-  markExplicitLogout,
-  requestLogout,
+  // 仅展示页：顶栏用户徽标已隐藏，退出登录逻辑一并停用，恢复时取消注释
+  // markExplicitLogout,
+  // requestLogout,
 } from './lib/oidc';
 
 /**
  * 一键把整个集合（布景 + 演员 + 机位）绕环屏中心整体转向。
  * 环屏与缺口固定不动，集合内部相对关系不变，只是换个方向对准 LED。
  */
-function EnsembleTurnControl() {
+export function EnsembleTurnControl() {
   const yaw = useScene((s) => s.ensembleYaw);
   const auto = useScene((s) => s.ensembleAuto);
   const rotate = useScene((s) => s.rotateEnsemble);
@@ -69,30 +72,29 @@ function EnsembleTurnControl() {
   );
 }
 
-/** 棚切换器：形状参数来自后端扫描 UE 工程；「位置」开关进入拖拽模式，在视口中拖箭头整体移动 */
+/** 棚切换器：形状参数来自后端扫描 UE 工程；「位置」拖拽模式审阅场景暂不显示（代码保留，恢复时把下方按钮块取消注释） */
 function StageSwitcher() {
   const stages = useScene((s) => s.stages);
   const currentStageId = useScene((s) => s.currentStageId);
   const setStage = useScene((s) => s.setStage);
-  const stagePosEditing = useScene((s) => s.stagePosEditing);
-  const setStagePosEditing = useScene((s) => s.setStagePosEditing);
-  const current = stages.find((s) => s.id === currentStageId);
+  // 仅展示页：棚悬停提示（UE 路径）已移除，恢复时加回 current 并在 label 上挂 title
+  // const current = stages.find((s) => s.id === currentStageId);
 
   if (stages.length === 0) {
     return <span className="stage-switcher empty">未发现 UE 棚数据</span>;
   }
 
   return (
-    <label className="stage-switcher" title={current ? `UE: ${current.uePath}` : ''}>
+    <label className="stage-switcher">
       <span className="stage-label">棚</span>
       <select value={currentStageId ?? ''} onChange={(e) => setStage(e.target.value)}>
         {stages.map((s) => (
           <option key={s.id} value={s.id}>
-            {s.name} · {s.diameter}m / {s.arc}° / {s.panels}块
+            {s.name}
           </option>
         ))}
       </select>
-      <button
+      {/* <button
         className={stagePosEditing ? 'active' : ''}
         onClick={(e) => {
           e.preventDefault();
@@ -101,13 +103,13 @@ function StageSwitcher() {
         title="进入/退出棚位置拖拽模式（视口中拖动箭头整体移动棚）"
       >
         {stagePosEditing ? '退出位置' : '位置'}
-      </button>
+      </button> */}
     </label>
   );
 }
 
 /** UE 场景导入：把后端保存的祈祷室场景快照覆盖到当前布景 */
-function UeImportButton() {
+export function UeImportButton() {
   const importUeScene = useScene((s) => s.importUeScene);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -134,38 +136,41 @@ function UeImportButton() {
 
 const MODES: { key: ViewMode; label: string }[] = [
   { key: 'orbit', label: '自由视角' },
-  { key: 'camera', label: '机位取景' },
-  { key: 'measure', label: '测量' },
+  // 「机位取景」已改为右下画中画小窗（store.camPipVisible），主视口始终自由视角；
+  // mode==='camera' 的渲染逻辑保留在代码里，如需恢复主视口机位模式补回：
+  // { key: 'camera', label: '机位取景' },
+  // 测量模式对审阅场景暂不开放，如需恢复补回 { key: 'measure', label: '测量' }
 ];
 
-/** 顶栏用户区：显示当前登录人；需登录模式下提供退出 */
-function UserBadge({
-  user,
-  canLogout,
-  onLogout,
-}: {
-  user: AuthUser | null;
-  canLogout: boolean;
-  onLogout: () => void;
-}) {
-  if (!user) return null;
-  return (
-    <span className="user-badge" title={user.role || undefined}>
-      <span className="user-name">{user.displayName}</span>
-      {canLogout && (
-        <button className="user-logout" onClick={onLogout}>
-          退出
-        </button>
-      )}
-    </span>
-  );
-}
+/** 顶栏用户区：仅展示页已隐藏，恢复时取消注释并在 header 中挂回 <UserBadge /> */
+// function UserBadge({
+//   user,
+//   canLogout,
+//   onLogout,
+// }: {
+//   user: AuthUser | null;
+//   canLogout: boolean;
+//   onLogout: () => void;
+// }) {
+//   if (!user) return null;
+//   return (
+//     <span className="user-badge" title={user.role || undefined}>
+//       <span className="user-name">{user.displayName}</span>
+//       {canLogout && (
+//         <button className="user-logout" onClick={onLogout}>
+//           退出
+//         </button>
+//       )}
+//     </span>
+//   );
+// }
 
-const GIZMOS: { key: GizmoMode; label: string }[] = [
-  { key: 'translate', label: '移动' },
-  { key: 'rotate', label: '旋转' },
-  { key: 'scale', label: '缩放' },
-];
+// 移动/旋转/缩放 gizmo 切换审阅场景暂不显示（仅展示页），恢复时取消注释并挂回工具栏
+// const GIZMOS: { key: GizmoMode; label: string }[] = [
+//   { key: 'translate', label: '移动' },
+//   { key: 'rotate', label: '旋转' },
+//   { key: 'scale', label: '缩放' },
+// ];
 
 const TABS = [
   { key: 'shot', label: '机位' },
@@ -180,16 +185,21 @@ type TabKey = (typeof TABS)[number]['key'];
 export default function App() {
   const mode = useScene((s) => s.mode);
   const setMode = useScene((s) => s.setMode);
-  const gizmo = useScene((s) => s.gizmo);
-  const setGizmo = useScene((s) => s.setGizmo);
+  // gizmo 切换已隐藏（仅展示页）；gizmo 状态保留在 store，恢复时还原这两行
+  // const gizmo = useScene((s) => s.gizmo);
+  // const setGizmo = useScene((s) => s.setGizmo);
   const showFrustum = useScene((s) => s.showFrustum);
   const toggleFrustum = useScene((s) => s.toggleFrustum);
-  const serverState = useScene((s) => s.serverState);
+  const camPipVisible = useScene((s) => s.camPipVisible);
+  const toggleCamPip = useScene((s) => s.toggleCamPip);
+  // 仅展示页：顶栏持久化状态徽标已隐藏，恢复时取消注释
+  // const serverState = useScene((s) => s.serverState);
   const initFromServer = useScene((s) => s.initFromServer);
   const activeShotId = useScene((s) => s.activeShotId);
   const selectedId = useScene((s) => s.selectedId);
   const [tab, setTab] = useState<TabKey>('shot');
   const [sidebarHidden, setSidebarHidden] = useState(false);
+  const [inspectorHidden, setInspectorHidden] = useState(true);
 
   useEffect(() => {
     if (mode === 'measure') setTab('measure');
@@ -268,17 +278,18 @@ export default function App() {
     void initFromServer();
   }, [sessionReady, initFromServer]);
 
-  const handleLogout = async () => {
-    markExplicitLogout();
-    let logoutUrl: string | null = null;
-    try {
-      logoutUrl = await requestLogout();
-    } catch (error) {
-      console.warn('服务端会话注销失败，仅清理本地登录态：', error);
-    }
-    clearAuth();
-    window.location.replace(logoutUrl || new URL('/', window.location.origin).toString());
-  };
+  // 仅展示页：退出登录入口已隐藏，恢复时取消注释并挂回 UserBadge 的 onLogout
+  // const handleLogout = async () => {
+  //   markExplicitLogout();
+  //   let logoutUrl: string | null = null;
+  //   try {
+  //     logoutUrl = await requestLogout();
+  //   } catch (error) {
+  //     console.warn('服务端会话注销失败，仅清理本地登录态：', error);
+  //   }
+  //   clearAuth();
+  //   window.location.replace(logoutUrl || new URL('/', window.location.origin).toString());
+  // };
 
   if (auth.loading) {
     return (
@@ -310,8 +321,8 @@ export default function App() {
 
         <div className="toolbar">
           <StageSwitcher />
-          <EnsembleTurnControl />
-          <UeImportButton />
+          {/* 集合旋转角度调整（↺15°/滑杆/↻15°/角度/手动）审阅场景暂不显示，如需恢复挂回 <EnsembleTurnControl /> */}
+          {/* UE 场景导入按钮审阅场景暂不显示，如需恢复挂回 <UeImportButton />（组件已导出） */}
           <div className="segmented">
             {MODES.map((item) => (
               <button
@@ -324,24 +335,20 @@ export default function App() {
             ))}
           </div>
 
-          {mode === 'orbit' && (
-            <div className="segmented subtle">
-              {GIZMOS.map((item) => (
-                <button
-                  key={item.key}
-                  className={gizmo === item.key ? 'active' : ''}
-                  onClick={() => setGizmo(item.key)}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
-          )}
+          {/* 移动/旋转/缩放 gizmo 切换已隐藏（仅展示页），恢复时挂回 GIZMOS 渲染块 */}
 
           <label className="toggle">
             <input type="checkbox" checked={showFrustum} onChange={toggleFrustum} />
             显示视锥
           </label>
+
+          <button
+            className={`sidebar-toggle ${camPipVisible ? 'on' : ''}`}
+            onClick={toggleCamPip}
+            title="右下角画中画：当前选中镜头的机位取景画面（可放大）"
+          >
+            机位取景
+          </button>
 
           <button
             className={`sidebar-toggle ${sidebarHidden ? 'on' : ''}`}
@@ -350,9 +357,18 @@ export default function App() {
           >
             {sidebarHidden ? '▏▏ 侧栏' : '▕ 隐藏侧栏'}
           </button>
+
+          <button
+            className={`sidebar-toggle ${!inspectorHidden ? 'on' : ''}`}
+            onClick={() => setInspectorHidden((v) => !v)}
+            title={inspectorHidden ? '显示右侧数据面板' : '隐藏右侧数据面板'}
+          >
+            数据面板
+          </button>
         </div>
 
-        <span
+        {/* 仅展示页：顶栏右侧三个徽标（持久化状态/用户/部门）已隐藏，恢复时取消注释 */}
+        {/* <span
           className={`server-state ${serverState}`}
           title={
             serverState === 'online'
@@ -365,12 +381,15 @@ export default function App() {
           {serverState === 'online' ? '● 已持久化' : serverState === 'connecting' ? '○ 连接中' : '○ 离线'}
         </span>
         <UserBadge user={auth.user} canLogout={auth.required} onLogout={handleLogout} />
-        <span className="dept">{PROJECT_INFO.department}</span>
+        <span className="dept">{PROJECT_INFO.department}</span> */}
       </header>
 
-      <main className={`layout ${sidebarHidden ? 'no-sidebar' : ''}`}>
+      <main
+        className={`layout ${sidebarHidden ? 'no-sidebar' : ''} ${inspectorHidden ? 'no-inspector' : ''}`}
+      >
         {!sidebarHidden && <ShotLibrary />}
         <Viewport />
+        {!inspectorHidden && (
         <aside className="inspector">
           <div className="tabbar">
             {TABS.map((item) => (
@@ -391,6 +410,7 @@ export default function App() {
             {tab === 'export' && <ExportPanel />}
           </div>
         </aside>
+        )}
       </main>
 
       {/* 时间线只服务单个镜头；完整场景不显示 */}

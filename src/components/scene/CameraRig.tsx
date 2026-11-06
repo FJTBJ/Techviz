@@ -4,7 +4,7 @@ import { useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
 import { useScene } from '../../store/sceneStore';
 import { lensMath } from '../../lib/lens';
-import { shotPoseAt } from '../../lib/previz';
+import { rotatePoseY, shotPoseAt } from '../../lib/previz';
 
 const deg2rad = THREE.MathUtils.degToRad;
 
@@ -59,6 +59,12 @@ export function CameraRig() {
 
   useEffect(() => () => frustum.dispose(), [frustum]);
 
+  // 机位模型放 layer 1：主相机可见（已启用该层），机位取景画中画相机（layer 0）不可见。
+  // 不分层的话，画中画相机正好套在机身盒里、镜头端盖贴在眼前 0.2m，整个小窗会被糊黑。
+  useEffect(() => {
+    rootRef.current?.traverse((o) => o.layers.set(1));
+  });
+
   useFrame(() => {
     const root = rootRef.current;
     const aim = aimRef.current;
@@ -68,7 +74,9 @@ export function CameraRig() {
     const live = st.activeShotId
       ? (st.previz?.shots.find((item) => item.id === st.activeShotId) ?? null)
       : null;
-    const pose = live ? shotPoseAt(live, st.timelineTime) : null;
+    // 与机位取景/跟随相机同一坐标系：叠加集合转向与摆放平移，否则标记与实际机位错位
+    const raw = live ? shotPoseAt(live, st.timelineTime) : null;
+    const pose = raw ? rotatePoseY(raw, st.ensembleYaw, st.setOffset) : null;
 
     const position = pose ? pose.position : st.camera.position;
     const yaw = pose ? pose.yaw : st.camera.yaw;

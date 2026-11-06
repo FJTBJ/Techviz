@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>示意树 · 程序化生成预览</title>
+<style>
+  :root { color-scheme: dark; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #0b1016; }
+  body { font-family: "Segoe UI", "Microsoft YaHei", system-ui, sans-serif; }
+  canvas { display: block; }
+  #hud {
+    position: fixed; left: 16px; top: 16px; width: 232px; padding: 14px 16px;
+    background: rgba(16, 24, 34, .78); border: 1px solid rgba(120, 200, 220, .22);
+    border-radius: 10px; backdrop-filter: blur(10px); color: #cfe3ea; font-size: 12px;
+    line-height: 1.7; user-select: none;
+  }
+  #hud h1 { margin: 0 0 2px; font-size: 14px; font-weight: 600; color: #eaf6fa; letter-spacing: .3px; }
+  #hud .sub { color: #6e8b97; margin-bottom: 10px; }
+  #hud label { display: flex; justify-content: space-between; align-items: center; margin: 9px 0 2px; color: #9db6c1; }
+  #hud input[type=range] { width: 100%; accent-color: #4fb6c8; }
+  #hud button {
+    width: 100%; margin-top: 10px; padding: 6px 8px; cursor: pointer; font-size: 12px;
+    color: #d7edf3; background: rgba(79, 182, 200, .14);
+    border: 1px solid rgba(79, 182, 200, .38); border-radius: 6px;
+  }
+  #hud button:hover { background: rgba(79, 182, 200, .26); }
+  #stats { margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(120, 200, 220, .16); color: #6e8b97; font-variant-numeric: tabular-nums; }
+  #tip { position: fixed; right: 16px; bottom: 14px; color: #5b7681; font-size: 11px; }
+</style>
+</head>
+<body>
+<div id="hud">
+  <h1>示意树 · 程序化生成</h1>
+  <div class="sub">不是真实资产模型，按参数实时生成</div>
+  <label>树高 <span id="vHeight">7.0 m</span></label>
+  <input id="height" type="range" min="4" max="10" step="0.5" value="7" />
+  <label>分叉层级 <span id="vDepth">5</span></label>
+  <input id="depth" type="range" min="3" max="6" step="1" value="5" />
+  <label>叶簇密度 <span id="vLeaf">1.0</span></label>
+  <input id="leaf" type="range" min="0.4" max="2" step="0.2" value="1" />
+  <button id="regen">换一棵</button>
+  <button id="spin">暂停旋转</button>
+  <div id="stats"></div>
+</div>
+<div id="tip">拖拽旋转 · 滚轮缩放 · 右键平移</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "/node_modules/three/build/three.module.js",
+    "three/addons/": "/node_modules/three/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import * as BGU from 'three/addons/utils/BufferGeometryUtils.js';
+
+// ---------- 基础场景 ----------
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#0b1016');
+scene.fog = new THREE.Fog('#0b1016', 30, 70);
+
+const camera = new THREE.PerspectiveCamera(42, innerWidth / innerHeight, 0.1, 300);
+camera.position.set(11, 7.5, 14);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 3.6, 0);
+controls.enableDamping = true;
+controls.dampingFactor = 0.07;
+controls.minDistance = 3;
+controls.maxDistance = 45;
+controls.maxPolarAngle = Math.PI * 0.495;
+
+// 灯光
+scene.add(new THREE.HemisphereLight('#9fd8e6', '#0c1218', 0.85));
+const key = new THREE.DirectionalLight('#ffe9c9', 2.1);
+key.position.set(9, 14, 7);
+key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048);
+key.shadow.camera.near = 1;
+key.shadow.camera.far = 45;
+key.shadow.camera.left = -14; key.shadow.camera.right = 14;
+key.shadow.camera.top = 14; key.shadow.camera.bottom = -14;
+key.shadow.bias = -0.0006;
+scene.add(key);
+const rim = new THREE.DirectionalLight('#67c7dd', 0.85);
+rim.position.set(-8, 7, -10);
+scene.add(rim);
+
+// 地面 + 网格
+const ground = new THREE.Mesh(
+  new THREE.CircleGeometry(22, 64),
+  new THREE.MeshStandardMaterial({ color: '#141d26', roughness: 0.95, metalness: 0.02 })
+);
+ground.rotation.x = -Math.PI / 2;
+ground.receiveShadow = true;
+scene.add(ground);
+
+const grid = new THREE.GridHelper(40, 40, '#25414c', '#182a33');
+grid.position.y = 0.002;
+grid.material.transparent = true;
+grid.material.opacity = 0.55;
+scene.add(grid);
+
+// 1.7m 人形参考
+const refPerson = new THREE.Mesh(
+  new THREE.CapsuleGeometry(0.26, 1.18, 6, 16),
+  new THREE.MeshStandardMaterial({ color: '#3e5563', roughness: 0.8 })
+);
+refPerson.position.set(2.6, 0.85, 0.2);
+refPerson.castShadow = true;
+scene.add(refPerson);
+
+// ---------- 随机 ----------
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+let rand = mulberry32(20261027);
+const rr = (a, b) => a + (b - a) * rand();
+
+// ---------- 树 ----------
+const treeGroup = new THREE.Group();
+scene.add(treeGroup);
+
+const barkMat = new THREE.MeshStandardMaterial({ color: '#4a3a2c', roughness: 0.95, metalness: 0.0 });
+const leafMat = new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: 0.85, metalness: 0.0, flatShading: true });
+
+const timeUniform = { value: 0 };
+leafMat.onBeforeCompile = (shader) => {
+  shader.uniforms.uTime = timeUniform;
+  shader.vertexShader = shader.vertexShader
+    .replace('#include <common>', '#include <common>\nuniform float uTime;')
+    .replace('#include <begin_vertex>', `#include <begin_vertex>
+      #ifdef USE_INSTANCING
+        vec4 iw = instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0);
+        float ph = iw.x * 0.55 + iw.z * 0.41 + iw.y * 0.2;
+        float sway = sin(uTime * 1.5 + ph) * 0.018 + cos(uTime * 2.1 + ph * 1.7) * 0.010;
+        transformed.x += sway * (position.y + 0.35);
+        transformed.z += sway * 0.7 * (position.y + 0.35);
+      #endif
+    `);
+};
+
+function taperedSegment(start, end, r0, r1, radial) {
+  const dir = new THREE.Vector3().subVectors(end, start);
+  const len = dir.length();
+  if (len < 1e-4) return null;
+  const geo = new THREE.CylinderGeometry(Math.max(r1, 0.004), Math.max(r0, 0.004), len, radial, 1, true);
+  geo.translate(0, len / 2, 0);
+  const q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
+  geo.applyQuaternion(q);
+  geo.translate(start.x, start.y, start.z);
+  return geo;
+}
+
+function buildTree({ height, maxDepth, leafDensity }) {
+  // 清理
+  while (treeGroup.children.length) {
+    const c = treeGroup.children.pop();
+    c.geometry?.dispose();
+    if (c.dispose) c.dispose();
+  }
+
+  const geos = [];
+  const leafAnchors = [];
+  const trunkLen = height * 0.34;
+
+  // 主干，带一点弯曲
+  let cursor = new THREE.Vector3(0, 0, 0);
+  let dir = new THREE.Vector3(rr(-0.05, 0.05), 1, rr(-0.05, 0.05)).normalize();
+  let radius = height * 0.032;
+  const trunkSegs = 4;
+  for (let i = 0; i < trunkSegs; i++) {
+    const len = trunkLen / trunkSegs;
+    const next = cursor.clone().addScaledVector(dir, len);
+    const r1 = radius * 0.86;
+    const g = taperedSegment(cursor, next, radius, r1, 10);
+    if (g) geos.push(g);
+    cursor = next;
+    radius = r1;
+    // 轻微扭转
+    dir.applyAxisAngle(new THREE.Vector3(1, 0, 0), rr(-0.05, 0.05));
+    dir.applyAxisAngle(new THREE.Vector3(0, 0, 1), rr(-0.05, 0.05));
+    dir.normalize();
+  }
+
+  // 递归分叉
+  function grow(start, direction, length, rad, depth) {
+    const end = start.clone().addScaledVector(direction, length);
+    const r1 = rad * 0.66;
+    const g = taperedSegment(start, end, rad, r1, depth < 2 ? 8 : 5);
+    if (g) geos.push(g);
+
+    if (depth >= maxDepth || rad < 0.012) {
+      leafAnchors.push({ p: end.clone(), s: Math.max(0.55, length * 0.5) });
+      return;
+    }
+
+    const branches = depth === 0 ? 3 : (rand() < 0.4 ? 3 : 2);
+    for (let i = 0; i < branches; i++) {
+      const axis = new THREE.Vector3(rr(-1, 1), rr(-0.35, 0.35), rr(-1, 1)).normalize();
+      const spread = rr(0.38, 0.78);
+      const nd = direction.clone().applyAxisAngle(axis, spread);
+      // 向上修正，避免枝条下垂
+      nd.y += 0.28;
+      nd.normalize();
+      const nextLen = length * rr(0.66, 0.82);
+      grow(end, nd, nextLen, r1 * rr(0.82, 0.98), depth + 1);
+    }
+
+    // 枝干中段的小侧枝，增加密度
+    if (depth >= 1 && depth <= maxDepth - 1 && rand() < 0.55) {
+      const t = rr(0.45, 0.8);
+      const mid = start.clone().lerp(end, t);
+      const side = direction.clone().applyAxisAngle(
+        new THREE.Vector3(rr(-1, 1), rr(-0.2, 0.2), rr(-1, 1)).normalize(), rr(0.5, 0.95)
+      );
+      side.y += 0.15; side.normalize();
+      grow(mid, side, length * rr(0.42, 0.6), r1 * 0.55, depth + 1);
+    }
+  }
+
+  const crownBase = cursor.clone();
+  const mainBranches = 4;
+  for (let i = 0; i < mainBranches; i++) {
+    const axis = new THREE.Vector3(rr(-1, 1), rr(-0.2, 0.2), rr(-1, 1)).normalize();
+    const d = dir.clone().applyAxisAngle(axis, rr(0.45, 0.85));
+    d.y += 0.25; d.normalize();
+    grow(crownBase, d, trunkLen * rr(0.78, 0.95), radius * rr(0.9, 1.0), 1);
+  }
+
+  // 合并枝干
+  const merged = BGU.mergeGeometries(geos, false);
+  const trunkMesh = new THREE.Mesh(merged, barkMat);
+  trunkMesh.castShadow = true;
+  trunkMesh.receiveShadow = true;
+  treeGroup.add(trunkMesh);
+
+  // 叶簇
+  const perCluster = Math.max(3, Math.round(9 * leafDensity));
+  const total = leafAnchors.length * perCluster;
+  const leafGeo = new THREE.IcosahedronGeometry(1, 0);
+  const leaves = new THREE.InstancedMesh(leafGeo, leafMat, total);
+  leaves.castShadow = true;
+  leaves.receiveShadow = false;
+  leaves.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+
+  const dummy = new THREE.Object3D();
+  const color = new THREE.Color();
+  let idx = 0;
+  for (const a of leafAnchors) {
+    for (let i = 0; i < perCluster; i++) {
+      const r = a.s * rr(0.35, 0.85);
+      dummy.position.set(
+        a.p.x + rr(-r, r),
+        a.p.y + rr(-r * 0.75, r * 0.95),
+        a.p.z + rr(-r, r)
+      );
+      dummy.rotation.set(rr(0, Math.PI), rr(0, Math.PI), rr(0, Math.PI));
+      const sc = a.s * rr(0.32, 0.66);
+      dummy.scale.set(sc * rr(0.85, 1.25), sc * rr(0.7, 1.0), sc * rr(0.85, 1.25));
+      dummy.updateMatrix();
+      leaves.setMatrixAt(idx, dummy.matrix);
+      const h = rr(0.24, 0.32);
+      const s = rr(0.35, 0.62);
+      const l = rr(0.18, 0.42);
+      color.setHSL(h, s, l);
+      leaves.setColorAt(idx, color);
+      idx++;
+    }
+  }
+  leaves.instanceMatrix.needsUpdate = true;
+  if (leaves.instanceColor) leaves.instanceColor.needsUpdate = true;
+  treeGroup.add(leaves);
+
+  return { branches: geos.length, leaves: total };
+}
+
+// ---------- UI ----------
+const el = (id) => document.getElementById(id);
+const ui = { height: el('height'), depth: el('depth'), leaf: el('leaf') };
+let current = null;
+let spinning = true;
+
+function rebuild() {
+  rand = mulberry32((Math.random() * 1e9) | 0);
+  const height = +ui.height.value;
+  const maxDepth = +ui.depth.value;
+  const leafDensity = +ui.leaf.value;
+  el('vHeight').textContent = height.toFixed(1) + ' m';
+  el('vDepth').textContent = String(maxDepth);
+  el('vLeaf').textContent = leafDensity.toFixed(1);
+  current = buildTree({ height, maxDepth, leafDensity });
+  renderer.info.reset?.();
+  requestAnimationFrame(updateStats);
+  controls.target.set(0, height * 0.52, 0);
+}
+
+function updateStats() {
+  const info = renderer.info.render;
+  el('stats').innerHTML = [
+    `枝条 ${current.branches} 段`,
+    `叶簇实例 ${current.leaves} 个`,
+    `三角面 ${(info.triangles / 1000).toFixed(1)}k`,
+    `绘制调用 ${info.calls}`
+  ].join('<br>');
+}
+
+ui.height.addEventListener('input', () => { rebuild(); setTimeout(updateStats, 60); });
+ui.depth.addEventListener('input', () => { rebuild(); setTimeout(updateStats, 60); });
+ui.leaf.addEventListener('input', () => { rebuild(); setTimeout(updateStats, 60); });
+el('regen').addEventListener('click', () => { rebuild(); setTimeout(updateStats, 60); });
+el('spin').addEventListener('click', (e) => {
+  spinning = !spinning;
+  e.target.textContent = spinning ? '暂停旋转' : '继续旋转';
+});
+
+// ---------- 渲染循环 ----------
+const clock = new THREE.Clock();
+function animate() {
+  requestAnimationFrame(animate);
+  const t = clock.getElapsedTime();
+  timeUniform.value = t;
+  if (spinning) treeGroup.rotation.y += 0.0016;
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+rebuild();
+animate();
+setTimeout(updateStats, 200);
+</script>
+</body>
+</html>

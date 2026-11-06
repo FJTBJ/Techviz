@@ -1,198 +1,196 @@
 import { useMemo, useState } from 'react';
-import { computeShotUsage } from '../lib/shotFilter';
-import { shotLabel } from '../lib/previz';
 import { useScene } from '../store/sceneStore';
 import { Panel } from './ui';
+import type { PrevizShot, ShotCatalogEntry } from '../types';
+
+/** 场次分组：一个场次码下的全部镜头（按镜号排序） */
+interface SceneGroup {
+  code: string;
+  shots: ShotCatalogEntry[];
+}
+
+/** 场景资产分组：一级 = 资产名，二级 = 场次，三级 = 镜头 */
+interface AssetGroup {
+  asset: string;
+  scenes: SceneGroup[];
+  total: number;
+}
+
+/** 场次码排序：s2 < s10 < s079a < s079b（数字优先，后缀其次），无规律码排最后 */
+function sceneCodeRank(code: string): [number, string] {
+  const m = /^s(\d+)([a-z]?)$/.exec(code);
+  if (!m) return [Number.MAX_SAFE_INTEGER, code];
+  return [Number(m[1]), m[2]];
+}
+
+const UNMAPPED = '未关联场景';
 
 /**
- * 左侧栏：方案管理 + 镜头库。
- * 一个场次场景对应一个方案；镜头库首项是「完整场景」，
- * 其余镜头点击后只展示该镜头视锥内用到的 UE 元素。
+ * 左侧栏：全量镜头树（场景资产 → 场次 → 镜头）。
+ * 数据源是 Kmoke 场记全量清单（shot-names.json）+ 场次场景映射（scene-asset-map.json）；
+ * 预演时间线（previz）里有的镜头带 3D 机位数据（青色圆点），点击在 3D 视口取景；
+ * 其余镜头点击后只播放 take 视频。只读展示，不含任何编辑功能。
  */
 export function ShotLibrary() {
-  const plans = useScene((s) => s.plans);
-  const planName = useScene((s) => s.planName);
-  const sceneKey = useScene((s) => s.sceneKey);
+  const shotCatalog = useScene((s) => s.shotCatalog);
+  const sceneAssetMap = useScene((s) => s.sceneAssetMap);
   const previz = useScene((s) => s.previz);
-  const assets = useScene((s) => s.assets);
   const activeShotId = useScene((s) => s.activeShotId);
+  const activeNoDataShot = useScene((s) => s.activeNoDataShot);
   const selectShot = useScene((s) => s.selectShot);
-  const createPlan = useScene((s) => s.createPlan);
-  const switchPlan = useScene((s) => s.switchPlan);
-  const deletePlan = useScene((s) => s.deletePlan);
-  const revisions = useScene((s) => s.revisions);
-  const loadRevisions = useScene((s) => s.loadRevisions);
-  const restoreRevision = useScene((s) => s.restoreRevision);
+  const selectNoDataShot = useScene((s) => s.selectNoDataShot);
 
-  const [newScene, setNewScene] = useState('');
-  const [busy, setBusy] = useState(false);
-  const [msg, setMsg] = useState<string | null>(null);
-  const [historyOpen, setHistoryOpen] = useState(false);
+  /** 分组折叠状态：用户手动开合的覆盖项；默认只展开选中镜头所在的场景与场次 */
+  const [overrides, setOverrides] = useState<Record<string, boolean>>({});
 
-  const sceneList = previz?.scenes ?? [];
-  /** 已被方案占用的场次不再列出（一个场次只建一个方案） */
-  const availableScenes = sceneList.filter((item) => !plans.some((plan) => plan.scene === item.scene));
+  /** 有 3D 机位数据的镜头：file_name → 预演镜头（两者同源键） */
+  const rigShots = useMemo(() => {
+    const map = new Map<string, PrevizShot>();
+    for (const shot of previz?.shots ?? []) map.set(shot.name, shot);
+    return map;
+  }, [previz]);
 
-  const shots = useMemo(() => {
-    if (!previz) return [];
-    return sceneKey ? previz.shots.filter((shot) => shot.scene === sceneKey) : previz.shots;
-  }, [previz, sceneKey]);
+  const groups = useMemo<AssetGroup[]>(() => {
+    if (!shotCatalog) return [];
+    const byAsset = new Map<string, Map<string, ShotCatalogEntry[]>>();
+    for (const entry of shotCatalog) {
+      // 场次查不到映射时归到「未关联场景」组（全量清单比映射表覆盖广，属正常现象）
+      const asset = (entry.scene && sceneAssetMap?.[entry.scene]?.[0]) || UNMAPPED;
+      const code = entry.scene ?? '未知场次';
+      let scenes = byAsset.get(asset);
+      if (!scenes) {
+        scenes = new Map();
+        byAsset.set(asset, scenes);
+      }
+      let list = scenes.get(code);
+      if (!list) {
+        list = [];
+        scenes.set(code, list);
+      }
+      list.push(entry);
+    }
+    const sceneSort = (a: SceneGroup, b: SceneGroup) => {
+      const [na, sa] = sceneCodeRank(a.code);
+      const [nb, sb] = sceneCodeRank(b.code);
+      return na - nb || (sa < sb ? -1 : sa > sb ? 1 : 0);
+    };
+    return [...byAsset.entries()]
+      .map(([asset, scenes]) => {
+        const list = [...scenes.entries()]
+          .map(([code, shots]) => ({
+            code,
+            shots: [...shots].sort((a, b) => a.short.localeCompare(b.short)),
+          }))
+          .sort(sceneSort);
+        return { asset, scenes: list, total: list.reduce((acc, s) => acc + s.shots.length, 0) };
+      })
+      .sort((a, b) => {
+        // 「未关联场景」固定排最后，其余按资产名排序
+        const ra = a.asset === UNMAPPED ? 1 : 0;
+        const rb = b.asset === UNMAPPED ? 1 : 0;
+        return ra - rb || a.asset.localeCompare(b.asset, 'zh');
+      });
+  }, [shotCatalog, sceneAssetMap]);
 
-  const usage = useMemo(() => computeShotUsage(assets, shots), [assets, shots]);
+  /** 当前选中镜头所在场次：默认展开它所在的场景资产与场次 */
+  const activeShot = activeShotId
+    ? (previz?.shots.find((s) => s.id === activeShotId) ?? null)
+    : null;
+  const activeSceneCode = activeShot?.scene ?? activeNoDataShot?.scene ?? null;
 
-  const run = async (task: () => Promise<string | null>, ok: string) => {
-    setBusy(true);
-    const error = await task();
-    setBusy(false);
-    setMsg(error ?? ok);
-    setTimeout(() => setMsg(null), 2600);
-  };
+  const isOpen = (key: string, defaultOpen: boolean) => overrides[key] ?? defaultOpen;
+  const toggle = (key: string, defaultOpen: boolean) =>
+    setOverrides((prev) => ({ ...prev, [key]: !isOpen(key, defaultOpen) }));
+
+  const total = shotCatalog?.length ?? 0;
 
   return (
     <aside className="sidebar">
-      <Panel title="方案管理" extra={<span className="count">{plans.length}</span>}>
-        {plans.length > 0 ? (
-          <label className="field">
-            <span>当前方案{sceneKey ? ` · 场次 ${sceneKey}` : ' · 未关联场次'}</span>
-            <div className="input-wrap">
-              <select
-                value={planName ?? ''}
-                disabled={busy}
-                onChange={(e) => void run(() => switchPlan(e.target.value), '已切换方案')}
-              >
-                {plans.map((plan) => (
-                  <option key={plan.name} value={plan.name}>
-                    {plan.name}
-                    {plan.scene ? ` · ${plan.scene}` : ''}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </label>
+      <Panel title="镜头库" extra={<span className="count">{total}</span>}>
+        {!shotCatalog ? (
+          <p className="empty">后端无镜头清单数据</p>
         ) : (
-          <p className="hint">后端未返回方案列表</p>
-        )}
-
-        {availableScenes.length > 0 && (
-          <div className="plan-new">
-            <select
-              value={newScene}
-              disabled={busy}
-              onChange={(e) => setNewScene(e.target.value)}
-              title="选择要关联的场次"
-            >
-              <option value="">选择场次…</option>
-              {availableScenes.map((item) => (
-                <option key={item.scene} value={item.scene}>
-                  {item.scene} · {item.shotCount} 镜
-                </option>
-              ))}
-            </select>
-            <button
-              className="btn tiny"
-              disabled={busy || !newScene}
-              onClick={() => void run(() => createPlan(newScene), '已新建方案')}
-            >
-              新建
-            </button>
-          </div>
-        )}
-
-        <button
-          className="btn ghost block"
-          disabled={busy || plans.length <= 1 || !planName}
-          onClick={() => planName && void run(() => deletePlan(planName), '已删除方案')}
-        >
-          删除当前方案
-        </button>
-
-        <button
-          className="btn ghost block"
-          disabled={busy}
-          onClick={() => {
-            const next = !historyOpen;
-            setHistoryOpen(next);
-            if (next) void loadRevisions();
-          }}
-        >
-          {historyOpen ? '收起历史版本' : `历史版本 · ${revisions.length}`}
-        </button>
-
-        {historyOpen && (
-          <div className="revision-list">
-            {revisions.length === 0 ? (
-              <p className="hint">暂无历史版本，改动后会自动生成</p>
-            ) : (
-              revisions.map((rev) => (
-                <div className="revision-row" key={rev.id}>
-                  <span className="revision-time">
-                    {new Date(rev.createdAt).toLocaleString('zh-CN', { hour12: false })}
-                  </span>
-                  <span className="hint">{Math.max(1, Math.round(rev.size / 1024))} KB</span>
-                  <button
-                    className="btn tiny"
-                    disabled={busy}
-                    onClick={() => {
-                      if (!window.confirm('恢复到该版本？当前状态会先存为一条历史版本。')) return;
-                      void run(() => restoreRevision(rev.id), '已恢复到该版本');
-                    }}
-                  >
-                    恢复
+          <div className="shot-tree">
+            {groups.map((group) => {
+              const assetOpen = isOpen(
+                `a:${group.asset}`,
+                group.scenes.some((scene) => scene.code === activeSceneCode),
+              );
+              return (
+                <div className="shot-group" key={group.asset}>
+                  <button className="asset-row" onClick={() => toggle(`a:${group.asset}`, assetOpen)}>
+                    <span className={`twist ${assetOpen ? 'open' : ''}`}>▸</span>
+                    <span className="asset-name">{group.asset}</span>
+                    <span className="count">{group.total}</span>
                   </button>
+                  {assetOpen &&
+                    group.scenes.map((scene) => {
+                      const sceneOpen = isOpen(`s:${scene.code}`, scene.code === activeSceneCode);
+                      return (
+                        <div className="scene-group" key={scene.code}>
+                          <button
+                            className="scene-row"
+                            onClick={() => toggle(`s:${scene.code}`, sceneOpen)}
+                          >
+                            <span className={`twist ${sceneOpen ? 'open' : ''}`}>▸</span>
+                            <span className="scene-code mono">{scene.code}</span>
+                            <span className="count">{scene.shots.length}</span>
+                          </button>
+                          {sceneOpen && (
+                            <div className="shot-list">
+                              {scene.shots.map((entry, index) => {
+                                const rigShot = entry.hasRig ? rigShots.get(entry.key) : undefined;
+                                const active = rigShot
+                                  ? activeShotId === rigShot.id
+                                  : activeNoDataShot?.key === entry.key;
+                                return (
+                                  <button
+                                    key={entry.key}
+                                    className={`shot-card ${active ? 'active' : ''}`}
+                                    onClick={() =>
+                                      rigShot ? selectShot(rigShot.id) : selectNoDataShot(entry)
+                                    }
+                                    title={`${entry.short} · take ${entry.take ?? '—'} · ${entry.durationSec.toFixed(1)}s${entry.hasRig ? ' · 含 3D 机位数据' : ''}`}
+                                  >
+                                    {entry.thumbnailUrl ? (
+                                      <img
+                                        className="shot-thumb"
+                                        src={entry.thumbnailUrl}
+                                        alt=""
+                                        loading="lazy"
+                                        onError={(e) => {
+                                          e.currentTarget.style.visibility = 'hidden';
+                                        }}
+                                      />
+                                    ) : (
+                                      <span className="shot-index mono">
+                                        {String(index + 1).padStart(2, '0')}
+                                      </span>
+                                    )}
+                                    <span className="shot-meta">
+                                      <strong>
+                                        {entry.short}
+                                        {entry.hasRig && <i className="rig-dot" title="含 3D 机位数据" />}
+                                      </strong>
+                                      <em>
+                                        {entry.durationSec.toFixed(1)}s · take {entry.take ?? '—'}
+                                      </em>
+                                    </span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                 </div>
-              ))
-            )}
+              );
+            })}
           </div>
         )}
-
-        {msg && <p className={msg.startsWith('已') ? 'ok' : 'alert'}>{msg}</p>}
-        <p className="hint">一个场次对应一个方案，新方案复制当前布景数据。</p>
-      </Panel>
-
-      <Panel title="镜头库" extra={<span className="count">{shots.length}</span>}>
-        <div className="shot-list">
-          <button
-            className={`shot-card complete ${activeShotId ? '' : 'active'}`}
-            onClick={() => selectShot(null)}
-            title="显示场景全部元素"
-          >
-            <span className="shot-index">全</span>
-            <span className="shot-meta">
-              <strong>完整场景</strong>
-              <em>{assets.length} 个元素 · 全部显示</em>
-            </span>
-            {!activeShotId && <span className="shot-state">当前</span>}
-          </button>
-
-          {shots.map((shot, index) => {
-            const used = usage[shot.id]?.count ?? 0;
-            const active = activeShotId === shot.id;
-            return (
-              <button
-                key={shot.id}
-                className={`shot-card ${active ? 'active' : ''}`}
-                onClick={() => selectShot(shot.id)}
-                title={`${shot.id} · 入点 ${shot.start.toFixed(2)}s`}
-              >
-                <span className="shot-index mono">{String(index + 1).padStart(2, '0')}</span>
-                <span className="shot-meta">
-                  <strong>{shotLabel(shot)}</strong>
-                  <em>
-                    {shot.durationSec.toFixed(1)}s · 用到 {used} / {assets.length}
-                  </em>
-                </span>
-                <span className="shot-used mono">
-                  {Math.round((used / Math.max(1, assets.length)) * 100)}%
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-        {!previz && <p className="empty">后端无预演时间线数据</p>}
-        {previz && shots.length === 0 && <p className="empty">该场次没有镜头</p>}
         <p className="hint">
-          点击镜头：视口切到该镜头首帧（朝 LED 环屏取景），只渲染该镜头视锥内用到的 UE 元素；视角仍可自由拖拽。
+          青色圆点 = 含 3D 机位数据，点击在 3D 视口取景；其余镜头仅播放 take 视频，机位取景小窗显示占位。
         </p>
       </Panel>
     </aside>

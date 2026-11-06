@@ -19,6 +19,9 @@ import { rotatePoseY, shotPoseAt } from '../../lib/previz';
 import { ASPECTS, type SceneAsset } from '../../types';
 import { AnimatedActor } from './AnimatedActor';
 
+/** 仅展示页：三维内编辑（gizmo 拖拽/棚位置拖动）全局停用开关，改 true 即整体恢复 */
+const EDITING_ENABLED: boolean = false;
+
 /** 模型加载失败（文件没部署/路径失效）时回退到代理体块，避免整块画布崩掉 */
 class ModelBoundary extends Component<{ fallback: ReactNode; children: ReactNode }, { failed: boolean }> {
   state = { failed: false };
@@ -147,12 +150,15 @@ function LedVideoScreen({
 
   useFrame(() => {
     if (!texture) return;
+    // 暂停/未开播时视频不再派发新帧（rVFC 不触发），手动标记上传当前帧，避免环屏黑屏
+    if (video && video.readyState >= video.HAVE_CURRENT_DATA) texture.needsUpdate = true;
     const st = useScene.getState();
     const shot = st.activeShotId
       ? (st.previz?.shots.find((item) => item.id === st.activeShotId) ?? null)
       : null;
     const raw = shot ? shotPoseAt(shot, st.timelineTime) : null;
-    const pose = raw ? rotatePoseY(raw, st.ensembleYaw) : null;
+    // 与机位取景/主视口解算保持同一坐标系：置景平移先于集合转向生效
+    const pose = raw ? rotatePoseY(raw, st.ensembleYaw, st.setOffset) : null;
 
     if (!pose) {
       uniforms.uUseProject.value = 0;
@@ -301,7 +307,8 @@ export function LedRing({
         </mesh>
       ))}
       </group>
-      {editing && object && (
+      {/* 编辑功能已停用（仅展示页），EDITING_ENABLED 改 true 恢复 */}
+      {EDITING_ENABLED && editing && object && (
         <TransformControls
           object={object}
           mode="translate"
@@ -653,8 +660,8 @@ export function SceneObject({
           </mesh>
         )}
       </group>
-      {/* gizmo 独立挂载，不再包裹 children，attach 目标始终是同一个 group 节点 */}
-      {selected && object && mode !== 'measure' && visible && (
+      {/* gizmo 独立挂载，不再包裹 children；编辑已停用（仅展示页），EDITING_ENABLED 改 true 恢复 */}
+      {EDITING_ENABLED && selected && object && mode !== 'measure' && visible && (
         <TransformControls
           object={object}
           mode={gizmo}

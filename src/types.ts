@@ -222,6 +222,31 @@ export interface PrevizTimeline {
   shots: PrevizShot[];
 }
 
+/** shot-names.json 单条记录（Kmoke 场记镜头，键为 file_name） */
+export interface ShotNameMeta {
+  short?: string;
+  take?: number;
+  fieldRecordId?: number;
+  videoUrl?: string;
+  thumbnailUrl?: string;
+  durationSec?: number;
+}
+
+/** 左侧镜头树的镜头行：shot-names 全量清单条目，hasRig = 预演时间线里有同名镜头（含 3D 机位数据） */
+export interface ShotCatalogEntry {
+  /** shot-names.json 的键（file_name），与 PrevizShot.name 同源 */
+  key: string;
+  /** 官方短名，如 s079a_c004_A */
+  short: string;
+  take: number | null;
+  videoUrl: string | null;
+  thumbnailUrl: string | null;
+  durationSec: number;
+  /** 从短名/文件名前缀解析出的场次码（小写），解析不到为 null */
+  scene: string | null;
+  hasRig: boolean;
+}
+
 /** UE 人物动画关键帧（three.js 坐标，米；s 为镜头序列内时间，秒） */
 export interface UePersonKey {
   s: number;
