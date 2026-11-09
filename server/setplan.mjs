@@ -357,27 +357,342 @@ const round2 = (n) => Math.round(n * 100) / 100;
 
 /** 演员头顶高度：表演区「全身在屏内」按地面点 + 头顶点双重判定 */
 const ACTOR_HEAD_Y = 1.7;
+/** 交互/遮挡判定中的演员活动高度上限（KMOKE-261104 规则：0–1.8m） */
+export const ACTOR_TOP_M = 1.8;
 /** 每镜每角色最多抽多少个走位采样点 */
 const MAX_SAMPLES_PER_CHAR = 40;
 
 /**
- * 收集一个场次所有镜头的演员走位点（raw，不配相机），用于置景资产交互判定
- * @returns [[x, z], ...]
+ * 灯光硬约束接口（KMOKE-261104 规则四）。
+ * 灯位配置数据尚未下发，先落规则框架：validateLighting 在无灯位数据时返回 checked=false。
+ * @param {number} diameter 环屏直径（米）
  */
-export function collectActorPoints(shots, peopleShots) {
-  const out = [];
+export function lightRuleForRing(diameter) {
+  if (diameter < 30) return { label: '24米屏', offscreenMinM: 1, offscreenMaxM: 1, note: '灯具离屏 1 米' };
+  if (diameter < 45) return { label: '36米屏', offscreenMinM: 0, offscreenMaxM: 2, note: '依顶屏情况离屏 0–2 米' };
+  return { label: '50米屏', offscreenMinM: 0, offscreenMaxM: 0, note: '允许灯具与屏重合' };
+}
+
+/**
+ * 校验一组灯位是否满足离屏规则与被摄对象最近距离。
+ * @param {{positions:[x,y,z][], rule:object, actorPoints:[x,z][]}} input
+ * @returns {checked:boolean, ...}  无灯位数据时 checked=false（规则框架就位，等灯位下发后启用）
+ */
+export function validateLighting({ positions, rule, actorPoints }) {
+  if (!Array.isArray(positions) || positions.length === 0) {
+    return { checked: false, reason: `灯位配置未下发（${rule?.label ?? ''}：${rule?.note ?? ''}）；被摄对象与灯具最近距离须 ≥3m，效果复现预留 3–7m` };
+  }
+  const MIN_TO_SUBJECT_M = 3;
+  let minDist = Infinity;
+  for (const [lx, , lz] of positions) {
+    for (const [px, pz] of actorPoints ?? []) {
+      minDist = Math.min(minDist, Math.hypot(lx - px, lz - pz));
+    }
+  }
+  return { checked: true, minToSubjectM: round2(minDist), pass: minDist >= MIN_TO_SUBJECT_M };
+}
+
+/** 内容点绕环心旋转 deg 度（环屏与缺口固定，旋转的是内容位姿） */
+function rotatePoint([x, z], deg) {
+  if (!deg) return [x, z];
+  const a = deg * DEG;
+  const c = Math.cos(a);
+  const s = Math.sin(a);
+  return [x * c - z * s, x * s + z * c];
+}
+
+/**
+ * 收集一个场次各镜头的演员走位点（带镜头归属），用于逐镜头的交互/遮挡资产筛选。
+ * KMOKE-261104 规则二：置景实例先按镜头筛出，方案置景 = 覆盖镜头实例并集。
+ * @returns Map<shotId, [[x, z], ...]>
+ */
+export function collectActorPointsByShot(shots, peopleShots) {
+  const out = new Map();
   for (const shot of shots) {
     const track = peopleShots?.[shot.name];
     if (!track?.characters?.length) continue;
+    const pts = [];
     for (const ch of track.characters) {
       for (const k of ch.keys ?? []) {
         const p = k?.p;
         if (!Array.isArray(p) || p.length < 3) continue;
-        out.push([p[0], p[2]]);
+        pts.push([p[0], p[2]]);
+      }
+    }
+    if (pts.length) out.set(shot.id, pts);
+  }
+  return out;
+}
+
+/** 线段 (a→b) 与 AABB [c0,c1] 相交测试（slab 法，含端点） */
+function segmentIntersectsAabb(a, b, c0, c1) {
+  let tmin = 0;
+  let tmax = 1;
+  for (let i = 0; i < 3; i += 1) {
+    const d = b[i] - a[i];
+    if (Math.abs(d) < 1e-9) {
+      if (a[i] < c0[i] || a[i] > c1[i]) return false;
+    } else {
+      let t1 = (c0[i] - a[i]) / d;
+      let t2 = (c1[i] - a[i]) / d;
+      if (t1 > t2) [t1, t2] = [t2, t1];
+      tmin = Math.max(tmin, t1);
+      tmax = Math.min(tmax, t2);
+      if (tmin > tmax) return false;
+    }
+  }
+  return true;
+}
+
+/** 遮挡视线采样：演员代表点高度（胸口），低于头顶避免把「越过肩部」判成遮挡 */
+const OCCLUSION_EYE_Y = 1.6;
+/** 每镜头最多抽多少个相机帧 / 演员点做视线采样 */
+const OCCLUSION_CAM_SAMPLES = 6;
+const OCCLUSION_ACTOR_SAMPLES = 8;
+
+/**
+ * 遮挡资产筛选（KMOKE-261104 规则二）：相机到演员的视线被实例截断 → 该实例需要置景。
+ * 不受高度限制（高处构件同样可能遮挡演员），已判为交互资产的实例不重复计入。
+ * @param {Array} assets 场景快照资产（position/size/instanceId）
+ * @param {Set<string>} excludeIds 已判为交互资产的 instanceId
+ * @param {Map<string,[x,z][]>} actorPointsByShot collectActorPointsByShot 输出
+ * @param {Array} shots 镜头列表（取 keys 相机帧）
+ * @returns Set<string> 遮挡资产 instanceId
+ */
+export function filterOccluderAssets({ assets, excludeIds = new Set(), actorPointsByShot, shots }) {
+  const hit = new Set();
+  for (const shot of shots) {
+    const pts = actorPointsByShot.get(shot.id);
+    if (!pts?.length) continue;
+    const camKeys = shot.keys?.length ? shot.keys : [{ t: 0, position: shot.position }];
+    const stepC = Math.max(1, Math.ceil(camKeys.length / OCCLUSION_CAM_SAMPLES));
+    const stepA = Math.max(1, Math.ceil(Math.min(pts.length, 64) / OCCLUSION_ACTOR_SAMPLES));
+    const actors = pts.filter((_, i) => i % stepA === 0);
+    for (let ci = 0; ci < camKeys.length; ci += stepC) {
+      const cam = camKeys[ci].position;
+      for (const [px, pz] of actors) {
+        const b = [px, OCCLUSION_EYE_Y, pz];
+        // 视线段包围盒粗剔除后做 AABB 精确相交
+        const bb0 = [Math.min(cam[0], b[0]), Math.min(cam[1], b[1]), Math.min(cam[2], b[2])];
+        const bb1 = [Math.max(cam[0], b[0]), Math.max(cam[1], b[1]), Math.max(cam[2], b[2])];
+        for (const a of assets) {
+          if (excludeIds.has(a.instanceId) || hit.has(a.instanceId)) continue;
+          const hx = (a.size?.[0] ?? 0) / 2;
+          const hy = (a.size?.[1] ?? 0) / 2;
+          const hz = (a.size?.[2] ?? 0) / 2;
+          const c0 = [a.position[0] - hx, a.position[1] - hy, a.position[2] - hz];
+          const c1 = [a.position[0] + hx, a.position[1] + hy, a.position[2] + hz];
+          if (bb0[0] > c1[0] || bb1[0] < c0[0]) continue;
+          if (bb0[1] > c1[1] || bb1[1] < c0[1]) continue;
+          if (bb0[2] > c1[2] || bb1[2] < c0[2]) continue;
+          if (segmentIntersectsAabb(cam, b, c0, c1)) hit.add(a.instanceId);
+        }
       }
     }
   }
-  return out;
+  return hit;
+}
+
+/**
+ * 单个采样点在给定内容位姿（平移 off + 绕环心旋转 rotDeg）下的「表演区在屏内」得分（0/1）。
+ * 判据：演员在环内，且相机经演员头顶(1.7m)延伸的视线命中环屏弧段内、屏高范围内、演员身后。
+ * 环屏与缺口固定不动，旋转/平移作用于内容（演员走位、置景），相机不动。
+ */
+function actorScore(cam, pt, off, rotDeg, ring, range) {
+  const R = ring.diameter / 2;
+  const H = ring.height;
+  const [rx, rz] = rotatePoint(pt, rotDeg);
+  const ox = cam[0] - off[0];
+  const oz = cam[2] - off[2];
+  const tx = rx - off[0];
+  const tz = rz - off[2];
+  if (Math.hypot(ox, oz) > R - 0.05) return 0;
+  if (Math.hypot(tx, tz) > R - 0.05) return 0;
+  const dx = tx - ox;
+  const dy = ACTOR_HEAD_Y - cam[1];
+  const dz = tz - oz;
+  const len = Math.hypot(dx, dy, dz);
+  if (len < 1e-6) return 0;
+  const hit = intersectRing([ox, cam[1], oz], [dx / len, dy / len, dz / len], ring, range);
+  return hit && hit.inArc && hit.point[1] >= 0 && hit.point[1] <= H && hit.t > len - 0.05 ? 1 : 0;
+}
+
+/**
+ * 置景资产锚点得分（0/1）：资产在环内，且资产方向落在屏体弧段内（背后是屏不是缺口）。
+ * 锚点取资产顶面中心；资产高于屏体的部分由「顶部延伸遮光」方案兜底，不参与此项判定。
+ */
+function assetScore(anchor, off, rotDeg, ring, range) {
+  const R = ring.diameter / 2;
+  const [rx, rz] = rotatePoint([anchor[0], anchor[2]], rotDeg);
+  const tx = rx - off[0];
+  const tz = rz - off[2];
+  if (Math.hypot(tx, tz) > R - 0.05) return 0;
+  return inArc(Math.atan2(tx, tz), range) ? 1 : 0;
+}
+
+/** 旋转搜索档位（步长可调）：内容可绕环心任意旋转，全周扫描 */
+function rotationSteps(rotStepDeg) {
+  const steps = [];
+  for (let d = 0; d < 360; d += rotStepDeg) steps.push(d === 180 ? 180 : d > 180 ? d - 360 : d);
+  return steps;
+}
+
+/**
+ * 求解一套方案的内容位姿（KMOKE-261104 规则四）：
+ * 平移 + 绕环心旋转两自由度，镜头级覆盖评分为目标（覆盖镜头数最多 → 采样命中 → 资产入屏 → 偏移小）。
+ * 搜索前按规则做平移预筛：内容包围圆（仅演员走位点与置景锚点，相机不参与）到环心距离
+ * 不得超过环屏内半径减包围圆半径，仅在该可行圆盘内铺设搜索网格。
+ * @param {object} input
+ * @param {Array} input.shots 场次镜头
+ * @param {Set<string>|null} input.shotFilter 待覆盖镜头 id 集合（多方案轮次用；null = 全部）
+ * @returns null | { offset, rotationDeg, coveredShotIds, shotCoverage, actorBacked, assetBacked, sampleCount, assetCount, method }
+ */
+export function solveStagePosition({
+  ring,
+  shots,
+  people,
+  setAssets = [],
+  shotFilter = null,
+  coarseStep = 1,
+  fineStep = 0.25,
+  rotStepDeg = 15,
+}) {
+  const peopleShots = people?.shots ?? null;
+  if (!peopleShots) return null;
+  const filterSet = shotFilter ? new Set(shotFilter) : null;
+  const inScope = (id) => !filterSet || filterSet.has(id);
+  const allSamples = collectActorSamples(shots, peopleShots).filter((s) => inScope(s.shot));
+  // 逐镜头聚合采样，镜头级覆盖判定用
+  const byShot = new Map();
+  for (const s of allSamples) {
+    if (!byShot.has(s.shot)) byShot.set(s.shot, []);
+    byShot.get(s.shot).push(s);
+  }
+  const anchors = setAssets.map((a) => [
+    a.position[0],
+    (a.position[1] ?? 0) + (a.size?.[1] ?? 0) / 2,
+    a.position[2],
+  ]);
+  const shotIds = [...byShot.keys()];
+  if (shotIds.length === 0 && anchors.length === 0) return null;
+
+  const range = ringArcRange(ring);
+  const R = ring.diameter / 2;
+  const LIMIT = R - 0.05;
+
+  // 平移预筛：内容包围圆（走位点 + 锚点；随旋转逐档重算质心）
+  const contentPts = [
+    ...allSamples.map((s) => s.pt),
+    ...anchors.map((a) => [a[0], a[2]]),
+  ];
+  if (contentPts.length === 0) return null;
+  const centroid = [
+    contentPts.reduce((n, p) => n + p[0], 0) / contentPts.length,
+    contentPts.reduce((n, p) => n + p[1], 0) / contentPts.length,
+  ];
+  const contentRadius = Math.max(
+    ...contentPts.map((p) => Math.hypot(p[0] - centroid[0], p[1] - centroid[1])),
+  );
+  // 可行圆盘半径：质心到环心距离上限 = 环内限 - 包围圆半径；无余量时退化为质心附近 ±0.5m
+  const discR = Math.max(0.5, LIMIT - contentRadius);
+
+  const shotCoveredAt = (off, rotDeg) => {
+    let shotsCovered = 0;
+    let sampleHit = 0;
+    for (const sid of shotIds) {
+      const list = byShot.get(sid);
+      let hit = 0;
+      for (const s of list) {
+        if (actorScore(s.cam, s.pt, off, rotDeg, ring, range)) hit += 1;
+      }
+      sampleHit += hit;
+      if (hit === list.length) shotsCovered += 1;
+    }
+    let assetHit = 0;
+    for (const a of anchors) {
+      if (assetScore(a, off, rotDeg, ring, range)) assetHit += 1;
+    }
+    return { shotsCovered, sampleHit, assetHit };
+  };
+
+  // 候选比较：覆盖镜头数 → 采样命中 → 资产入屏 → 偏移小
+  let best = null;
+  const consider = (off, rotDeg) => {
+    const m = shotCoveredAt(off, rotDeg);
+    const cand = {
+      off,
+      rotDeg,
+      shotsCovered: m.shotsCovered,
+      sampleHit: m.sampleHit,
+      assetHit: m.assetHit,
+    };
+    const better =
+      !best ||
+      cand.shotsCovered > best.shotsCovered ||
+      (cand.shotsCovered === best.shotsCovered &&
+        (cand.sampleHit > best.sampleHit ||
+          (cand.sampleHit === best.sampleHit &&
+            (cand.assetHit > best.assetHit ||
+              (cand.assetHit === best.assetHit && Math.hypot(off[0], off[2]) < Math.hypot(best.off[0], best.off[2]))))));
+    if (better) best = cand;
+  };
+
+  // 两段搜索：各旋转档在可行圆盘内粗搜（coarseStep）→ 最优档邻域细搜（fineStep × 相邻旋转档）
+  const rotSteps = rotationSteps(rotStepDeg);
+  for (const rotDeg of rotSteps) {
+    const [cx, cz] = rotatePoint(centroid, rotDeg);
+    const grid = Math.ceil(discR / coarseStep);
+    for (let ix = -grid; ix <= grid; ix += 1) {
+      for (let iz = -grid; iz <= grid; iz += 1) {
+        const ox = cx + ix * coarseStep;
+        const oz = cz + iz * coarseStep;
+        if (Math.hypot(ox, oz) > discR + 1e-9) continue;
+        consider([ox, 0, oz], rotDeg);
+      }
+    }
+  }
+  if (!best) return null;
+  const gridF = Math.ceil(coarseStep / fineStep) * fineStep;
+  for (const dR of [-rotStepDeg, 0, rotStepDeg]) {
+    const rotDeg = best.rotDeg + dR;
+    const [cx, cz] = rotatePoint(centroid, rotDeg);
+    for (let ix = -gridF; ix <= gridF + 1e-9; ix += fineStep) {
+      for (let iz = -gridF; iz <= gridF + 1e-9; iz += fineStep) {
+        const ox = best.off[0] + ix;
+        const oz = best.off[2] + iz;
+        if (Math.hypot(ox, oz) > discR + 1e-9) continue;
+        consider([ox, 0, oz], rotDeg);
+      }
+    }
+  }
+
+  const final = shotCoveredAt(best.off, best.rotDeg);
+  const originM = shotCoveredAt([0, 0, 0], 0);
+  const pct1 = (n, t) => (t > 0 ? Math.round((n / t) * 1000) / 10 : 0);
+  return {
+    offset: [round2(best.off[0]), 0, round2(best.off[2])],
+    rotationDeg: best.rotDeg,
+    coveredShotIds: shotIds.filter((sid) => {
+      const list = byShot.get(sid);
+      return list.every((s) => actorScore(s.cam, s.pt, best.off, best.rotDeg, ring, range));
+    }),
+    shotCoverage: shotIds.map((sid) => {
+      const list = byShot.get(sid);
+      const hit = list.filter((s) => actorScore(s.cam, s.pt, best.off, best.rotDeg, ring, range)).length;
+      return { id: sid, hit, total: list.length, covered: hit === list.length };
+    }),
+    actorBacked: pct1(final.sampleHit, allSamples.length),
+    actorBackedOrigin: pct1(originM.sampleHit, allSamples.length),
+    assetBacked: pct1(final.assetHit, anchors.length),
+    sampleCount: allSamples.length,
+    assetCount: anchors.length,
+    shotCount: shotIds.length,
+    shotsCovered: final.shotsCovered,
+    contentRadiusM: round2(contentRadius),
+    discRadiusM: round2(discR),
+    headY: ACTOR_HEAD_Y,
+    method: `内容位姿搜索 平移${coarseStep}m×旋转${rotStepDeg}°粗搜→${fineStep}m细搜；预筛=内容包围圆(${round2(contentRadius)}m)可行圆盘(r=${round2(discR)}m)；目标=覆盖镜头数→采样命中→资产入屏→偏移小；数据=UE take 走位序列 + 置景资产包围盒`,
+  };
 }
 
 /**
@@ -434,102 +749,8 @@ function collectActorSamples(shots, peopleShots) {
  * （脚部视线延伸必然落到屏底以下，由地面与屏底衔接，不参与判定）
  * 相机在环外或演员在环外 → 0 分。
  */
-function actorScore(cam, pt, off, ring, range) {
-  const R = ring.diameter / 2;
-  const H = ring.height;
-  const ox = cam[0] - off[0];
-  const oz = cam[2] - off[2];
-  const tx = pt[0] - off[0];
-  const tz = pt[1] - off[2];
-  if (Math.hypot(ox, oz) > R - 0.05) return 0;
-  if (Math.hypot(tx, tz) > R - 0.05) return 0;
-  const dx = tx - ox;
-  const dy = ACTOR_HEAD_Y - cam[1];
-  const dz = tz - oz;
-  const len = Math.hypot(dx, dy, dz);
-  if (len < 1e-6) return 0;
-  const hit = intersectRing([ox, cam[1], oz], [dx / len, dy / len, dz / len], ring, range);
-  return hit && hit.inArc && hit.point[1] >= 0 && hit.point[1] <= H && hit.t > len - 0.05 ? 1 : 0;
-}
 
 /**
  * 置景资产锚点得分（0/1）：资产在环内，且资产方向落在屏体弧段内（背后是屏不是缺口）。
  * 锚点取资产顶面中心；资产高于屏体的部分由「顶部延伸遮光」方案兜底，不参与此项判定。
  */
-function assetScore(anchor, off, ring, range) {
-  const R = ring.diameter / 2;
-  const tx = anchor[0] - off[0];
-  const tz = anchor[2] - off[2];
-  if (Math.hypot(tx, tz) > R - 0.05) return 0;
-  return inArc(Math.atan2(tx, tz), range) ? 1 : 0;
-}
-
-/**
- * 求解「同场次一个摆放」：网格搜索环心偏移，使所有镜头演员表演区尽量被屏体遮挡，
- * 且需要置景的资产（与人物有交互的）方向落在屏弧内。
- * 两段搜索：1m 粗搜全场 → 0.25m 细搜最优邻域
- * @returns null | { offset, actorBacked, actorBackedOrigin, assetBacked, sampleCount, assetCount, shotCount, headY, method }
- */
-export function solveStagePosition({ ring, shots, people, setAssets = [], coarseStep = 1, fineStep = 0.25 }) {
-  const peopleShots = people?.shots ?? null;
-  if (!peopleShots) return null;
-  const actorSamples = collectActorSamples(shots, peopleShots);
-  // 置景资产锚点：顶面中心
-  const anchors = setAssets.map((a) => [
-    a.position[0],
-    (a.position[1] ?? 0) + (a.size?.[1] ?? 0) / 2,
-    a.position[2],
-  ]);
-  if (actorSamples.length === 0 && anchors.length === 0) return null;
-  const range = ringArcRange(ring);
-  const R = ring.diameter / 2;
-  const total = actorSamples.length + anchors.length;
-
-  const evalAt = (ox, oz) => {
-    const off = [ox, 0, oz];
-    let score = 0;
-    for (const s of actorSamples) score += actorScore(s.cam, s.pt, off, ring, range);
-    for (const a of anchors) score += assetScore(a, off, ring, range);
-    return score / total;
-  };
-
-  let best = { x: 0, z: 0, score: -1 };
-  const consider = (x, z) => {
-    const score = evalAt(x, z);
-    const better =
-      score > best.score + 1e-9 ||
-      (Math.abs(score - best.score) < 1e-9 && Math.hypot(x, z) < Math.hypot(best.x, best.z));
-    if (better) best = { x, z, score };
-  };
-  for (let x = -R; x <= R + 1e-9; x += coarseStep) {
-    for (let z = -R; z <= R + 1e-9; z += coarseStep) consider(x, z);
-  }
-  for (let x = best.x - coarseStep; x <= best.x + coarseStep + 1e-9; x += fineStep) {
-    for (let z = best.z - coarseStep; z <= best.z + coarseStep + 1e-9; z += fineStep) consider(x, z);
-  }
-
-  const shotCount = new Set(actorSamples.map((s) => s.shot)).size;
-  const actorHit = actorSamples.length
-    ? actorSamples.filter((s) => actorScore(s.cam, s.pt, [best.x, 0, best.z], ring, range)).length
-    : 0;
-  const assetHit = anchors.length
-    ? anchors.filter((a) => assetScore(a, [best.x, 0, best.z], ring, range)).length
-    : 0;
-  const pct1 = (n, t) => (t > 0 ? Math.round((n / t) * 1000) / 10 : 0);
-  return {
-    offset: [round2(best.x), 0, round2(best.z)],
-    actorBacked: pct1(actorHit, actorSamples.length),
-    actorBackedOrigin: actorSamples.length
-      ? pct1(
-          actorSamples.filter((s) => actorScore(s.cam, s.pt, [0, 0, 0], ring, range)).length,
-          actorSamples.length,
-        )
-      : 0,
-    assetBacked: pct1(assetHit, anchors.length),
-    sampleCount: actorSamples.length,
-    assetCount: anchors.length,
-    shotCount,
-    headY: ACTOR_HEAD_Y,
-    method: `网格搜索 ${coarseStep}m→${fineStep}m；目标=(演员在环内且头顶(${ACTOR_HEAD_Y}m)视线被屏体遮挡 + 置景资产在屏弧内)占比最大化；数据=UE take 走位序列 + 置景资产包围盒`,
-  };
-}

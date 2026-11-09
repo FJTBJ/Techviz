@@ -307,8 +307,8 @@ export function LedRing({
         </mesh>
       ))}
       </group>
-      {/* 编辑功能已停用（仅展示页），EDITING_ENABLED 改 true 恢复 */}
-      {EDITING_ENABLED && editing && object && (
+      {/* 环屏位置编辑：点击环屏进入，拖 gizmo 移动，点空白退出（资产 gizmo 仍由 EDITING_ENABLED 控制） */}
+      {editing && object && (
         <TransformControls
           object={object}
           mode="translate"
@@ -452,6 +452,14 @@ function ProxyMesh({ asset }: { asset: SceneAsset }) {
       return (
         <mesh position={[0, size[1] / 2, 0]} castShadow receiveShadow>
           <cylinderGeometry args={[size[0] / 2, size[0] / 2, size[1], 24]} />
+          {surface}
+        </mesh>
+      );
+    /* 基础模型：球体（添加模型入口用） */
+    case 'sphere':
+      return (
+        <mesh position={[0, Math.max(size[0], size[1], size[2]) / 2, 0]} castShadow receiveShadow>
+          <sphereGeometry args={[Math.max(size[0], size[1], size[2]) / 2, 24, 16]} />
           {surface}
         </mesh>
       );

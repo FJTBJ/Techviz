@@ -1,11 +1,14 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type DragEvent } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber';
-import { Grid, OrbitControls, Line } from '@react-three/drei';
+// Line 随机位标记（PrevizCameraMarker）一并停用，恢复时加回
+import { Grid, OrbitControls } from '@react-three/drei';
 import { useScene, isGizmoActive } from '../store/sceneStore';
 import { SceneObject, LedRing } from './scene/SceneObject';
-import { CameraRig } from './scene/CameraRig';
-import { SetPlanLayer } from './scene/SetPlanLayer';
+// import { CameraRig } from './scene/CameraRig';
+// 机位可视化模型暂隐藏（机位先隐藏，恢复时取消注释上行 import 与下方 JSX 渲染）
+// 旧版方案示意已停用（与方案地台资产重复），恢复时取消注释
+// import { SetPlanLayer } from './scene/SetPlanLayer';
 import { MeasurementLayer } from './scene/MeasurementLayer';
 import { PeopleLayer } from './scene/PeopleLayer';
 import { RigViewRig } from './scene/RigViewRig';
@@ -206,6 +209,78 @@ function ViewCommander() {
   return null;
 }
 
+/** 方案地台 3D 尺寸手柄：地台四边外侧各一个小方块，拖拽即调宽/深（中心不变，0.1m 步进） */
+function PlatformSizer3D() {
+  const platform = useScene((s) => s.assets.find((a) => a.instanceId === 'platform-main'));
+  const resizePlatform = useScene((s) => s.resizePlatform);
+  const controls = useThree((s) => s.controls) as unknown as { enabled: boolean } | null;
+  const dragging = useRef(false);
+
+  if (!platform || !platform.visible) return null;
+  const [w, , d] = platform.size;
+  const [cx, , cz] = platform.position;
+  const topY = 0.3;
+  const off = 0.5;
+  const handles: { pos: [number, number, number]; axis: 'x' | 'z' }[] = [
+    { pos: [w / 2 + off, topY, 0], axis: 'x' },
+    { pos: [-w / 2 - off, topY, 0], axis: 'x' },
+    { pos: [0, topY, d / 2 + off], axis: 'z' },
+    { pos: [0, topY, -d / 2 - off], axis: 'z' },
+  ];
+
+  const endDrag = () => {
+    dragging.current = false;
+    if (controls) controls.enabled = true;
+    document.body.style.cursor = '';
+  };
+
+  return (
+    <>
+      {handles.map((h, i) => (
+        <mesh
+          key={i}
+          position={h.pos}
+          onPointerDown={(e: ThreeEvent<PointerEvent>) => {
+            e.stopPropagation();
+            (e.target as { setPointerCapture?: (id: number) => void })?.setPointerCapture?.(
+              e.pointerId,
+            );
+            dragging.current = true;
+            if (controls) controls.enabled = false;
+            document.body.style.cursor = h.axis === 'x' ? 'ew-resize' : 'ns-resize';
+          }}
+          onPointerMove={(e: ThreeEvent<PointerEvent>) => {
+            if (!dragging.current) return;
+            e.stopPropagation();
+            // 光线与地台顶面所在水平面求交，交点到地台中心的距离 ×2 即边长
+            if (Math.abs(e.ray.direction.y) < 1e-6) return;
+            const t = (topY - e.ray.origin.y) / e.ray.direction.y;
+            if (t <= 0) return;
+            const px = e.ray.origin.x + e.ray.direction.x * t;
+            const pz = e.ray.origin.z + e.ray.direction.z * t;
+            const cur = useScene.getState().assets.find((a) => a.instanceId === 'platform-main')
+              ?.size;
+            if (!cur) return;
+            if (h.axis === 'x') {
+              const next = Math.max(1, Math.round(Math.abs(px - cx) * 2 * 10) / 10);
+              const delta = Math.round((next - cur[0]) * 10) / 10;
+              if (delta) resizePlatform(delta, 0);
+            } else {
+              const next = Math.max(1, Math.round(Math.abs(pz - cz) * 2 * 10) / 10);
+              const delta = Math.round((next - cur[2]) * 10) / 10;
+              if (delta) resizePlatform(0, delta);
+            }
+          }}
+          onPointerUp={endDrag}
+        >
+          <boxGeometry args={[0.32, 0.32, 0.32]} />
+          <meshBasicMaterial color="#ffb020" transparent opacity={0.85} />
+        </mesh>
+      ))}
+    </>
+  );
+}
+
 /** 高空视角：切到场景上方俯视，便于观察机位怎么运转；退出时恢复原相机位姿 */
 function AerialRig() {
   const aerial = useScene((s) => s.aerialView);
@@ -249,6 +324,7 @@ function AerialRig() {
 }
 
 /** 高空视角下显示当前镜头机位：黄色轨迹 + 随时间移动的机位标记与视锥 */
+/* 机位标记暂隐藏（高空视角黄色轨迹 + 机位标记，恢复时取消注释）
 function PrevizCameraMarker() {
   const aerial = useScene((s) => s.aerialView);
   const previz = useScene((s) => s.previz);
@@ -305,6 +381,7 @@ function PrevizCameraMarker() {
     </>
   );
 }
+机位标记暂隐藏结束 */
 
 function Ground() {
   const mode = useScene((s) => s.mode);
@@ -344,19 +421,29 @@ function SceneContent() {
   const stage = stages.find((s) => s.id === currentStageId);
   const stagePosition = useScene((s) => s.stagePosition);
   const setOffset = useScene((s) => s.setOffset);
+  const stageRotationY = useScene((s) => s.stageRotationY);
+  const showLedRing = useScene((s) => s.showLedRing);
+  const showGrid = useScene((s) => s.showGrid);
+  const showPeople = useScene((s) => s.showPeople);
   const activeShot = activeShotId
     ? (previz?.shots.find((shot) => shot.id === activeShotId) ?? null)
     : null;
   const ensembleYaw = useScene((s) => s.ensembleYaw);
   const setPlan = useScene((s) => s.setPlan);
   const planScene = useScene((s) => s.planScene);
+  const activePlanId = useScene((s) => s.activePlanId);
 
-  // 置景筛选保留集：当前场次方案里判定为「与人物有交互」的置景实例。
+  // 置景筛选保留集：当前选中方案的置景实例集（一个方案一套置景）。
   // 镜头强制显示不得复活被筛掉的构件，这里先算好保留集再参与 forceVisible。
   const setKeep = useMemo(() => {
-    const ids = setPlan && planScene ? setPlan.plans[planScene]?.setInstanceIds : null;
+    if (!setPlan || !planScene) return null;
+    const entry = setPlan.plans[planScene];
+    const plan = activePlanId
+      ? entry?.planList?.find((p) => p.planId === activePlanId)
+      : null;
+    const ids = plan ? plan.setInstanceIds : entry?.setInstanceIds;
     return ids ? new Set(ids) : null;
-  }, [setPlan, planScene]);
+  }, [setPlan, planScene, activePlanId]);
 
   // 镜头库选中某个镜头时，只渲染该镜头视锥内用到的元素（高空视角也一样，便于只看本镜头布景与机位运动）
   // 骨骼角色的所属场次：instanceId 以场景后缀登记（如 ue-char-nuola-s079a → s079a）
@@ -378,6 +465,8 @@ function SceneContent() {
       }
       // 灯位标记始终保留（显隐走 asset.visible，可在场景大纲手工隐藏）
       if (asset.kind === 'light') return true;
+      // 方案地台始终保留（显隐走 asset.visible，不参与镜头视锥剔除）
+      if (asset.instanceId === 'platform-main') return true;
       return used.has(asset.instanceId);
     });
   }, [assets, usedIds, activeShot]);
@@ -404,8 +493,8 @@ function SceneContent() {
         shadow-bias={-0.0005}
       />
       <Ground />
-      {/* 棚：形状来自 UE 扫描，环心位置可经顶栏「位置」调整，不参与选中/变换 */}
-      {stage && (
+      {/* 棚：形状来自 UE 扫描，环心位置可经顶栏「位置」调整，不参与选中/变换；环屏/网格可经右侧操作面板开关 */}
+      {stage && showLedRing && (
         <LedRing
           position={stagePosition}
           diameter={stage.diameter}
@@ -414,39 +503,53 @@ function SceneContent() {
           gapCenterDeg={stage.gapCenterDeg}
         />
       )}
-      <Grid
-        position={[0, 0.002, 0]}
-        args={[120, 120]}
-        cellSize={1}
-        cellThickness={0.6}
-        cellColor="#26313f"
-        sectionSize={5}
-        sectionThickness={1.1}
-        sectionColor="#3b4a5d"
-        fadeDistance={75}
-        fadeStrength={1.2}
-        infiniteGrid
-        raycast={() => null}
-      />
+      {showGrid && (
+        <Grid
+          position={[0, 0.002, 0]}
+          args={[120, 120]}
+          cellSize={1}
+          cellThickness={0.6}
+          cellColor="#26313f"
+          sectionSize={5}
+          sectionThickness={1.1}
+          sectionColor="#3b4a5d"
+          fadeDistance={75}
+          fadeStrength={1.2}
+          infiniteGrid
+          raycast={() => null}
+        />
+      )}
       {/* 集合：布景 + 演员 + 预演机位一起整体转向/平移（环屏棚固定不动）。
-          外层旋转（集合转向，每镜头自动对齐）> 内层平移（setOffset，每场次一个摆放，原始坐标系），
-          保证摆放平移不受转向影响 */}
+          外层旋转（集合转向，每镜头自动对齐）> 中层平移（setOffset，每场次一个摆放，原始坐标系），
+          内层旋转（stageRotationY，内容位姿的绕环心旋转，环屏与缺口固定不动）：
+          内容点 world = setOffset + R(stageRotationY)·pt，与服务端解算 rot(pt) - offset 一致（setOffset = -offset）。
+          机位标记/机位模型不属于内容，留在中层不随内容旋转 */}
       <group rotation={[0, THREE.MathUtils.degToRad(ensembleYaw), 0]}>
         <group position={setOffset}>
+        <group rotation={[0, THREE.MathUtils.degToRad(stageRotationY), 0]}>
         {visibleAssets.map((asset) => (
           <SceneObject
             key={asset.instanceId}
             asset={asset}
             forceVisible={
-              Boolean(usedIds) && (asset.kind !== 'ue' || !setKeep || setKeep.has(asset.instanceId))
+              Boolean(usedIds) &&
+              asset.instanceId !== 'platform-main' &&
+              (asset.kind !== 'ue' || !setKeep || setKeep.has(asset.instanceId))
             }
             forceHidden={shotHidden.has(asset.instanceId)}
           />
         ))}
+        {/* 旧版方案示意（蓝色地台盒/紫色上裙边）已停用，与方案地台资产（DITAI_01）重复；恢复时取消注释
         <SetPlanLayer />
-        <PeopleLayer shot={activeShot} />
+        */}
+        {showPeople && <PeopleLayer shot={activeShot} />}
+        {/* 方案地台 3D 尺寸手柄（与地台同处内容坐标系） */}
+        <PlatformSizer3D />
+        </group>
+        {/* 机位可视化暂隐藏（机位先隐藏，恢复时取消注释）
         <CameraRig />
         <PrevizCameraMarker />
+        */}
         </group>
       </group>
       {/* 测量标注属于棚内空间坐标，不随集合转向 */}
@@ -553,6 +656,9 @@ export function Viewport() {
   const mode = useScene((s) => s.mode);
   const aerial = useScene((s) => s.aerialView);
   const toggleAerialView = useScene((s) => s.toggleAerialView);
+  // 空态（尚无任何方案）：中间显示「生成 Techviz 方案」按钮，点击进入方案视图
+  const planLibraryMode = useScene((s) => s.planLibraryMode);
+  const startPlanGeneration = useScene((s) => s.startPlanGeneration);
   // 仅展示页：第三视角设备按钮已隐藏，恢复时取消注释并还原下方按钮
   // const rigView = useScene((s) => s.rigView);
   // const setRigView = useScene((s) => s.setRigView);
@@ -565,12 +671,71 @@ export function Viewport() {
   // const previz = useScene((s) => s.previz);
   /** 机位取景画中画小窗：3D 渲染器（canvas 内）与覆盖层共用的跟踪节点 */
   const camPipRef = useRef<HTMLElement>(null);
+  // 模型库拖放：基础模型从工具面板拖进视口放置
+  const addPrimitive = useScene((s) => s.addPrimitive);
+  const [primDragOver, setPrimDragOver] = useState(false);
+  // 方案调整后的「确定」影响检查入口
+  const adjustDirty = useScene((s) => s.adjustDirty);
+  const impactRunning = useScene((s) => s.impact.running);
+  const runImpactCheck = useScene((s) => s.runImpactCheck);
+
+  /** 模型库卡片拖放到视口：光线与地面求交得落点，再换算到内容局部坐标 */
+  const handlePrimDrop = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setPrimDragOver(false);
+    const kind = e.dataTransfer.getData('application/x-prim') as
+      | ''
+      | 'box'
+      | 'sphere'
+      | 'column';
+    if (!kind) return;
+    const cam = viewportBridge.camera;
+    const canvas = viewportBridge.canvas;
+    let local: [number, number, number] | undefined;
+    if (cam && canvas) {
+      const rect = canvas.getBoundingClientRect();
+      const ray = new THREE.Raycaster();
+      ray.setFromCamera(
+        new THREE.Vector2(
+          ((e.clientX - rect.left) / rect.width) * 2 - 1,
+          -((e.clientY - rect.top) / rect.height) * 2 + 1,
+        ),
+        cam,
+      );
+      const hit = new THREE.Vector3();
+      if (ray.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), hit)) {
+        // world = R(ensembleYaw)·(setOffset + R(stageRotationY)·pt)，按逆序换算回内容局部坐标
+        const st = useScene.getState();
+        const yAxis = new THREE.Vector3(0, 1, 0);
+        const p = hit
+          .applyAxisAngle(yAxis, -THREE.MathUtils.degToRad(st.ensembleYaw))
+          .sub(new THREE.Vector3(...st.setOffset));
+        p.applyAxisAngle(yAxis, -THREE.MathUtils.degToRad(st.stageRotationY));
+        const r1 = (v: number) => Math.round(v * 10) / 10;
+        local = [r1(p.x), 0, r1(p.z)];
+      }
+    }
+    addPrimitive(kind, local);
+  };
   // const activeShot = activeShotId
   //   ? (previz?.shots.find((shot) => shot.id === activeShotId) ?? null)
   //   : null;
 
   return (
-    <div className="viewport">
+    <div
+      className={`viewport ${primDragOver ? 'drag-over' : ''}`}
+      onDragOver={(e) => {
+        // 仅响应模型库卡片拖拽（工具面板 dragstart 写入的自定义类型）
+        if (!e.dataTransfer.types.includes('application/x-prim')) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+        setPrimDragOver(true);
+      }}
+      onDragLeave={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setPrimDragOver(false);
+      }}
+      onDrop={handlePrimDrop}
+    >
       <Canvas
         shadows
         dpr={[1, 2]}
@@ -587,6 +752,28 @@ export function Viewport() {
         <PipRenderer winRef={camPipRef} />
       </Canvas>
       {mode === 'camera' && <FrameOverlay />}
+      {/* 方案调整后的「确定」影响检查入口（空态无方案时不显示） */}
+      {planLibraryMode !== 'empty' && (adjustDirty || impactRunning) && (
+        <div className={`impact-confirm ${impactRunning ? 'running' : ''}`}>
+          {impactRunning ? (
+            <span className="impact-confirm-hint">AI 影响检查中…</span>
+          ) : (
+            <>
+              <span className="impact-confirm-hint">方案已调整，检查对其他镜头的影响</span>
+              <button onClick={() => runImpactCheck()}>确定</button>
+            </>
+          )}
+        </div>
+      )}
+      {/* 尚无方案空态：盖在 3D 视口上，点击生成后进入方案视图 */}
+      {planLibraryMode === 'empty' && (
+        <div className="plan-empty-overlay">
+          <button className="plan-generate-btn" onClick={startPlanGeneration}>
+            生成 Techviz 方案
+          </button>
+          <p className="plan-empty-hint">基于全部镜头的预演机位动画，自动解算置景方案</p>
+        </div>
+      )}
       {/* 仅展示页：相机参数读数已隐藏，恢复时取消注释 */}
       {/* <Readout /> */}
       <HoverName />

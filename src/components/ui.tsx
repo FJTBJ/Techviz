@@ -5,16 +5,19 @@ export function Panel({
   extra,
   children,
 }: {
-  title: string;
+  /** 无标题时省略 header（如工具面板用子 tab 行作首行） */
+  title?: string;
   extra?: ReactNode;
   children: ReactNode;
 }) {
   return (
     <section className="panel">
-      <header className="panel-head">
-        <h2>{title}</h2>
-        {extra}
-      </header>
+      {title && (
+        <header className="panel-head">
+          <h2>{title}</h2>
+          {extra}
+        </header>
+      )}
       <div className="panel-body">{children}</div>
     </section>
   );

@@ -3,6 +3,8 @@ import { DEMO_SHOT, demoAssets } from '../data/mockData';
 import { apiFetch } from '../lib/api';
 import { buildBoxes, usedAssetIds } from '../lib/shotFilter';
 import { rotatePoseY, shotPoseAt } from '../lib/previz';
+import { analyzeShotImpacts } from '../lib/impactCheck';
+import type { ImpactResult } from '../lib/impactCheck';
 import type {
   GizmoMode,
   Measurement,
@@ -38,6 +40,10 @@ const normDeg = (deg: number) => ((deg % 360) + 540) % 360 - 180;
 
 /** 是否已从后端恢复过数据；恢复完成后才开启自动保存，避免用 demo 数据覆盖存档 */
 let hydrated = false;
+
+/** URL 带 ?plans=0 时强制进入「尚无方案」空态演示（模拟生成前的界面） */
+const forceEmptyPlans =
+  typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('plans') === '0';
 
 /** 自动保存定时器 */
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
@@ -95,6 +101,13 @@ interface SceneState {
   measurements: Measurement[];
   clearanceThreshold: number;
   showFrustum: boolean;
+  /** 棚和设备显隐开关（右侧操作面板）：环屏屏体 / 地面网格 / 预演演员 */
+  showLedRing: boolean;
+  showGrid: boolean;
+  showPeople: boolean;
+  toggleLedRing: () => void;
+  toggleGrid: () => void;
+  togglePeople: () => void;
   /** 棚清单（后端扫描 UE 工程得到），形状参数来自 UE，位置可由用户整体调整 */
   stages: StageDef[];
   currentStageId: string | null;
@@ -102,7 +115,10 @@ interface SceneState {
   stagePosition: Vec3;
   /** 置景摆放偏移（米）：布景+演员+预演机位整体平移，环屏棚固定在原点不动；随方案保存 */
   setOffset: Vec3;
+  /** 置景内容绕环心旋转角（度）：环屏与缺口固定，内容位姿=平移+绕环心旋转（KMOKE-261104 规则四） */
+  stageRotationY: number;
   setSetOffset: (offset: Vec3) => void;
+  setStageRotationY: (deg: number) => void;
   /** 置景筛选自动应用：交互置景资产默认显示，其余 UE 构件默认隐藏（加载方案/切场次时执行） */
   applySetAssetFilter: () => Promise<void>;
   /** 后端连接状态，用于顶栏提示 */
@@ -111,6 +127,35 @@ interface SceneState {
   setPlan: SetPlanFile | null;
   planScene: string | null;
   showSetPlan: boolean;
+  /** 方案库当前选中方案（planId = <scene>-P<n>）；null = 未选方案 */
+  activePlanId: string | null;
+  /**
+   * 方案库形态：'empty' = 尚未生成方案（左侧全量镜头列表 + 中间生成按钮），
+   * 'ready' = 方案视图（左侧方案库）。后端有 planList 数据时初始为 ready，
+   * 也可用 ?plans=0 进入空态演示。
+   */
+  planLibraryMode: 'empty' | 'ready';
+  /** 空态点击「生成 Techviz 方案」：进入方案视图（模拟生成完成） */
+  startPlanGeneration: () => void;
+  /**
+   * 方案库点击方案：切换场次 + 自动应用该方案的内容位姿（平移/绕环心旋转）
+   * 与置景筛选（方案实例集显示、其余隐藏），中间视口即成为该方案预览。
+   */
+  selectPlan: (planId: string) => void;
+  /**
+   * 资产 tab 置景管理：把实例加入/移出当前选中方案的置景集，
+   * 并同步资产显隐（入置景即显示，移除置景即隐藏）。仅改内存方案数据，不回写 setplan.json。
+   */
+  togglePlanSetAsset: (instanceId: string, inSet: boolean) => void;
+  /** 地台尺寸调整（宽/深 ±，米）：同步方案数据与地台虚拟资产，中心不变 */
+  resizePlatform: (deltaW: number, deltaD: number) => void;
+  /** 添加基础模型（长方体/球体/圆柱）：默认落在内容原点，可传落点（内容局部坐标） */
+  addPrimitive: (kind: 'box' | 'sphere' | 'column', position?: Vec3) => void;
+  /** 方案内容有未检查的调整（视口显示「确定」影响检查按钮） */
+  adjustDirty: boolean;
+  /** AI 影响检查：调整后检查当前方案对其他镜头的穿帮影响 */
+  impact: { running: boolean; result: ImpactResult | null };
+  runImpactCheck: () => void;
   /** 布景方案里的黄色菱形机位点（各镜首帧机位）是否显示 */
   showShotMarkers: boolean;
   toggleShotMarkers: () => void;
@@ -239,15 +284,21 @@ export const useScene = create<SceneState>((set, get) => ({
   measurements: [],
   clearanceThreshold: 1,
   showFrustum: true,
+  showLedRing: true,
+  showGrid: true,
+  showPeople: true,
   stages: [],
   currentStageId: null,
   stagePosition: [0, 0, 0],
   stagePosEditing: false,
   setOffset: [0, 0, 0],
+  stageRotationY: 0,
   serverState: 'connecting',
   setPlan: null,
   planScene: null,
   showSetPlan: false,
+  // 默认方案视图；后端无方案数据或 ?plans=0 时由 initFromServer 切到空态
+  planLibraryMode: forceEmptyPlans ? 'empty' : 'ready',
   showShotMarkers: true,
   sceneKey: null,
   shotCatalog: null,
@@ -264,7 +315,9 @@ export const useScene = create<SceneState>((set, get) => ({
     nonce: 0,
   },
   takeVisible: true,
-  camPipVisible: true,
+  adjustDirty: false,
+  impact: { running: false, result: null },
+  camPipVisible: false,
   camPipEnlarged: false,
   takeVideoEl: null,
   setTakeVideoEl: (el) => set({ takeVideoEl: el }),
@@ -354,9 +407,14 @@ export const useScene = create<SceneState>((set, get) => ({
               setPlan: plan,
               planScene: preferred,
               showSetPlan: true,
+              // 有方案数据才进入方案视图（?plans=0 仍保留空态演示）
+              ...(forceEmptyPlans ? {} : { planLibraryMode: 'ready' as const }),
             });
             // 置景筛选自动生效：只默认显示与人物有交互的置景资产
             await get().applySetAssetFilter();
+          } else if (!forceEmptyPlans) {
+            // 后端尚无任何方案：进入空态（左侧全量镜头列表 + 中间生成按钮）
+            set({ planLibraryMode: 'empty' });
           }
         }
       } catch {
@@ -676,6 +734,7 @@ export const useScene = create<SceneState>((set, get) => ({
   setStagePosEditing: (v) => set({ stagePosEditing: v }),
 
   setSetOffset: (offset) => set({ setOffset: [...offset] as Vec3 }),
+  setStageRotationY: (deg) => set({ stageRotationY: deg }),
 
   applySetAssetFilter: async () => {
     const st = get();
@@ -724,11 +783,178 @@ export const useScene = create<SceneState>((set, get) => ({
     get().applySetAssetFilter();
   },
 
+  activePlanId: null,
+  // 空态点击「生成 Techviz 方案」：模拟生成完成，切回方案视图
+  startPlanGeneration: () => set({ planLibraryMode: 'ready' }),
+  selectPlan: (planId) => {
+    const st = get();
+    const data = st.setPlan;
+    if (!data) return;
+    let scene: string | null = null;
+    let plan: {
+      offset: Vec3;
+      rotationDeg?: number;
+      setInstanceIds: string[];
+      platform?: { position: Vec3; size: Vec3 } | null;
+    } | null = null;
+    for (const [sc, entry] of Object.entries(data.plans)) {
+      const hit = entry.planList?.find((p) => p.planId === planId);
+      if (hit) {
+        scene = sc;
+        plan = hit;
+        break;
+      }
+    }
+    if (!scene || !plan) return;
+    // 应用该方案内容位姿：平移（解算值是环心偏移，取反作用到集合）+ 绕环心旋转
+    st.setSetOffset([-plan.offset[0], -plan.offset[1], -plan.offset[2]]);
+    st.setStageRotationY(plan.rotationDeg ?? 0);
+    // 方案置景筛选：方案实例集显示，其余置景隐藏
+    const keep = new Set(plan.setInstanceIds);
+    // 地台虚拟资产（box 代理渲染）：随方案注入资产列表，可显隐、不参与置景管理
+    const platformAsset: SceneAsset | null = plan.platform
+      ? {
+          instanceId: 'platform-main',
+          assetId: 'platform/main',
+          name: '表演区地台',
+          code: 'DITAI_01',
+          kind: 'box',
+          url: '',
+          size: plan.platform.size,
+          color: '#2f7fae',
+          position: plan.platform.position,
+          rotation: [0, 0, 0],
+          scale: [1, 1, 1],
+          visible: true,
+        }
+      : null;
+    set({
+      activePlanId: planId,
+      planScene: scene,
+      // 切换方案：调整与影响检查结果一并重置
+      adjustDirty: false,
+      impact: { running: false, result: null },
+      assets: get()
+        .assets.filter((a) => a.instanceId !== 'platform-main')
+        .map((a) => (a.kind === 'ue' ? { ...a, visible: keep.has(a.instanceId) } : a))
+        .concat(platformAsset ? [platformAsset] : []),
+    });
+  },
+
+  /** AI 影响检查：对当前方案覆盖的镜头逐镜做穿帮规则判定 */
+  runImpactCheck: () => {
+    set({ impact: { running: true, result: null } });
+    setTimeout(() => {
+      const st = get();
+      const entry = st.setPlan && st.planScene ? st.setPlan.plans[st.planScene] : null;
+      const plan = st.activePlanId && entry
+        ? entry.planList?.find((p) => p.planId === st.activePlanId)
+        : null;
+      const ids = new Set(plan?.coveredShotIds ?? []);
+      const shots = (st.previz?.shots ?? []).filter((s) => ids.has(s.id));
+      const stage = st.stages.find((s) => s.id === st.currentStageId) ?? null;
+      const ring = stage
+        ? { radius: stage.diameter / 2, height: stage.height, arc: stage.arc }
+        : null;
+      const result = analyzeShotImpacts({
+        shots,
+        assets: st.assets,
+        platform: plan?.platform ?? null,
+        ring,
+        ensembleYaw: st.ensembleYaw,
+        setOffset: st.setOffset,
+        stageRotationY: st.stageRotationY,
+      });
+      set({ impact: { running: false, result }, adjustDirty: false });
+    }, 600);
+  },
+
   toggleSetPlan: () => set((state) => ({ showSetPlan: !state.showSetPlan })),
+
+  /** 地台尺寸调整（宽/深 ±）：同步改方案 platform 数据与地台虚拟资产 */
+  resizePlatform: (deltaW, deltaD) => {
+    const st = get();
+    const planId = st.activePlanId;
+    const data = st.setPlan;
+    if (!planId || !data) return;
+    let newSize: Vec3 | null = null;
+    for (const entry of Object.values(data.plans)) {
+      const plan = entry.planList?.find((p) => p.planId === planId);
+      if (plan?.platform) {
+        const s = plan.platform.size;
+        newSize = [
+          Math.max(1, Math.round((s[0] + deltaW) * 10) / 10),
+          s[1],
+          Math.max(1, Math.round((s[2] + deltaD) * 10) / 10),
+        ];
+        plan.platform.size = newSize;
+        break;
+      }
+    }
+    if (!newSize) return;
+    set({
+      setPlan: { ...data, plans: { ...data.plans } },
+      assets: get().assets.map((a) =>
+        a.instanceId === 'platform-main' ? { ...a, size: newSize! } : a,
+      ),
+      adjustDirty: true,
+    });
+  },
+
+  /** 添加基础模型：默认落在内容原点（随方案位姿），拖拽落点传内容局部坐标 */
+  addPrimitive: (kind, position) => {
+    const names = { box: '长方体', sphere: '球体', column: '圆柱' };
+    const codes = { box: 'BOX', sphere: 'QIUTI', column: 'YUANZHU' };
+    const asset: SceneAsset = {
+      instanceId: `prim-${kind}-${uid('n')}`,
+      assetId: `prim/${kind}`,
+      name: names[kind],
+      code: codes[kind],
+      kind,
+      url: '',
+      size: kind === 'column' ? [1, 2, 1] : [1, 1, 1],
+      color: '#5b8bd0',
+      position: position ?? [0, 0, 0],
+      rotation: [0, 0, 0],
+      scale: [1, 1, 1],
+      visible: true,
+    };
+    set({ assets: [...get().assets, asset], selectedId: asset.instanceId, adjustDirty: true });
+  },
+
+  /** 资产 tab 置景管理：加入/移出当前方案的置景集，并同步该资产显隐 */
+  togglePlanSetAsset: (instanceId, inSet) => {
+    const st = get();
+    const planId = st.activePlanId;
+    const data = st.setPlan;
+    if (!planId || !data) return;
+    let hit: { offset: Vec3; rotationDeg?: number; setInstanceIds: string[] } | null = null;
+    for (const entry of Object.values(data.plans)) {
+      const plan = entry.planList?.find((p) => p.planId === planId);
+      if (plan) {
+        hit = plan;
+        break;
+      }
+    }
+    if (!hit || hit.setInstanceIds.includes(instanceId) === inSet) return;
+    hit.setInstanceIds = inSet
+      ? [...hit.setInstanceIds, instanceId]
+      : hit.setInstanceIds.filter((id) => id !== instanceId);
+    set({
+      // 换新对象引用触发订阅方重算
+      setPlan: { ...data, plans: { ...data.plans } },
+      // 入置景即显示，移除置景即隐藏
+      assets: get().assets.map((a) =>
+        a.instanceId === instanceId && a.kind === 'ue' ? { ...a, visible: inSet } : a,
+      ),
+    });
+  },
 
   updateAsset: (id, patch) =>
     set((state) => ({
       assets: state.assets.map((a) => (a.instanceId === id ? { ...a, ...patch } : a)),
+      // 内容被移动/旋转/缩放：标记有待影响检查
+      adjustDirty: true,
     })),
 
   setAssetVisibility: (ids, visible) => {
@@ -812,6 +1038,9 @@ export const useScene = create<SceneState>((set, get) => ({
   toggleFrustum: () => set((state) => ({ showFrustum: !state.showFrustum })),
 
   toggleShotMarkers: () => set((state) => ({ showShotMarkers: !state.showShotMarkers })),
+  toggleLedRing: () => set((state) => ({ showLedRing: !state.showLedRing })),
+  toggleGrid: () => set((state) => ({ showGrid: !state.showGrid })),
+  togglePeople: () => set((state) => ({ showPeople: !state.showPeople })),
 
   resetDemo: () =>
     set({

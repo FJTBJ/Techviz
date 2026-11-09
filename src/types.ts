@@ -4,7 +4,7 @@ export type AspectKey = '2.39:1' | '1.85:1' | '16:9' | '4:3';
 
 export type RigType = '三脚架' | '摇臂' | '轨道' | '斯坦尼康' | '无人机' | '伸缩摇臂';
 
-export type ProxyKind = 'wall' | 'box' | 'column' | 'person' | 'vehicle' | 'tree' | 'glb' | 'ue' | 'skeletal' | 'light';
+export type ProxyKind = 'wall' | 'box' | 'sphere' | 'column' | 'person' | 'vehicle' | 'tree' | 'glb' | 'ue' | 'skeletal' | 'light';
 
 export type Vec3 = [number, number, number];
 
@@ -161,6 +161,8 @@ export interface SetPlan {
   /** 该场次推荐置景摆放（演员表演区尽量都在屏内的最优环心偏移，由 build-setplan 离线解算） */
   stagePosition?: {
     offset: Vec3;
+    /** 内容位姿的绕环心旋转角（度），环屏与缺口固定不动（KMOKE-261104 规则四） */
+    rotationDeg?: number;
     actorBacked: number;
     actorBackedOrigin: number;
     /** 置景资产锚点在屏弧内的占比（%） */
@@ -174,6 +176,22 @@ export interface SetPlan {
   } | null;
   /** 需要置景的资产实例 ID 列表（与人物有交互，对应快照 instanceId）：默认显示；其余资产默认隐藏 */
   setInstanceIds?: string[];
+  /** 多方案列表（KMOKE-261104 规则四：小场景内多套方案，覆盖镜头互斥）；stagePosition 取第一套 */
+  planList?: {
+    planId: string;
+    label: string;
+    offset: Vec3;
+    rotationDeg: number;
+    coveredShotIds: string[];
+    coveredCount: number;
+    actorBacked: number;
+    assetBacked: number;
+    /** 表演区地台（内容局部系包围盒），选中方案时注入资产列表 */
+    platform?: { position: Vec3; size: Vec3 } | null;
+    setInstanceIds: string[];
+  }[];
+  /** 多方案轮次后仍无法被任何可行方案整镜覆盖的镜头 */
+  pendingShotIds?: string[];
 }
 
 export interface SetPlanFile {

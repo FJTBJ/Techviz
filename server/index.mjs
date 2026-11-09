@@ -340,6 +340,20 @@ app.get('/api/shot-names', (_req, res) => {
   }
 });
 
+/** 镜头 AI 分类结果（shot-classifications.json，kmoke4 拉取）：方案镜头分类标签数据源 */
+const CLASSIFICATIONS_FILE = path.join(DATA_DIR, 'shot-classifications.json');
+
+app.get('/api/shot-classifications', (_req, res) => {
+  try {
+    if (!fs.existsSync(CLASSIFICATIONS_FILE)) {
+      return res.status(404).json({ code: 1, message: '尚无镜头分类数据' });
+    }
+    res.json({ code: 0, data: JSON.parse(fs.readFileSync(CLASSIFICATIONS_FILE, 'utf8')) });
+  } catch (err) {
+    res.status(500).json({ code: 1, message: String(err) });
+  }
+});
+
 /** 场次 → 场景资产名映射（scene-asset-map.json）：镜头树一级分组用 */
 const SCENE_ASSET_MAP_FILE = path.join(DATA_DIR, 'scene-asset-map.json');
 

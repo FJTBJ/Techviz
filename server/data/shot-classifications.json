@@ -1,0 +1,318 @@
+{
+  "generatedAt": "2026-11-09T05:19:59.982Z",
+  "source": "kmoke4 project 10777 techviz 镜头分类判定（分页 API 当前只返回第 1 页，待修复后补拉全量）",
+  "shots": {
+    "s015_c005_A": {
+      "category": "interaction",
+      "scene_setting": "need_set",
+      "floor": "has_floor",
+      "confidence": "medium",
+      "note": "拱廊庭院内红衣女子向坐者躬身，手部伸向前方低位物件（垫/盆类），人物与低位置景道具发生接触，拱廊与地面均可见",
+      "judged_at": "2026-10-30T17:20:04+08:00"
+    },
+    "s016_c024_A": {
+      "category": "interaction",
+      "scene_setting": "need_set",
+      "floor": "no_floor",
+      "confidence": "high",
+      "note": "俯拍桌面，演员双手持握桌上台册类物件，旁置锤状道具，花纹桌布可见，地面不可见",
+      "judged_at": "2026-10-30T17:20:04+08:00"
+    },
+    "s018_c071_A": {
+      "category": "interaction",
+      "scene_setting": "need_set",
+      "floor": "no_floor",
+      "confidence": "high",
+      "note": "昏暗帐内多名白袍男子围深色木桌而坐，桌面中央摆果盘食物，人物倚靠桌体，地板不可见",
+      "judged_at": "2026-10-30T17:22:15+08:00"
+    },
+    "s042_c015_A": {
+      "category": "interaction",
+      "scene_setting": "need_set",
+      "floor": "no_floor",
+      "confidence": "high",
+      "note": "特写怀抱紫色襁褓婴儿，绿衣人物怀抱中另一双手白衣伸向婴儿呈递接动作，接触明确，背景虚化红色坐垫室内陈设，特写无地面",
+      "judged_at": "2026-10-30T17:38:46+08:00"
+    },
+    "s057_c006_B": {
+      "category": "interaction",
+      "scene_setting": "need_set",
+      "floor": "no_floor",
+      "confidence": "low",
+      "note": "逆光室内两人相对跪坐，前景有杆状物横过疑似持械或交接物品，帘帐布景，逆光剪影看不清手部与地面",
+      "judged_at": "2026-10-30T17:44:50+08:00"
+    },
+    "s100a_c012_B": {
+      "category": "interaction",
+      "scene_setting": "need_set",
+      "floor": "no_floor",
+      "confidence": "high",
+      "note": "红头巾长者近景低头翻看手中黑色书册，双手持物操作，拱窗厅堂背景，地面不可见",
+      "judged_at": "2026-10-30T17:54:54+08:00"
+    },
+    "s121_c012_B": {
+      "category": "interaction",
+      "scene_setting": "need_set",
+      "floor": "no_floor",
+      "confidence": "medium",
+      "note": "工人攀爬钻井井架梯子，双手抓握梯级与井架结构直接接触交互，仰角近景日落背景地面不可见",
+      "judged_at": "2026-10-30T18:00:09+08:00"
+    },
+    "s001_c032_B": {
+      "category": "interaction",
+      "scene_setting": "need_set",
+      "floor": "no_floor",
+      "confidence": "high",
+      "note": "老人双手举起金色圆环端详，金环位于画面中央清晰可见，底边裁于胸部无地面",
+      "judged_at": "2026-10-30T17:14:07+08:00"
+    },
+    "s016_c031": {
+      "category": "interaction",
+      "scene_setting": "need_set",
+      "floor": "no_floor",
+      "confidence": "high",
+      "note": "会议桌前军装与白袍人物分立两侧，中央灰衣者双手在桌面翻看文件，桌面占画面下方，地板不可见",
+      "judged_at": "2026-10-30T17:20:05+08:00"
+    },
+    "s018_c074_A": {
+      "category": "interaction",
+      "scene_setting": "need_set",
+      "floor": "no_floor",
+      "confidence": "high",
+      "note": "特写桌上果盘，一只手从上方伸向果盘取物，背景篝火虚化，地板不可见",
+      "judged_at": "2026-10-30T17:22:15+08:00"
+    },
+    "s022_c035_A": {
+      "category": "interaction",
+      "scene_setting": "need_set",
+      "floor": "no_floor",
+      "confidence": "medium",
+      "note": "夜晚椰林中景，骑马者俯身前倾贴向马颈疾驰，与马匹资产直接接触；画面无走位地面",
+      "judged_at": "2026-10-30T17:29:12+08:00"
+    },
+    "s041_c022_A": {
+      "category": "interaction",
+      "scene_setting": "need_set",
+      "floor": "no_floor",
+      "confidence": "high",
+      "note": "室内书桌场景，头巾人物坐桌前双手置于桌面纸张书本上似在书写翻阅，桌面烛台书册陈设与背景花窗构成置景，桌体遮挡地面不可见",
+      "judged_at": "2026-10-30T17:38:37+08:00"
+    },
+    "s041_c029_A": {
+      "category": "interaction",
+      "scene_setting": "need_set",
+      "floor": "no_floor",
+      "confidence": "high",
+      "note": "俯拍书桌，头巾人物双手翻动摊开的书页，桌面散放多本书籍烛台灯座，翻书动作明确接触道具，俯拍以桌面为主地面不可见",
+      "judged_at": "2026-10-30T17:38:38+08:00"
+    },
+    "s080_c007_A": {
+      "category": "interaction",
+      "scene_setting": "need_set",
+      "floor": "no_floor",
+      "confidence": "medium",
+      "note": "图书馆内兜帽女子与白帽男子对坐，两人伸手向中间桌面物件似在交接查看，书架布景，中景桌面遮挡无地面",
+      "judged_at": "2026-10-30T17:51:07+08:00"
+    },
+    "s128_c006_A": {
+      "category": "interaction",
+      "scene_setting": "need_set",
+      "floor": "no_floor",
+      "confidence": "medium",
+      "note": "暗室内人物伏于桌前，桌面摊开书本文件正对人物，似阅读查看，窗外井架背景，地面不可见",
+      "judged_at": "2026-10-30T18:04:07+08:00"
+    },
+    "s016_c028_A": {
+      "category": "interaction",
+      "scene_setting": "need_set",
+      "floor": "no_floor",
+      "confidence": "high",
+      "note": "书架墙会议室内数名军装男子围亮面长桌而立，手部置于桌面，桌面占画面下方，地板不可见",
+      "judged_at": "2026-10-30T17:20:04+08:00"
+    },
+    "s017_c006": {
+      "category": "interaction",
+      "scene_setting": "need_set",
+      "floor": "no_floor",
+      "confidence": "medium",
+      "note": "过肩视角望向会议室，军官们围长桌坐立，桌面铺有白色图纸，前景两个白头巾后脑勺，未见地板",
+      "judged_at": "2026-10-30T17:20:05+08:00"
+    },
+    "s021_c112_A": {
+      "category": "interaction",
+      "scene_setting": "need_set",
+      "floor": "no_floor",
+      "confidence": "medium",
+      "note": "中景骑马男子双手贴放马颈处做抚摸整理马具动作，与马匹资产直接接触；背景见水面滩涂但走位地面被马身遮挡",
+      "judged_at": "2026-10-30T17:27:53+08:00"
+    },
+    "s033_c047_A": {
+      "category": "interaction",
+      "scene_setting": "need_set",
+      "floor": "has_floor",
+      "confidence": "high",
+      "note": "夜景营火近中景，火焰旺盛，左侧男子弯腰伸手探向火堆似拨火或取物，右侧男子手持弯刀站立，背后帐篷可见，火光照亮地面，伸手探向火堆属与场景物件的直接交互",
+      "judged_at": "2026-10-30T17:33:02+08:00"
+    },
+    "s001_c025_A": {
+      "category": "no_interaction",
+      "scene_setting": "has_set",
+      "floor": "has_floor",
+      "confidence": "high",
+      "note": "人物背对镜头立于格窗拱门前双臂抬起祈祷，格窗墙面构成布景，底部暗红色纹样地面入画",
+      "judged_at": "2026-10-30T17:14:06+08:00"
+    },
+    "s002_c008_B": {
+      "category": "no_interaction",
+      "scene_setting": "has_set",
+      "floor": "no_floor",
+      "confidence": "high",
+      "note": "少年面部特写闭目低首，橙色硬光投在脸颊，背景昏暗虚化，底边裁于胸部无地面",
+      "judged_at": "2026-10-30T17:15:59+08:00"
+    },
+    "s005_c045": {
+      "category": "no_interaction",
+      "scene_setting": "no_set",
+      "floor": "has_floor",
+      "confidence": "high",
+      "note": "黄昏远景山丘上的城镇剪影空镜，前景灌木，无人物无室内布景，山坡大地铺满画面",
+      "judged_at": "2026-10-30T17:17:10+08:00"
+    },
+    "s019_c067_B": {
+      "category": "no_interaction",
+      "scene_setting": "has_set",
+      "floor": "has_floor",
+      "confidence": "high",
+      "note": "大远景：大树与落日同框，树下人影极小呈站立走位，无资产接触；坡地地面大面积入画。",
+      "judged_at": "2026-10-30T17:26:07+08:00"
+    },
+    "s021_c064_B": {
+      "category": "no_interaction",
+      "scene_setting": "no_set",
+      "floor": "has_floor",
+      "confidence": "high",
+      "note": "极大远景，骑马者仅剩小剪影融入落日水面，环境全为自然水天无置景必要；开阔水面滩涂完整可见",
+      "judged_at": "2026-10-30T17:27:52+08:00"
+    },
+    "s022_c030_A": {
+      "category": "no_interaction",
+      "scene_setting": "no_set",
+      "floor": "has_floor",
+      "confidence": "medium",
+      "note": "夜晚椰林月光空镜无人物出场，自然环境无置景需求；画面底部见地面轮廓",
+      "judged_at": "2026-10-30T17:27:53+08:00"
+    },
+    "s031_c029_A": {
+      "category": "no_interaction",
+      "scene_setting": "no_set",
+      "floor": "has_floor",
+      "confidence": "high",
+      "note": "夜晚大远景，荒野中仅见一处营地火光，无人物活动与交互；自然环境无置景需求，地面轮廓可见",
+      "judged_at": "2026-10-30T17:29:14+08:00"
+    },
+    "s039a_c005_A": {
+      "category": "no_interaction",
+      "scene_setting": "has_set",
+      "floor": "has_floor",
+      "confidence": "high",
+      "note": "大远景夜间营地俯瞰，中央篝火被人群围坐，四周帐篷成排分布，营地建在平坦沙地上，远景无接触动作",
+      "judged_at": "2026-10-30T17:36:44+08:00"
+    },
+    "s040_c008_B": {
+      "category": "no_interaction",
+      "scene_setting": "has_set",
+      "floor": "has_floor",
+      "confidence": "medium",
+      "note": "夜间帐篷外几人站立交谈，木柱帐篷结构与远处人群火光构成置景，人物双手未见接触道具，脚下沙地轮廓可见",
+      "judged_at": "2026-10-30T17:36:45+08:00"
+    },
+    "s045_c007_B": {
+      "category": "no_interaction",
+      "scene_setting": "has_set",
+      "floor": "has_floor",
+      "confidence": "high",
+      "note": "借位窥视构图，透过暗色前景遮挡看空庭院，拱门石墙棕榈树长凳，庭院无人物活动，石板地面完整可见",
+      "judged_at": "2026-10-30T17:40:44+08:00"
+    },
+    "s048_c006_B": {
+      "category": "no_interaction",
+      "scene_setting": "has_set",
+      "floor": "no_floor",
+      "confidence": "medium",
+      "note": "人物卧于帐内床榻，手臂伸展但无明确持物操作，帐幔烛灯布景，床褥遮挡近景地面",
+      "judged_at": "2026-10-30T17:43:19+08:00"
+    },
+    "s058_c003": {
+      "category": "no_interaction",
+      "scene_setting": "has_set",
+      "floor": "has_floor",
+      "confidence": "high",
+      "note": "清真寺拱廊庭院空镜，前景水面倒影，远处台阶下有人影活动，拱廊台阶布景，台阶石地坪可见",
+      "judged_at": "2026-10-30T17:44:50+08:00"
+    },
+    "s060_c003": {
+      "category": "no_interaction",
+      "scene_setting": "has_set",
+      "floor": "has_floor",
+      "confidence": "high",
+      "note": "庭院拱廊空镜，前景左下角虚化遮挡，庭院石地坪与绿植拱门布景清晰，地面完整可见",
+      "judged_at": "2026-10-30T17:44:52+08:00"
+    },
+    "s061_c004": {
+      "category": "no_interaction",
+      "scene_setting": "has_set",
+      "floor": "no_floor",
+      "confidence": "medium",
+      "note": "昏暗寝帐内拱门烛灯布景，远处两人立于床榻旁静立交谈，画面大部分黑暗地面不可辨",
+      "judged_at": "2026-10-30T17:46:32+08:00"
+    },
+    "s062_c046_B": {
+      "category": "no_interaction",
+      "scene_setting": "has_set",
+      "floor": "has_floor",
+      "confidence": "high",
+      "note": "日落荒野中骑马者剪影背向镜头行进，骑马行进无持物交互，荒原地面开阔可见",
+      "judged_at": "2026-10-30T17:46:33+08:00"
+    },
+    "s077_c003": {
+      "category": "no_interaction",
+      "scene_setting": "has_set",
+      "floor": "no_floor",
+      "confidence": "medium",
+      "note": "极暗烛光桌面特写，蜡烛与器皿物件静物，画面无人无交互，桌面近景无地面",
+      "judged_at": "2026-10-30T17:50:56+08:00"
+    },
+    "s079a_c006_A": {
+      "category": "no_interaction",
+      "scene_setting": "has_set",
+      "floor": "no_floor",
+      "confidence": "medium",
+      "note": "头巾女子坐姿近景，逆光暖调室内，双手不可见无持物证据，近景无地面",
+      "judged_at": "2026-10-30T17:50:58+08:00"
+    },
+    "s094_c009_B": {
+      "category": "no_interaction",
+      "scene_setting": "has_set",
+      "floor": "no_floor",
+      "confidence": "high",
+      "note": "低角度仰拍钻井架顶部剪影，无人物出现，画面大部分为天空，地面不可见",
+      "judged_at": "2026-10-30T17:53:26+08:00"
+    },
+    "s108_c001": {
+      "category": "no_interaction",
+      "scene_setting": "has_set",
+      "floor": "has_floor",
+      "confidence": "high",
+      "note": "庭院拱廊外景，多人走动或坐于拱门下，树影与花丛，石坪地面清晰，无持物交互",
+      "judged_at": "2026-10-30T17:54:52+08:00"
+    },
+    "s122_c007_A": {
+      "category": "no_interaction",
+      "scene_setting": "has_set",
+      "floor": "has_floor",
+      "confidence": "high",
+      "note": "油田营地大远景空镜，井架、水罐与卡车静置，无人物出现，碎石沙地清晰可见",
+      "judged_at": "2026-10-30T18:00:09+08:00"
+    }
+  }
+}

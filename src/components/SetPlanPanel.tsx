@@ -24,6 +24,7 @@ export function SetPlanPanel() {
   const setStagePosition = useScene((s) => s.setStagePosition);
   const setOffset = useScene((s) => s.setOffset);
   const setSetOffset = useScene((s) => s.setSetOffset);
+  const setStageRotationY = useScene((s) => s.setStageRotationY);
   const applySetAssetFilter = useScene((s) => s.applySetAssetFilter);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -112,7 +113,8 @@ export function SetPlanPanel() {
             <>
               <h3 className="sub-head">推荐置景摆放</h3>
               <p className="setplan-meta mono" title={current.stagePosition.method}>
-                置景整体平移 ({-current.stagePosition.offset[0]}, {-current.stagePosition.offset[2]})m ·
+                置景整体平移 ({-current.stagePosition.offset[0]}, {-current.stagePosition.offset[2]})m
+                {(current.stagePosition.rotationDeg ?? 0) !== 0 && ` · 绕环心旋转 ${current.stagePosition.rotationDeg}°`} ·
                 演员 {current.stagePosition.actorBacked}%
                 {current.stagePosition.actorBacked !== current.stagePosition.actorBackedOrigin &&
                   `（原位 ${current.stagePosition.actorBackedOrigin}%）`}
@@ -125,13 +127,29 @@ export function SetPlanPanel() {
                   置景筛选：交互资产 {current.setInstanceIds.length} 件默认显示，其余默认隐藏
                 </p>
               )}
+              {current.planList && current.planList.length > 0 && (
+                <div className="plan-list">
+                  {current.planList.map((p) => (
+                    <p key={p.planId} className="setplan-meta mono">
+                      {p.label}：覆盖 {p.coveredCount} 镜 · 平移 ({-p.offset[0]}, {-p.offset[2]})m · 旋转 {p.rotationDeg}° · 置景 {p.setInstanceIds.length} 件 · 演员 {p.actorBacked}%
+                    </p>
+                  ))}
+                  {(current.pendingShotIds?.length ?? 0) > 0 && (
+                    <p className="setplan-meta mono warn-text">
+                      未覆盖 {current.pendingShotIds!.length} 镜：无可行内容位姿（画面无法完整入屏），需单独处理
+                    </p>
+                  )}
+                </div>
+              )}
               <div className="panel-actions">
                 <button
                   className="btn tiny"
                   onClick={() => {
-                    // 1) 解算值是环心偏移；现场语义是棚固定、置景整体平移，取反作用到集合
+                    // 1) 解算值是环心偏移；现场语义是棚固定、置景整体平移，取反作用到集合；
+                    //    内容位姿 = 平移 + 绕环心旋转（KMOKE-261104 规则四），旋转同步写入
                     const o = current.stagePosition!.offset;
                     setSetOffset([-o[0], -o[1], -o[2]]);
+                    setStageRotationY(current.stagePosition!.rotationDeg ?? 0);
                     setStagePosition([0, 0, 0]);
                     // 2) 置景筛选：与人物有交互的资产默认显示，其余默认隐藏
                     applySetAssetFilter();

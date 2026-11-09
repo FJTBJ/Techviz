@@ -3,11 +3,15 @@ import { PROJECT_INFO } from './data/mockData';
 import { useScene } from './store/sceneStore';
 import { ShotLibrary } from './components/ShotLibrary';
 import { Viewport } from './components/Viewport';
-import { ShotPanel } from './components/ShotPanel';
+  // import { ShotPanel } from './components/ShotPanel';
 import { SceneOutline } from './components/SceneOutline';
-import { MeasurePanel } from './components/MeasurePanel';
-import { SetPlanPanel } from './components/SetPlanPanel';
-import { ExportPanel } from './components/ExportPanel';
+import { StudioPanel } from './components/StudioPanel';
+import { AnalysisPanel } from './components/AnalysisPanel';
+// 布景方案/测量面板随 tab 一并停用（恢复时取消注释）
+// import { SetPlanPanel } from './components/SetPlanPanel';
+// import { MeasurePanel } from './components/MeasurePanel';
+// 交付面板随 tab 一并停用（恢复时取消注释）
+// import { ExportPanel } from './components/ExportPanel';
 import { Timeline } from './components/Timeline';
 import { LoginView } from './components/LoginView';
 // GizmoMode 已随 gizmo 切换一起停用（仅展示页），恢复时取消注释
@@ -173,11 +177,15 @@ const MODES: { key: ViewMode; label: string }[] = [
 // ];
 
 const TABS = [
-  { key: 'shot', label: '机位' },
-  { key: 'scene', label: '场景' },
-  { key: 'setplan', label: '布景方案' },
-  { key: 'measure', label: '测量' },
-  { key: 'export', label: '交付' },
+  // 机位参数 tab 已隐藏（机位先隐藏，恢复时取消注释，并把下方默认 tab 改回 'shot'）
+  // { key: 'shot', label: '机位' },
+  { key: 'analysis', label: 'AI分析' },
+  { key: 'scene', label: '资产' },
+  { key: 'devices', label: '工具' },
+  // 仅展示页：布景方案/测量/交付 tab 隐藏（方案库已移到左侧方案库面板），恢复时取消注释
+  // { key: 'setplan', label: '布景方案' },
+  // { key: 'measure', label: '测量' },
+  // { key: 'export', label: '交付' },
 ] as const;
 
 type TabKey = (typeof TABS)[number]['key'];
@@ -190,25 +198,38 @@ export default function App() {
   // const setGizmo = useScene((s) => s.setGizmo);
   const showFrustum = useScene((s) => s.showFrustum);
   const toggleFrustum = useScene((s) => s.toggleFrustum);
-  const camPipVisible = useScene((s) => s.camPipVisible);
-  const toggleCamPip = useScene((s) => s.toggleCamPip);
+  // 机位取景开关按钮已隐藏，hook 暂不订阅（恢复按钮时取消注释）
+  // const camPipVisible = useScene((s) => s.camPipVisible);
+  // const toggleCamPip = useScene((s) => s.toggleCamPip);
   // 仅展示页：顶栏持久化状态徽标已隐藏，恢复时取消注释
   // const serverState = useScene((s) => s.serverState);
   const initFromServer = useScene((s) => s.initFromServer);
   const activeShotId = useScene((s) => s.activeShotId);
   const selectedId = useScene((s) => s.selectedId);
-  const [tab, setTab] = useState<TabKey>('shot');
+  // 方案库形态：empty = 尚无方案（左侧全量镜头 + 中间生成按钮），ready = 方案视图
+  const planLibraryMode = useScene((s) => s.planLibraryMode);
+  const [tab, setTab] = useState<TabKey>('devices');
+  // 侧栏/数据面板开关按钮已隐藏（仅展示页）；状态保留供 layout 类名与渲染条件使用
+  // 数据面板默认显示（inspectorHidden=false）
   const [sidebarHidden, setSidebarHidden] = useState(false);
-  const [inspectorHidden, setInspectorHidden] = useState(true);
+  const [inspectorHidden] = useState(false);
+  void setSidebarHidden;
 
-  useEffect(() => {
-    if (mode === 'measure') setTab('measure');
-  }, [mode]);
+  // 测量 tab 已隐藏，测量模式切换跳转随之停用（恢复时取消注释）
+  // useEffect(() => {
+  //   if (mode === 'measure') setTab('measure');
+  // }, [mode]);
 
   // 视口里点中场景元素后，右侧自动切到「场景」页，大纲会高亮并滚动到该元素
   useEffect(() => {
     if (selectedId) setTab('scene');
   }, [selectedId]);
+
+  // AI 影响检查完成后自动切到「AI分析」tab 展示结果
+  const impactResult = useScene((s) => s.impact.result);
+  useEffect(() => {
+    if (impactResult) setTab('analysis');
+  }, [impactResult]);
 
   // 登录态：本地缓存仅作初始值，启动时向后端校验一次
   const [auth, setAuth] = useState<{ loading: boolean; required: boolean; user: AuthUser | null }>(
@@ -342,6 +363,7 @@ export default function App() {
             显示视锥
           </label>
 
+          {/* 机位取景开关已隐藏（仅展示页，右下角胶囊按钮仍可展开/收起），恢复时取消注释
           <button
             className={`sidebar-toggle ${camPipVisible ? 'on' : ''}`}
             onClick={toggleCamPip}
@@ -349,11 +371,13 @@ export default function App() {
           >
             机位取景
           </button>
+          */}
 
+          {/* 仅展示页：侧栏/数据面板开关已隐藏，恢复时取消注释
           <button
             className={`sidebar-toggle ${sidebarHidden ? 'on' : ''}`}
             onClick={() => setSidebarHidden((v) => !v)}
-            title={sidebarHidden ? '显示镜头库侧栏' : '隐藏镜头库侧栏'}
+            title={sidebarHidden ? '显示方案库侧栏' : '隐藏方案库侧栏'}
           >
             {sidebarHidden ? '▏▏ 侧栏' : '▕ 隐藏侧栏'}
           </button>
@@ -365,6 +389,7 @@ export default function App() {
           >
             数据面板
           </button>
+          */}
         </div>
 
         {/* 仅展示页：顶栏右侧三个徽标（持久化状态/用户/部门）已隐藏，恢复时取消注释 */}
@@ -389,7 +414,8 @@ export default function App() {
       >
         {!sidebarHidden && <ShotLibrary />}
         <Viewport />
-        {!inspectorHidden && (
+        {/* 空态（尚无方案）只保留左侧镜头列表 + 中间生成按钮，右侧数据面板不展示 */}
+        {!inspectorHidden && planLibraryMode === 'ready' && (
         <aside className="inspector">
           <div className="tabbar">
             {TABS.map((item) => (
@@ -403,11 +429,15 @@ export default function App() {
             ))}
           </div>
           <div className="tab-body">
-            {tab === 'shot' && <ShotPanel />}
+            {/* 机位参数 tab 已隐藏（机位先隐藏），恢复时与 TABS 定义一并取消注释 */}
+            {/* {tab === 'shot' && <ShotPanel />} */}
+            {tab === 'devices' && <StudioPanel />}
+            {tab === 'analysis' && <AnalysisPanel />}
             {tab === 'scene' && <SceneOutline />}
-            {tab === 'setplan' && <SetPlanPanel />}
-            {tab === 'measure' && <MeasurePanel />}
-            {tab === 'export' && <ExportPanel />}
+            {/* 布景方案/测量/交付 tab 已隐藏，恢复时与 TABS 定义一并取消注释 */}
+            {/* {tab === 'setplan' && <SetPlanPanel />} */}
+            {/* {tab === 'measure' && <MeasurePanel />} */}
+            {/* {tab === 'export' && <ExportPanel />} */}
           </div>
         </aside>
         )}
