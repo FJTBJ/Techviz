@@ -15,7 +15,7 @@ import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { useScene, markGizmoDragEnd } from '../../store/sceneStore';
 import { lensMathNum } from '../../lib/lens';
-import { rotatePoseY, shotPoseAt } from '../../lib/previz';
+import { pivotShift, rotatePoseY, shotPoseAt } from '../../lib/previz';
 import { ASPECTS, type SceneAsset } from '../../types';
 import { AnimatedActor } from './AnimatedActor';
 
@@ -157,8 +157,10 @@ function LedVideoScreen({
       ? (st.previz?.shots.find((item) => item.id === st.activeShotId) ?? null)
       : null;
     const raw = shot ? shotPoseAt(shot, st.timelineTime) : null;
-    // 与机位取景/主视口解算保持同一坐标系：置景平移先于集合转向生效
-    const pose = raw ? rotatePoseY(raw, st.ensembleYaw, st.setOffset) : null;
+    // 与机位取景/主视口解算保持同一坐标系：置景平移先于集合转向生效（绕锚点转向用等效平移）
+    const pose = raw
+      ? rotatePoseY(raw, st.ensembleYaw, pivotShift(st.setOffset, st.ensemblePivot, st.ensembleYaw))
+      : null;
 
     if (!pose) {
       uniforms.uUseProject.value = 0;

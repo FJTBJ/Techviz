@@ -1,6 +1,7 @@
 import { useMemo, useRef, type RefObject } from 'react';
 import * as THREE from 'three';
 import { useFrame, useThree } from '@react-three/fiber';
+import { pivotShift } from '../lib/previz';
 import { useScene } from '../store/sceneStore';
 import { resolveCameraView } from '../lib/cameraView';
 
@@ -87,7 +88,8 @@ export function PipRenderer({ winRef }: { winRef: RefObject<HTMLElement> }) {
       activeShot,
       time: st.timelineTime,
       ensembleYaw: st.ensembleYaw,
-      setOffset: st.setOffset,
+      // 绕锚点转向：等效平移替代原始 setOffset
+      setOffset: pivotShift(st.setOffset, st.ensemblePivot, st.ensembleYaw),
       aspect: rect.width / rect.height,
       takeEl: st.takeVideoEl,
     });

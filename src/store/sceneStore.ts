@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { DEMO_SHOT, demoAssets } from '../data/mockData';
 import { apiFetch } from '../lib/api';
 import { buildBoxes, usedAssetIds } from '../lib/shotFilter';
-import { rotatePoseY, shotPoseAt } from '../lib/previz';
+import { pivotShift, rotatePoseY, shotPoseAt } from '../lib/previz';
 import { analyzeShotImpacts } from '../lib/impactCheck';
 import type { ImpactResult } from '../lib/impactCheck';
 import type {
@@ -252,6 +252,12 @@ interface SceneState {
   /** 棚位置拖拽编辑模式（视口中环心显示移动 gizmo），不随方案保存 */
   stagePosEditing: boolean;
   setStagePosEditing: (v: boolean) => void;
+  /** 集合旋转锚点（世界坐标）：整个内容集合围绕该点转向，默认环心 */
+  ensemblePivot: Vec3;
+  setEnsemblePivot: (p: Vec3) => void;
+  /** 锚点拖拽编辑模式（点击锚点进入，拖 gizmo 移动，点空白退出） */
+  pivotEditing: boolean;
+  setPivotEditing: (v: boolean) => void;
   updateAsset: (id: string, patch: Partial<SceneAsset>) => void;
   /** 批量显隐，一次 set 只触发一次自动保存 */
   setAssetVisibility: (ids: string[], visible: boolean) => void;
@@ -292,6 +298,8 @@ export const useScene = create<SceneState>((set, get) => ({
   stagePosition: [0, 0, 0],
   stagePosEditing: false,
   setOffset: [0, 0, 0],
+  ensemblePivot: [0, 0, 0],
+  pivotEditing: false,
   stageRotationY: 0,
   serverState: 'connecting',
   setPlan: null,
@@ -620,6 +628,8 @@ export const useScene = create<SceneState>((set, get) => ({
   /** 一键把整个集合在环屏内转向（集合内部相对关系不变） */
   rotateEnsemble: (deltaDeg) =>
     set((state) => ({ ensembleYaw: normDeg(state.ensembleYaw + deltaDeg), ensembleAuto: false })),
+  setEnsemblePivot: (p) => set({ ensemblePivot: [...p] as Vec3 }),
+  setPivotEditing: (v) => set({ pivotEditing: v }),
 
   toggleEnsembleAuto: () => {
     const state = get();
@@ -862,7 +872,8 @@ export const useScene = create<SceneState>((set, get) => ({
         platform: plan?.platform ?? null,
         ring,
         ensembleYaw: st.ensembleYaw,
-        setOffset: st.setOffset,
+        // 锚点转向：绕锚点旋转等价于绕环心旋转 + 等效平移
+        setOffset: pivotShift(st.setOffset, st.ensemblePivot, st.ensembleYaw),
         stageRotationY: st.stageRotationY,
       });
       set({ impact: { running: false, result }, adjustDirty: false });

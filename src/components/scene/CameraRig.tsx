@@ -4,7 +4,7 @@ import { useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
 import { useScene } from '../../store/sceneStore';
 import { lensMath } from '../../lib/lens';
-import { rotatePoseY, shotPoseAt } from '../../lib/previz';
+import { pivotShift, rotatePoseY, shotPoseAt } from '../../lib/previz';
 
 const deg2rad = THREE.MathUtils.degToRad;
 
@@ -74,9 +74,11 @@ export function CameraRig() {
     const live = st.activeShotId
       ? (st.previz?.shots.find((item) => item.id === st.activeShotId) ?? null)
       : null;
-    // 与机位取景/跟随相机同一坐标系：叠加集合转向与摆放平移，否则标记与实际机位错位
+    // 与机位取景/跟随相机同一坐标系：叠加集合转向与摆放平移（绕锚点转向用等效平移）
     const raw = live ? shotPoseAt(live, st.timelineTime) : null;
-    const pose = raw ? rotatePoseY(raw, st.ensembleYaw, st.setOffset) : null;
+    const pose = raw
+      ? rotatePoseY(raw, st.ensembleYaw, pivotShift(st.setOffset, st.ensemblePivot, st.ensembleYaw))
+      : null;
 
     const position = pose ? pose.position : st.camera.position;
     const yaw = pose ? pose.yaw : st.camera.yaw;

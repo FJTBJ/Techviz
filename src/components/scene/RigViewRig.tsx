@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useScene } from '../../store/sceneStore';
-import { rotatePoseY, shotPoseAt } from '../../lib/previz';
+import { pivotShift, rotatePoseY, shotPoseAt } from '../../lib/previz';
 
 const ARM_L1 = 1.6;
 const ARM_L2 = 1.6;
@@ -19,6 +19,7 @@ export function RigViewRig() {
   const activeShotId = useScene((s) => s.activeShotId);
   const ensembleYaw = useScene((s) => s.ensembleYaw);
   const setOffset = useScene((s) => s.setOffset);
+  const pivot = useScene((s) => s.ensemblePivot);
   const camera = useThree((s) => s.camera) as THREE.PerspectiveCamera;
   const controls = useThree((s) => s.controls) as
     | { target: THREE.Vector3; update: () => void }
@@ -37,12 +38,12 @@ export function RigViewRig() {
             const pose = rotatePoseY(
               { position: k.position, yaw: 0, pitch: 0, focal: null },
               ensembleYaw,
-              setOffset,
+              pivotShift(setOffset, pivot, ensembleYaw),
             );
             return new THREE.Vector3(...pose.position);
           })
         : [],
-    [shot, ensembleYaw, setOffset],
+    [shot, ensembleYaw, setOffset, pivot],
   );
 
   const rail = useMemo(() => {
@@ -130,7 +131,11 @@ export function RigViewRig() {
     const targetPos = new THREE.Vector3();
     const targetQuat = new THREE.Quaternion();
     if (raw) {
-      const pose = rotatePoseY(raw, st.ensembleYaw, st.setOffset);
+      const pose = rotatePoseY(
+        raw,
+        st.ensembleYaw,
+        pivotShift(st.setOffset, st.ensemblePivot, st.ensembleYaw),
+      );
       targetPos.set(...pose.position);
       targetQuat.setFromEuler(
         new THREE.Euler(

@@ -45,6 +45,55 @@ const PRIM_LIBRARY: { kind: 'box' | 'sphere' | 'column'; name: string; desc: str
 ];
 
 /**
+ * 集合转向控制：整个集合（布景+演员+机位）绕「锚点」转向。
+ * 锚点在视口中是橙色竖杆+发光小球，可点击拖拽调整位置。
+ */
+export function EnsembleTurnControl() {
+  const yaw = useScene((s) => s.ensembleYaw);
+  const auto = useScene((s) => s.ensembleAuto);
+  const rotate = useScene((s) => s.rotateEnsemble);
+  const setYaw = useScene((s) => s.setEnsembleYawManual);
+  const toggleAuto = useScene((s) => s.toggleEnsembleAuto);
+
+  /** 滑块用 0~360 表示，避免负角度时滑块反向 */
+  const dial = ((Math.round(yaw) % 360) + 360) % 360;
+
+  return (
+    <div
+      className="segmented subtle"
+      title="整个集合绕锚点转向：布景 / 演员 / 机位一起转，集合内相对关系不变"
+    >
+      <button onClick={() => rotate(-15)} title="逆时针转 15°">
+        ↺15°
+      </button>
+      <input
+        className="ensemble-slider"
+        type="range"
+        min={0}
+        max={360}
+        step={1}
+        value={dial}
+        onChange={(e) => setYaw(Number(e.target.value))}
+        title={`拖动自由转向（${dial}°）`}
+      />
+      <button onClick={() => rotate(15)} title="顺时针转 15°">
+        ↻15°
+      </button>
+      <button onClick={() => setYaw(0)} title="集合朝向归零（UE 原始方位）">
+        <span className="mono">{dial}°</span>
+      </button>
+      <button
+        className={auto ? 'active' : ''}
+        onClick={toggleAuto}
+        title={auto ? '自动：跟随当前镜头的朝环屏角度' : '手动：保留当前转向角度'}
+      >
+        {auto ? '自动' : '手动'}
+      </button>
+    </div>
+  );
+}
+
+/**
  * 右侧「工具」tab：内部两个子 tab——
  *  - 基础模型：模型库网格，卡片可直接拖拽进 3D 视口（落点即拖放位置），也可点击添加到原点；
  *    下方列出已添加模型（显隐/移除）；
@@ -122,6 +171,12 @@ export function StudioPanel() {
             </button>
           </div>
         )}
+      </div>
+
+      {/* 集合转向（绕锚点）：两个子 tab 通用 */}
+      <div className="turn-row">
+        <span className="turn-row-label">集合转向（绕锚点）</span>
+        <EnsembleTurnControl />
       </div>
 
       {subTab === 'prim' ? (

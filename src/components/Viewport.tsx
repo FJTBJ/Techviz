@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useRef, useState, type DragEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber';
 // Line 随机位标记（PrevizCameraMarker）一并停用，恢复时加回
-import { Grid, OrbitControls } from '@react-three/drei';
-import { useScene, isGizmoActive } from '../store/sceneStore';
+import { Grid, OrbitControls, Line, TransformControls } from '@react-three/drei';
+import { useScene, isGizmoActive, markGizmoDragEnd } from '../store/sceneStore';
 import { SceneObject, LedRing } from './scene/SceneObject';
 // import { CameraRig } from './scene/CameraRig';
 // 机位可视化模型暂隐藏（机位先隐藏，恢复时取消注释上行 import 与下方 JSX 渲染）
@@ -18,7 +18,7 @@ import { ASPECTS } from '../types';
 // 仅展示页：相机参数读数已隐藏，恢复时在 import 中加回 lensMath
 import { frameFractions, lensMathNum } from '../lib/lens';
 // 仅展示页：镜头元素计数徽章已隐藏，shotLabel 暂不使用，恢复时加回
-import { shotAt, shotPoseAt, rotatePoseY } from '../lib/previz';
+import { shotAt, shotPoseAt, rotatePoseY, pivotShift } from '../lib/previz';
 import { resolveCameraView } from '../lib/cameraView';
 import { viewportBridge } from '../lib/viewportBridge';
 
@@ -39,6 +39,7 @@ function CameraDriver() {
   const previz = useScene((s) => s.previz);
   const ensembleYaw = useScene((s) => s.ensembleYaw);
   const setOffset = useScene((s) => s.setOffset);
+  const pivot = useScene((s) => s.ensemblePivot);
   const camera = useThree((s) => s.camera) as THREE.PerspectiveCamera;
   const size = useThree((s) => s.size);
   const lastMode = useRef(mode);
@@ -78,7 +79,8 @@ function CameraDriver() {
       activeShot,
       time: useScene.getState().timelineTime,
       ensembleYaw,
-      setOffset,
+      // 绕锚点转向：等效平移替代原始 setOffset
+      setOffset: pivotShift(setOffset, pivot, ensembleYaw),
       aspect: size.width / Math.max(1, size.height),
       takeEl: useScene.getState().takeVideoEl,
     });
@@ -147,7 +149,10 @@ function PrevizPlayback() {
     const shot = shotAt(tl.shots, st.timelineTime);
     if (!shot) return; // 镜头间隙保持上一帧
     const raw = shotPoseAt(shot, st.timelineTime);
-    const pose = raw ? rotatePoseY(raw, st.ensembleYaw, st.setOffset) : null;
+    // 绕锚点转向：等效平移替代原始 setOffset
+    const pose = raw
+      ? rotatePoseY(raw, st.ensembleYaw, pivotShift(st.setOffset, st.ensemblePivot, st.ensembleYaw))
+      : null;
     if (!pose) return;
 
     active.current = true;
@@ -408,6 +413,86 @@ function Ground() {
   );
 }
 
+/** 集合旋转锚点：竖杆 + 发光小球，点击进入拖拽编辑，整个集合绕该点转向 */
+function EnsemblePivotMarker() {
+  const pivot = useScene((s) => s.ensemblePivot);
+  const editing = useScene((s) => s.pivotEditing);
+  const setEditing = useScene((s) => s.setPivotEditing);
+  const groupRef = useRef<THREE.Group | null>(null);
+  const [object, setObject] = useState<THREE.Group | null>(null);
+  const attach = useCallback((node: THREE.Group | null) => {
+    groupRef.current = node;
+    setObject(node);
+  }, []);
+  const commit = useCallback(() => {
+    const node = groupRef.current;
+    markGizmoDragEnd();
+    if (!node) return;
+    const r = (n: number) => Math.round(n * 100) / 100;
+    useScene
+      .getState()
+      .setEnsemblePivot([r(node.position.x), r(node.position.y), r(node.position.z)]);
+  }, []);
+
+  return (
+    <>
+      <group
+        ref={attach}
+        position={pivot}
+        onClick={(event) => {
+          event.stopPropagation();
+          if (useScene.getState().mode === 'measure') return;
+          setEditing(true);
+        }}
+        onPointerOver={(event) => {
+          event.stopPropagation();
+          document.body.style.cursor = 'move';
+        }}
+        onPointerOut={() => {
+          document.body.style.cursor = 'auto';
+        }}
+      >
+        {/* 竖杆：从地面到锚点球 */}
+        <Line
+          points={[
+            [0, 0, 0],
+            [0, 1.6, 0],
+          ]}
+          color="#ffb020"
+          lineWidth={1.5}
+          dashed
+          dashSize={0.25}
+          gapSize={0.15}
+        />
+        {/* 锚点球 */}
+        <mesh position={[0, 1.6, 0]}>
+          <sphereGeometry args={[0.32, 20, 14]} />
+          <meshStandardMaterial
+            color={editing ? '#ffd070' : '#ffb020'}
+            emissive="#ff9a00"
+            emissiveIntensity={0.6}
+            roughness={0.3}
+          />
+        </mesh>
+        {/* 地面定位圈 */}
+        <mesh position={[0, 0.03, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[0.5, 0.68, 40]} />
+          <meshBasicMaterial color="#ffb020" transparent opacity={0.55} side={THREE.DoubleSide} />
+        </mesh>
+      </group>
+      {editing && object && (
+        <TransformControls
+          object={object}
+          mode="translate"
+          space="world"
+          translationSnap={0.1}
+          onMouseUp={commit}
+        />
+      )}
+    </>
+  );
+}
+
 function SceneContent() {
   const assets = useScene((s) => s.assets);
   const usedIds = useScene((s) => s.activeShotUsedIds);
@@ -429,6 +514,7 @@ function SceneContent() {
     ? (previz?.shots.find((shot) => shot.id === activeShotId) ?? null)
     : null;
   const ensembleYaw = useScene((s) => s.ensembleYaw);
+  const pivot = useScene((s) => s.ensemblePivot);
   const setPlan = useScene((s) => s.setPlan);
   const planScene = useScene((s) => s.planScene);
   const activePlanId = useScene((s) => s.activePlanId);
@@ -456,6 +542,8 @@ function SceneContent() {
     if (!usedIds) return assets;
     const used = new Set(usedIds);
     const scene = activeShot?.scene ?? null;
+    // 选中方案后，镜头展示方案整套置景资产（不按镜头视锥裁剪成子集）
+    const planMode = Boolean(activePlanId) && Boolean(setKeep);
     return assets.filter((asset) => {
       // 骨骼角色不受镜头元素剔除影响，但只在其所属场次的镜头中出现
       //（未登记场次的角色与完整场景视图保持始终显示）
@@ -467,9 +555,13 @@ function SceneContent() {
       if (asset.kind === 'light') return true;
       // 方案地台始终保留（显隐走 asset.visible，不参与镜头视锥剔除）
       if (asset.instanceId === 'platform-main') return true;
+      if (planMode) {
+        // 方案模式：只展示该方案置景集内的 UE 资产（非 UE 资产不裁剪）
+        return asset.kind !== 'ue' || (setKeep as Set<string>).has(asset.instanceId);
+      }
       return used.has(asset.instanceId);
     });
-  }, [assets, usedIds, activeShot]);
+  }, [assets, usedIds, activeShot, activePlanId, setKeep]);
   // 镜头模式下手工隐藏的元素：仍保留在列表里，只是不再渲染
   const shotHidden = useMemo(() => new Set(shotHiddenIds), [shotHiddenIds]);
 
@@ -523,9 +615,10 @@ function SceneContent() {
           外层旋转（集合转向，每镜头自动对齐）> 中层平移（setOffset，每场次一个摆放，原始坐标系），
           内层旋转（stageRotationY，内容位姿的绕环心旋转，环屏与缺口固定不动）：
           内容点 world = setOffset + R(stageRotationY)·pt，与服务端解算 rot(pt) - offset 一致（setOffset = -offset）。
-          机位标记/机位模型不属于内容，留在中层不随内容旋转 */}
+          机位标记/机位模型不属于内容，留在中层不随内容旋转。
+          集合转向绕「锚点」旋转（ensemblePivot，可拖拽）：等效于外层旋转 + 等效平移 pivotShift */}
       <group rotation={[0, THREE.MathUtils.degToRad(ensembleYaw), 0]}>
-        <group position={setOffset}>
+        <group position={pivotShift(setOffset, pivot, ensembleYaw)}>
         <group rotation={[0, THREE.MathUtils.degToRad(stageRotationY), 0]}>
         {visibleAssets.map((asset) => (
           <SceneObject
@@ -554,6 +647,8 @@ function SceneContent() {
       </group>
       {/* 测量标注属于棚内空间坐标，不随集合转向 */}
       <MeasurementLayer />
+      {/* 集合旋转锚点（棚内空间坐标，可拖拽调整） */}
+      <EnsemblePivotMarker />
       <CameraDriver />
       <PrevizPlayback />
       <AerialRig />
@@ -704,12 +799,14 @@ export function Viewport() {
       );
       const hit = new THREE.Vector3();
       if (ray.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), hit)) {
-        // world = R(ensembleYaw)·(setOffset + R(stageRotationY)·pt)，按逆序换算回内容局部坐标
+        // world = R(ensembleYaw)·(effOffset + R(stageRotationY)·pt)，按逆序换算回内容局部坐标；
+        // effOffset = pivotShift(...)（绕锚点转向的等效平移）
         const st = useScene.getState();
         const yAxis = new THREE.Vector3(0, 1, 0);
+        const eff = pivotShift(st.setOffset, st.ensemblePivot, st.ensembleYaw);
         const p = hit
           .applyAxisAngle(yAxis, -THREE.MathUtils.degToRad(st.ensembleYaw))
-          .sub(new THREE.Vector3(...st.setOffset));
+          .sub(new THREE.Vector3(...eff));
         p.applyAxisAngle(yAxis, -THREE.MathUtils.degToRad(st.stageRotationY));
         const r1 = (v: number) => Math.round(v * 10) / 10;
         local = [r1(p.x), 0, r1(p.z)];
@@ -744,8 +841,9 @@ export function Viewport() {
         onPointerMissed={() => {
           if (isGizmoActive()) return;
           selectAsset(null);
-          // 点空白处同时退出棚位置编辑
+          // 点空白处同时退出棚位置编辑与锚点编辑
           if (useScene.getState().stagePosEditing) useScene.getState().setStagePosEditing(false);
+          if (useScene.getState().pivotEditing) useScene.getState().setPivotEditing(false);
         }}
       >
         <SceneContent />

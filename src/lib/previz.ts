@@ -98,6 +98,31 @@ export function shotPoseAt(shot: PrevizShot, time: number): PrevizPose | null {
   return sampleShotAtTime(shot, time);
 }
 
+/**
+ * 集合旋转锚点换算：绕锚点 P 转向 yawDeg 等价于
+ * 「绕环心转向 + 平移 R(-yaw)·P − P」。返回替代 setOffset 的等效平移，
+ * 所有内容/机位位姿计算把 setOffset 换成本函数结果即可获得绕锚点旋转。
+ * 锚点在环心（默认 [0,0,0]）时结果与 setOffset 一致，行为不变。
+ */
+export function pivotShift(
+  setOffset: [number, number, number],
+  pivot: [number, number, number],
+  yawDeg: number,
+): [number, number, number] {
+  if (pivot[0] === 0 && pivot[1] === 0 && pivot[2] === 0) return setOffset;
+  const r = (yawDeg * Math.PI) / 180;
+  const cos = Math.cos(r);
+  const sin = Math.sin(r);
+  // R(-yaw)·P：绕环心转向的逆变换
+  const bx = pivot[0] * cos - pivot[2] * sin;
+  const bz = pivot[0] * sin + pivot[2] * cos;
+  return [
+    setOffset[0] + bx - pivot[0],
+    setOffset[1],
+    setOffset[2] + bz - pivot[2],
+  ];
+}
+
 /** 官方镜头短名：Kmoke 场记单 shot_file_name（如 s079a_c004_A），缺失时退回 UE 镜头名 */
 export function shotLabel(shot: PrevizShot): string {
   if (shot.short) return shot.short;

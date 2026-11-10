@@ -2873,4 +2873,18 @@ textarea {
   border: 1px solid rgba(255, 176, 32, 0.4);
 }
 
+/* 集合转向（绕锚点）行：工具面板子 tab 下方 */
+.turn-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0 8px;
+  flex-wrap: wrap;
+}
+.turn-row-label {
+  font-size: 11px;
+  color: #8b98a8;
+  white-space: nowrap;
+}
+
 
