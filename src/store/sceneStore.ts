@@ -491,6 +491,7 @@ export const useScene = create<SceneState>((set, get) => ({
       // 默认视角：取本场第一镜的机位，并把整个集合按该镜头的朝环屏角度整体转向。
       // 棚中央是石拱布景，随便放一个自由机位很容易被布景挡死或正对缺口，
       // 直接用真实预演机位取景，保证打开页面就朝 LED 环屏。
+      // 高空视角（默认开启）由 AerialRig 接管相机，这里不跳转以免覆盖俯视机位。
       {
         const state = get();
         const first =
@@ -502,7 +503,7 @@ export const useScene = create<SceneState>((set, get) => ({
           set({ ensembleYaw: yawDeg });
           const raw = shotPoseAt(first, first.start);
           const pose = raw ? rotatePoseY(raw, yawDeg) : null;
-          if (pose) {
+          if (pose && !state.aerialView) {
             const yaw = (pose.yaw * Math.PI) / 180;
             const pitch = (pose.pitch * Math.PI) / 180;
             const cp = Math.cos(pitch);
