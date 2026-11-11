@@ -397,9 +397,9 @@ export const useScene = create<SceneState>((set, get) => ({
           : [0, 0, 0];
       set(patch);
       hydrated = true;
-      // 布景方案为可选数据：静默加载，缺失不影响工作台
+      // 布景方案为可选数据：静默加载（按恢复的棚拉取对应方案库），缺失不影响工作台
       try {
-        const planRes = await apiFetch('/api/setplan');
+        const planRes = await apiFetch(`/api/setplan${patch.currentStageId ? `?stage=${encodeURIComponent(patch.currentStageId)}` : ''}`);
         if (planRes.ok) {
           const planJson = await planRes.json();
           const plan = planJson?.data as SetPlanFile | null;
@@ -745,7 +745,11 @@ export const useScene = create<SceneState>((set, get) => ({
     }
   },
 
-  setStage: (id) => set({ currentStageId: id, stagePosition: [0, 0, 0], stagePosEditing: false }),
+  setStage: (id) => {
+    // 切棚：重置棚位与方案选中状态，并加载该棚的方案库
+    set({ currentStageId: id, stagePosition: [0, 0, 0], stagePosEditing: false });
+    void get().loadSetPlan();
+  },
 
   setStagePosition: (pos) => set({ stagePosition: [...pos] as Vec3 }),
 
@@ -774,7 +778,10 @@ export const useScene = create<SceneState>((set, get) => ({
 
   loadSetPlan: async () => {
     try {
-      const res = await apiFetch('/api/setplan');
+      // 每棚一套方案库：按当前选中棚拉取对应数据
+      const { currentStageId } = get();
+      const qs = currentStageId ? `?stage=${encodeURIComponent(currentStageId)}` : '';
+      const res = await apiFetch(`/api/setplan${qs}`);
       if (!res.ok) return `布景方案数据不可用（HTTP ${res.status}）`;
       const json = await res.json();
       const data = json?.data as SetPlanFile | null;
@@ -788,7 +795,15 @@ export const useScene = create<SceneState>((set, get) => ({
         (planScene && data.plans[planScene] ? planScene : null) ??
         (sceneKey && data.plans[sceneKey] ? sceneKey : null) ??
         scenes[0];
-      set({ setPlan: data, planScene: next, showSetPlan: true });
+      // 换棚后旧方案编号不再适用：清空选中方案与内容位姿
+      set({
+        setPlan: data,
+        planScene: next,
+        showSetPlan: true,
+        activePlanId: null,
+        setOffset: [0, 0, 0],
+        stageRotationY: 0,
+      });
       await get().applySetAssetFilter();
       return null;
     } catch {

@@ -32,8 +32,8 @@ const DATA = path.resolve(__dirname, '..', 'data');
 
 const SHOTS_FILE = path.join(DATA, 'previz-shots.json');
 const CAMS_FILE = path.join(DATA, 'previz-cameras.json');
-const RING_FILE = path.join(DATA, 'ring-led01.json');
-const OUT_FILE = path.join(DATA, 'setplan.json');
+/** 棚清单：每个棚各自生成一套方案（setplan-<棚id小写>.json） */
+const STAGES_FILE = path.join(DATA, 'stages.json');
 const TIMELINE_FILE = path.join(DATA, 'previz-timeline.json');
 const SHOT_NAMES_FILE = path.join(DATA, 'shot-names.json');
 const TIMELINE_TAKES_FILE = path.join(DATA, 'timeline-takes.json');
@@ -121,13 +121,12 @@ function thin(keys, max) {
   return out;
 }
 
-function main() {
-  for (const f of [SHOTS_FILE, CAMS_FILE, RING_FILE]) {
+function main(stage) {
+  for (const f of [SHOTS_FILE, CAMS_FILE]) {
     if (!fs.existsSync(f)) throw new Error(`缺少 ${f}`);
   }
   const shotsFile = readJson(SHOTS_FILE);
   const cams = readJson(CAMS_FILE);
-  const ringFile = readJson(RING_FILE);
   const people = fs.existsSync(PEOPLE_FILE) ? readJson(PEOPLE_FILE) : null;
   const snapshot = fs.existsSync(SNAPSHOT_FILE) ? readJson(SNAPSHOT_FILE) : null;
   // 悬空剔除：包围盒底部高于地面 FLOAT_BOTTOM_MAX_M 的构件（梁、悬挂结构等）不参与置景方案
@@ -144,14 +143,15 @@ function main() {
     return true;
   });
   const classifications = fs.existsSync(CLASSIFICATIONS_FILE) ? (readJson(CLASSIFICATIONS_FILE).shots ?? {}) : {};
-  const d = ringFile.derived;
 
+  // 本棚环屏几何（来自棚清单，缺口中心在 three +Z）
   const ring = {
-    diameter: d.diameterM,
-    height: d.totalHeightM,
-    arc: d.arcDeg,
-    gapCenterDeg: 0, // 缺口中心在 three +Z
+    diameter: stage.diameter,
+    height: stage.height,
+    arc: stage.arc,
+    gapCenterDeg: stage.gapCenterDeg ?? 0,
   };
+  const outStageFile = path.join(DATA, `setplan-${stage.id.toLowerCase()}.json`);
 
   const shots = (shotsFile.shots ?? []).filter((s) => s.sequence && s.asset);
   // 成片时间线过滤：同一场次可能拍了几十条 take，只保留最新时间线里实际用到的
@@ -456,7 +456,8 @@ function main() {
     source: {
       shots: path.basename(SHOTS_FILE),
       cameras: path.basename(CAMS_FILE),
-      ring: path.basename(RING_FILE),
+      /** 本套方案对应的棚（每棚独立生成一套方案库） */
+      stageId: stage.id,
       shotTotal: timelineShots.length,
       covered: timelineShots.length,
       staticShots,
@@ -483,9 +484,9 @@ function main() {
     scenes,
     plans,
   };
-  fs.writeFileSync(OUT_FILE, JSON.stringify(out));
+  fs.writeFileSync(outStageFile, JSON.stringify(out));
   console.log(
-    `[build-setplan] ${scenes.length} 个场次 / ${timelineShots.length} 镜 → ${OUT_FILE}` +
+    `[build-setplan] ${stage.id}(${stage.name ?? ''}): ${scenes.length} 个场次 / ${timelineShots.length} 镜 → ${outStageFile}` +
       `（静态 ${staticShots}，缺失 ${emptyShots}，非时间线剔除 ${droppedShots.length}；${heightNote}）`,
   );
   for (const d of droppedShots) {
@@ -496,18 +497,23 @@ function main() {
   }
   console.log(`  悬空剔除 ${excludedFloating.length} 个构件（底部高于地面 ${FLOAT_BOTTOM_MAX_M}m）：${[...new Set(excludedFloating)].join('、')}`);
 
-  // 播放时间线：按 master 时间码排布所有镜头，供前端底部时间线使用
-  timelineShots.sort((a, b) => a.start - b.start);
-  const timeline = {
-    generatedAt: out.generatedAt,
-    fps: 24,
-    duration: round2(Math.max(1, ...timelineShots.map((s) => s.end))),
-    scenes: scenes.map((s) => ({ scene: s.scene, shotCount: s.shotCount })),
-    note: `master 时间码（秒），共 ${timelineShots.length} 镜；机位 ${heightNote}`,
-    shots: timelineShots,
-  };
-  fs.writeFileSync(TIMELINE_FILE, JSON.stringify(timeline));
-  console.log(`[build-setplan] 时间线 ${timelineShots.length} 镜 / ${timeline.duration}s → ${TIMELINE_FILE}`);
+  // 播放时间线：按 master 时间码排布所有镜头，供前端底部时间线使用（与棚无关，仅写一次）
+  if (stage.id === 'Led_01') {
+    timelineShots.sort((a, b) => a.start - b.start);
+    const timeline = {
+      generatedAt: out.generatedAt,
+      fps: 24,
+      duration: round2(Math.max(1, ...timelineShots.map((s) => s.end))),
+      scenes: scenes.map((s) => ({ scene: s.scene, shotCount: s.shotCount })),
+      note: `master 时间码（秒），共 ${timelineShots.length} 镜；机位 ${heightNote}`,
+      shots: timelineShots,
+    };
+    fs.writeFileSync(TIMELINE_FILE, JSON.stringify(timeline));
+    console.log(`[build-setplan] 时间线 ${timelineShots.length} 镜 / ${timeline.duration}s → ${TIMELINE_FILE}`);
+  }
 }
 
-main();
+/** 逐棚生成：24m / 36m / 50m 棚各出一套方案库 */
+const stages = readJson(STAGES_FILE);
+if (!Array.isArray(stages) || !stages.length) throw new Error(`棚清单为空：${STAGES_FILE}`);
+for (const stage of stages) main(stage);

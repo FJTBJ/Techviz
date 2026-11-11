@@ -286,16 +286,21 @@ app.get('/api/ue/prayer-room', (_req, res) => {
  * 布景方案：由预演相机动画（UE take 序列）+ 环屏几何离线推导，
  * 结果由 build-setplan 脚本写入 data/setplan.json。
  */
-const SETPLAN_FILE = path.join(__dirname, 'data', 'setplan.json');
 const TIMELINE_FILE = path.join(DATA_DIR, 'previz-timeline.json');
 const SHOT_NAMES_FILE = path.join(DATA_DIR, 'shot-names.json');
 
-app.get('/api/setplan', (_req, res) => {
+/** 每棚一套方案库：setplan-<棚id小写>.json，由 previz/build-setplan.mjs 逐棚生成 */
+const setplanFileFor = (stageId) => path.join(DATA_DIR, `setplan-${String(stageId).toLowerCase()}.json`);
+
+app.get('/api/setplan', (req, res) => {
   try {
-    if (!fs.existsSync(SETPLAN_FILE)) {
-      return res.status(404).json({ code: 1, message: '尚未生成布景方案' });
+    // 默认 24m 棚；前端切棚时带 ?stage=Led_05 拉取对应棚的方案库
+    const stageId = typeof req.query.stage === 'string' && /^Led_\d+$/i.test(req.query.stage) ? req.query.stage : 'Led_01';
+    const file = setplanFileFor(stageId);
+    if (!fs.existsSync(file)) {
+      return res.status(404).json({ code: 1, message: `尚未生成 ${stageId} 的布景方案` });
     }
-    const data = JSON.parse(fs.readFileSync(SETPLAN_FILE, 'utf8'));
+    const data = JSON.parse(fs.readFileSync(file, 'utf8'));
     res.json({ code: 0, data });
   } catch (err) {
     res.status(500).json({ code: 1, message: String(err) });
