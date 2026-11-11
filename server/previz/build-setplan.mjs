@@ -23,6 +23,8 @@ import {
   filterOccluderAssets,
   lightRuleForRing,
   validateLighting,
+  frameInScreen,
+  ringArcRange,
 } from '../setplan.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -297,6 +299,18 @@ function main() {
     // 多方案轮次生成（规则四）：每轮在待覆盖镜头上解算覆盖最多镜头的内容位姿，
     // 该轮覆盖的镜头移出待覆盖集，直到待覆盖为空或无新覆盖产生
     let pending = sceneShots.map((s) => s.id);
+    // 画面入屏判据（KMOKE-261104 规则）：视锥上沿出屏的镜头无法完整拍摄，
+    // 直接进未覆盖清单（不参与解算、不做单镜兜底），并进入下一轮待覆盖口径
+    const arcRange = ringArcRange(ring);
+    const frameOutIds = sceneShots.filter((s) => !frameInScreen(s, ring, arcRange)).map((s) => s.id);
+    if (frameOutIds.length) {
+      const failed = new Set(frameOutIds);
+      pending = pending.filter((id) => !failed.has(id));
+      for (const sid of frameOutIds) {
+        const nm = sceneShots.find((s) => s.id === sid)?.name ?? sid;
+        console.log(`  [画面出屏] ${sid}（${nm}）视锥上沿超出屏高，判不可完整拍摄，不出方案`);
+      }
+    }
     const planList = [];
     for (let roundNo = 1; roundNo <= 8 && pending.length; roundNo += 1) {
       const pendingSet = new Set(pending);
@@ -396,7 +410,10 @@ function main() {
       setInstanceIds: first ? first.setInstanceIds : [],
       /** 多方案列表（KMOKE-261104 规则四：小场景内多套方案，覆盖镜头互斥） */
       planList,
-      pendingShotIds: pending,
+      /** 未覆盖镜头 = 轮次后剩余 + 画面出屏不可拍摄的镜头 */
+      pendingShotIds: [...pending, ...frameOutIds],
+      /** 画面出屏镜头清单（视锥上沿超出屏体/缺口，无法完整拍摄） */
+      frameOutIds,
       /** 灯光约束接口：灯位配置未下发前仅输出规则，不做硬校验 */
       lightRule: lightRuleForRing(ring.diameter),
       lighting: validateLighting({ rule: lightRuleForRing(ring.diameter) }),

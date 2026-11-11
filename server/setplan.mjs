@@ -44,7 +44,7 @@ function forwardVector(yawDeg, pitchDeg) {
 }
 
 /** 相机右向量 / 上向量（忽略 roll，roll 对取景范围影响可忽略） */
-function basisVectors(yawDeg, pitchDeg) {
+export function basisVectors(yawDeg, pitchDeg) {
   const yaw = yawDeg * DEG;
   const pitch = pitchDeg * DEG;
   const f = forwardVector(yawDeg, pitchDeg);
@@ -58,7 +58,7 @@ function basisVectors(yawDeg, pitchDeg) {
 }
 
 /** 射线与环屏圆柱面求交，返回最近的 t（含缺口/超高信息） */
-function intersectRing(origin, dir, ring, range) {
+export function intersectRing(origin, dir, ring, range) {
   const R = ring.diameter / 2;
   const a = dir[0] * dir[0] + dir[2] * dir[2];
   if (a < 1e-12) return null;
@@ -104,6 +104,51 @@ function pickSamples(shot, maxSamples = 5) {
     picked.push(keys[Math.round((i * (keys.length - 1)) / (maxSamples - 1))]);
   }
   return picked;
+}
+
+/** 主预演画幅：S35 传感器裁 2.39:1（画面入屏判据用，与覆盖率口径一致） */
+const SENSOR_W = 24.89;
+const SENSOR_H = 24.89 / 2.39;
+/** 画面入屏判据采样点：视锥上沿（左上角/顶中/右上角） */
+const FRAME_EDGE_POINTS = [
+  [-1, 1],
+  [0, 1],
+  [1, 1],
+];
+
+/**
+ * 画面入屏判定（KMOKE-261104 规则）：相机视锥上沿射线命中环屏弧段时必须落在
+ * 屏高内。视锥只由相机与屏体决定、与内容位姿无关——上沿出屏的镜头无法用置景
+ * 弥补，判定为「不可完整拍摄」，应进未覆盖清单而不是强行出方案。
+ * 注：视锥扫到缺口（inArc=false）不算失败——实体置景可立在缺口方向遮挡画面边缘
+ * （虚实结合拍摄的标准做法），此类镜头保留，由 AI 影响检查的「拍缺口」项逐镜提示。
+ * @param {object} shot 镜头（position/yaw/pitch/focal 或 keys）
+ * @returns boolean true=画面可完整入屏
+ */
+export function frameInScreen(shot, ring, range, maxSamples = 5) {
+  const cams = pickSamples(shot, maxSamples);
+  for (const c of cams) {
+    // 预演相机多数 take 无焦距轨道（focal=null），按 uecam 解析器的默认 35mm 计算
+    const focal = Number(c.focal) > 1e-6 ? Number(c.focal) : 35;
+    const tanW = SENSOR_W / 2 / focal;
+    const tanH = SENSOR_H / 2 / focal;
+    const { f, right, up } = basisVectors(c.yaw, c.pitch);
+    for (const [fx, fy] of FRAME_EDGE_POINTS) {
+      const d = [
+        f[0] + right[0] * tanW * fx + up[0] * tanH * fy,
+        f[1] + right[1] * tanW * fx + up[1] * tanH * fy,
+        f[2] + right[2] * tanW * fx + up[2] * tanH * fy,
+      ];
+      const len = Math.hypot(d[0], d[1], d[2]);
+      if (len < 1e-9) continue;
+      const hit = intersectRing(c.position, [d[0] / len, d[1] / len, d[2] / len], ring, range);
+      // 命中屏体弧段但超出屏高（顶/底）→ 上沿出屏，无法完整拍摄
+      if (hit && hit.inArc && (hit.point[1] > ring.height + 1e-6 || hit.point[1] < -1e-6)) {
+        return false;
+      }
+    }
+  }
+  return true;
 }
 
 const COLS = 11;
