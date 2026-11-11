@@ -41,7 +41,7 @@ const normDeg = (deg: number) => ((deg % 360) + 540) % 360 - 180;
 /** 是否已从后端恢复过数据；恢复完成后才开启自动保存，避免用 demo 数据覆盖存档 */
 let hydrated = false;
 
-/** URL 带 ?plans=0 时强制进入「尚无方案」空态演示（模拟生成前的界面） */
+/** 默认打开空态（尚无方案界面）后，?plans=0 参数已无实际作用；恢复自动进方案视图时用（见 initFromServer） */
 const forceEmptyPlans =
   typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('plans') === '0';
 
@@ -305,8 +305,8 @@ export const useScene = create<SceneState>((set, get) => ({
   setPlan: null,
   planScene: null,
   showSetPlan: false,
-  // 默认方案视图；后端无方案数据或 ?plans=0 时由 initFromServer 切到空态
-  planLibraryMode: forceEmptyPlans ? 'empty' : 'ready',
+  // 默认打开空态（左侧全量镜头列表 + 中间生成按钮），点击「生成 Techviz 方案」后进入方案视图
+  planLibraryMode: 'empty',
   showShotMarkers: true,
   sceneKey: null,
   shotCatalog: null,
@@ -415,8 +415,9 @@ export const useScene = create<SceneState>((set, get) => ({
               setPlan: plan,
               planScene: preferred,
               showSetPlan: true,
-              // 有方案数据才进入方案视图（?plans=0 仍保留空态演示）
-              ...(forceEmptyPlans ? {} : { planLibraryMode: 'ready' as const }),
+              // 默认空态：即使有方案数据也不自动进入方案视图，由用户点击「生成」进入；
+              // 恢复自动进入时取消下一行注释
+              // ...(forceEmptyPlans ? {} : { planLibraryMode: 'ready' as const }),
             });
             // 置景筛选自动生效：只默认显示与人物有交互的置景资产
             await get().applySetAssetFilter();
