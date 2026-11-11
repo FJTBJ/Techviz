@@ -19,6 +19,7 @@ import {
   buildSetPlan,
   solveStagePosition,
   collectActorPointsByShot,
+  buildWalkableSurfaces,
   filterOccluderAssets,
   lightRuleForRing,
   validateLighting,
@@ -60,10 +61,12 @@ function filterSetAssets(snapshotAssets, actorPoints) {
     const hz = (a.size?.[2] ?? 0) / 2;
     const y0 = a.position[1] - hy;
     const y1 = a.position[1] + hy;
-    if (y0 > ACTOR_TOP_M || y1 < 0) return false;
-    return actorPoints.some(([px, pz]) => {
-      const dx = Math.max(Math.abs(px - a.position[0]) - hx, 0);
-      const dz = Math.max(Math.abs(pz - a.position[2]) - hz, 0);
+    // 走位点带站立海拔：站在台面上时演员活动区间随之上移（[y, y+1.8]）
+    return actorPoints.some((p) => {
+      const ay = p[2] ?? 0;
+      if (y0 > ay + ACTOR_TOP_M || y1 < ay) return false;
+      const dx = Math.max(Math.abs(p[0] - a.position[0]) - hx, 0);
+      const dz = Math.max(Math.abs(p[1] - a.position[2]) - hz, 0);
       return Math.hypot(dx, dz) <= INTERACT_DIST_M;
     });
   });
@@ -237,9 +240,12 @@ function main() {
     { scene: SCENE_KEY, sceneShots: [...byScene.values()].flat().sort((a, b) => a.masterStart - b.masterStart) },
   ];
 
+  const walkableSurfaces = buildWalkableSurfaces(snapshotAssets);
+  console.log(`  可踩台面 ${walkableSurfaces.length} 块（走位点落在台面上时演员抬升至台面顶面）`);
+
   for (const { scene, sceneShots } of sceneGroups) {
     const plan = buildSetPlan({ ring, shots: sceneShots });
-    const actorPointsByShot = collectActorPointsByShot(sceneShots, people?.shots ?? null);
+    const actorPointsByShot = collectActorPointsByShot(sceneShots, people?.shots ?? null, walkableSurfaces);
 
     // 逐镜头交互资产筛选（仅「需置景」镜头参与）与遮挡资产筛选（不受高度限制）
     const setShotIds = new Set(sceneShots.filter((s) => needSetShot(s.name)).map((s) => s.id));

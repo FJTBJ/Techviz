@@ -402,11 +402,57 @@ function rotatePoint([x, z], deg) {
 }
 
 /**
+ * 可踩台面判定常量：构件底部落地、顶面在可跨上高度内、水平边足够宽才算台面
+ * （如祈祷室 Cube2 抬高地坪；高于上限视为墙体，窄于下限视为细杆）
+ */
+const WALKABLE_TOP_MAX_M = 1.2;
+const WALKABLE_EDGE_MIN_M = 0.4;
+
+/**
+ * 从场景快照资产提取可踩台面列表。
+ * 走位点落在台面水平范围内时演员应站在台面之上（抬到顶面高度），避免穿模。
+ * @returns Array<{x0,x1,z0,z1,top}>
+ */
+export function buildWalkableSurfaces(snapshotAssets) {
+  const surfaces = [];
+  for (const a of snapshotAssets ?? []) {
+    if (a.kind !== 'ue' || !Array.isArray(a.size) || a.size.length < 3) continue;
+    const pos = a.position ?? [0, 0, 0];
+    const off = a.offset ?? [0, 0, 0];
+    const bottom = pos[1] + off[1] - a.size[1] / 2;
+    const top = pos[1] + off[1] + a.size[1] / 2;
+    if (bottom > 0.15 || bottom < -0.3) continue;
+    if (top <= 0.05 || top > WALKABLE_TOP_MAX_M) continue;
+    if (Math.min(a.size[0], a.size[2]) < WALKABLE_EDGE_MIN_M) continue;
+    surfaces.push({
+      x0: pos[0] + off[0] - a.size[0] / 2,
+      x1: pos[0] + off[0] + a.size[0] / 2,
+      z0: pos[2] + off[2] - a.size[2] / 2,
+      z1: pos[2] + off[2] + a.size[2] / 2,
+      top,
+    });
+  }
+  return surfaces;
+}
+
+/** 走位点地面高度：落在可踩台面内取最高台面顶面，否则地面 0 */
+export function groundHeightAt(x, z, surfaces) {
+  let h = 0;
+  for (const s of surfaces ?? []) {
+    if (x >= s.x0 - 0.05 && x <= s.x1 + 0.05 && z >= s.z0 - 0.05 && z <= s.z1 + 0.05) {
+      h = Math.max(h, s.top);
+    }
+  }
+  return h;
+}
+
+/**
  * 收集一个场次各镜头的演员走位点（带镜头归属），用于逐镜头的交互/遮挡资产筛选。
  * KMOKE-261104 规则二：置景实例先按镜头筛出，方案置景 = 覆盖镜头实例并集。
- * @returns Map<shotId, [[x, z], ...]>
+ * 点格式 [x, z, y]：y 为抬升后的站立海拔（落在可踩台面上时取台面顶面）。
+ * @returns Map<shotId, [[x, z, y], ...]>
  */
-export function collectActorPointsByShot(shots, peopleShots) {
+export function collectActorPointsByShot(shots, peopleShots, walkableSurfaces = []) {
   const out = new Map();
   for (const shot of shots) {
     const track = peopleShots?.[shot.name];
@@ -416,7 +462,7 @@ export function collectActorPointsByShot(shots, peopleShots) {
       for (const k of ch.keys ?? []) {
         const p = k?.p;
         if (!Array.isArray(p) || p.length < 3) continue;
-        pts.push([p[0], p[2]]);
+        pts.push([p[0], p[2], Math.max(p[1] ?? 0, groundHeightAt(p[0], p[2], walkableSurfaces))]);
       }
     }
     if (pts.length) out.set(shot.id, pts);
@@ -470,8 +516,11 @@ export function filterOccluderAssets({ assets, excludeIds = new Set(), actorPoin
     const actors = pts.filter((_, i) => i % stepA === 0);
     for (let ci = 0; ci < camKeys.length; ci += stepC) {
       const cam = camKeys[ci].position;
-      for (const [px, pz] of actors) {
-        const b = [px, OCCLUSION_EYE_Y, pz];
+      for (const a of actors) {
+        const px = a[0];
+        const pz = a[1];
+        // 眼高随走位点海拔抬升（站在台面上时视线同步抬高）
+        const b = [px, (a[2] ?? 0) + OCCLUSION_EYE_Y, pz];
         // 视线段包围盒粗剔除后做 AABB 精确相交
         const bb0 = [Math.min(cam[0], b[0]), Math.min(cam[1], b[1]), Math.min(cam[2], b[2])];
         const bb1 = [Math.max(cam[0], b[0]), Math.max(cam[1], b[1]), Math.max(cam[2], b[2])];

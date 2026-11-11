@@ -1,4 +1,4 @@
-import type { PrevizShot, Vec3 } from '../types';
+import type { PrevizShot, SceneAsset, Vec3 } from '../types';
 
 export interface PrevizPose {
   position: Vec3;
@@ -127,6 +127,74 @@ export function pivotShift(
 export function shotLabel(shot: PrevizShot): string {
   if (shot.short) return shot.short;
   return shot.name.replace(/@.*$/, '');
+}
+
+/* ---------- 可踩台面与走位点抬升（与 server/setplan.mjs 规则一致） ---------- */
+
+/** 台面顶面高于此值视为墙体，不可踩 */
+const WALKABLE_TOP_MAX_M = 1.2;
+/** 台面最小水平边（米）：排除细杆、薄线条 */
+const WALKABLE_EDGE_MIN_M = 0.4;
+
+export interface WalkableSurface {
+  x0: number;
+  x1: number;
+  z0: number;
+  z1: number;
+  top: number;
+}
+
+/**
+ * 从场景资产提取可踩台面（UE 抬高地坪如 Cube2、方案地台 platform-main 等）。
+ * 判据：底部落地（不高悬、不深埋）、顶面在可跨上高度内、水平边足够宽。
+ * ue 资产包围盒中心 = position + offset；box 资产（基础模型/地台）底部锚定在 position。
+ */
+export function buildWalkableSurfaces(assets: SceneAsset[]): WalkableSurface[] {
+  const surfaces: WalkableSurface[] = [];
+  for (const a of assets ?? []) {
+    if (!Array.isArray(a.size) || a.size.length < 3) continue;
+    const pos = a.position ?? [0, 0, 0];
+    let bottom: number;
+    let top: number;
+    let cx: number;
+    let cz: number;
+    if (a.kind === 'ue') {
+      const off = a.offset ?? [0, 0, 0];
+      bottom = pos[1] + off[1] - a.size[1] / 2;
+      top = pos[1] + off[1] + a.size[1] / 2;
+      cx = pos[0] + off[0];
+      cz = pos[2] + off[2];
+    } else if (a.kind === 'box') {
+      bottom = pos[1];
+      top = pos[1] + a.size[1];
+      cx = pos[0];
+      cz = pos[2];
+    } else {
+      continue;
+    }
+    if (bottom > 0.15 || bottom < -0.3) continue;
+    if (top <= 0.05 || top > WALKABLE_TOP_MAX_M) continue;
+    if (Math.min(a.size[0], a.size[2]) < WALKABLE_EDGE_MIN_M) continue;
+    surfaces.push({
+      x0: cx - a.size[0] / 2,
+      x1: cx + a.size[0] / 2,
+      z0: cz - a.size[2] / 2,
+      z1: cz + a.size[2] / 2,
+      top,
+    });
+  }
+  return surfaces;
+}
+
+/** 走位点地面高度：落在可踩台面内取最高台面顶面，否则地面 0 */
+export function groundHeightAt(x: number, z: number, surfaces: WalkableSurface[]): number {
+  let h = 0;
+  for (const s of surfaces ?? []) {
+    if (x >= s.x0 - 0.05 && x <= s.x1 + 0.05 && z >= s.z0 - 0.05 && z <= s.z1 + 0.05) {
+      h = Math.max(h, s.top);
+    }
+  }
+  return h;
 }
 
 /** 时间码 00:00:00:00（时:分:秒:帧） */
