@@ -536,11 +536,23 @@ function SceneContent() {
   };
 
   const visibleAssets = useMemo(() => {
-    if (!usedIds) return assets;
+    // 选中方案后即按方案置景集过滤（不依赖是否选中具体镜头）
+    const planMode = Boolean(activePlanId) && Boolean(setKeep);
+    if (!usedIds) {
+      if (!planMode) return assets;
+      const keep = setKeep as Set<string>;
+      return assets.filter(
+        (asset) =>
+          asset.kind === 'skeletal' ||
+          asset.kind === 'light' ||
+          asset.instanceId === 'platform-main' ||
+          asset.kind !== 'ue' ||
+          keep.has(asset.instanceId),
+      );
+    }
     const used = new Set(usedIds);
     const scene = activeShot?.scene ?? null;
     // 选中方案后，镜头展示方案整套置景资产（不按镜头视锥裁剪成子集）
-    const planMode = Boolean(activePlanId) && Boolean(setKeep);
     return assets.filter((asset) => {
       // 骨骼角色不受镜头元素剔除影响，但只在其所属场次的镜头中出现
       //（未登记场次的角色与完整场景视图保持始终显示）
