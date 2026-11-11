@@ -415,6 +415,17 @@ app.get('/api/ue/actors', async (_req, res) => {
 });
 
 const PORT = Number(process.env.PORT) || 8787;
+
+// 生产部署（Render 等）：托管前端构建产物 dist，非 /api 路径统一回退 index.html
+const DIST_DIR = path.join(__dirname, '..', 'dist');
+if (fs.existsSync(DIST_DIR)) {
+  app.use(express.static(DIST_DIR));
+  app.use((req, res, next) => {
+    if (req.path.startsWith('/api/')) return next();
+    res.sendFile(path.join(DIST_DIR, 'index.html'));
+  });
+}
+
 app.listen(PORT, () => {
   console.log(`[techviz-server] http://localhost:${PORT}`);
   logAuthConfigSummary();

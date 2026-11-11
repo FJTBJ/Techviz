@@ -1,0 +1,14 @@
+# Render Blueprint：一键部署（仓库根为 web3d，前后端同源单服务）
+# 部署：Render Dashboard → New → Blueprint → 选本仓库
+services:
+  - type: web
+    name: techviz
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: node server/index.mjs
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: AUTH_REQUIRED
+        value: 'false'
