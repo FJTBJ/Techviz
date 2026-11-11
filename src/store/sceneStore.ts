@@ -481,6 +481,13 @@ export const useScene = create<SceneState>((set, get) => ({
       } catch {
         /* 缺失时镜头树为空，不影响其他功能 */
       }
+      // 新库/线上首次打开：已存方案里没有任何 UE 资产（空方案或演示资产）时，
+      // 自动导入一次祈祷室场景快照，保证资产列表与本地采集数据一致
+      if (!get().assets.some((a) => a.kind === 'ue')) {
+        await get().importUeScene();
+        // 导入后置景筛选需要重新生效（可见性映射到新导入的资产上）
+        if (get().setPlan) await get().applySetAssetFilter();
+      }
       // 默认视角：取本场第一镜的机位，并把整个集合按该镜头的朝环屏角度整体转向。
       // 棚中央是石拱布景，随便放一个自由机位很容易被布景挡死或正对缺口，
       // 直接用真实预演机位取景，保证打开页面就朝 LED 环屏。
