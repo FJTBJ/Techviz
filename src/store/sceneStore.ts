@@ -329,7 +329,7 @@ export const useScene = create<SceneState>((set, get) => ({
   camPipEnlarged: false,
   takeVideoEl: null,
   setTakeVideoEl: (el) => set({ takeVideoEl: el }),
-  aerialView: false,
+  aerialView: true, // 默认俯视：打开页面先从上方观察全场
   aerialPrevMode: null,
   rigView: false,
   previz: null,
