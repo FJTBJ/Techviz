@@ -1,12 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber';
-// Line 随机位标记（PrevizCameraMarker）一并停用，恢复时加回
 import { Grid, OrbitControls, Line, TransformControls } from '@react-three/drei';
 import { useScene, isGizmoActive, markGizmoDragEnd } from '../store/sceneStore';
 import { SceneObject, LedRing } from './scene/SceneObject';
-// import { CameraRig } from './scene/CameraRig';
-// 机位可视化模型暂隐藏（机位先隐藏，恢复时取消注释上行 import 与下方 JSX 渲染）
+import { CameraRig } from './scene/CameraRig';
 // 旧版方案示意已停用（与方案地台资产重复），恢复时取消注释
 // import { SetPlanLayer } from './scene/SetPlanLayer';
 import { MeasurementLayer } from './scene/MeasurementLayer';
@@ -329,7 +327,6 @@ function AerialRig() {
 }
 
 /** 高空视角下显示当前镜头机位：黄色轨迹 + 随时间移动的机位标记与视锥 */
-/* 机位标记暂隐藏（高空视角黄色轨迹 + 机位标记，恢复时取消注释）
 function PrevizCameraMarker() {
   const aerial = useScene((s) => s.aerialView);
   const previz = useScene((s) => s.previz);
@@ -386,7 +383,7 @@ function PrevizCameraMarker() {
     </>
   );
 }
-机位标记暂隐藏结束 */
+
 
 function Ground() {
   const mode = useScene((s) => s.mode);
@@ -639,10 +636,9 @@ function SceneContent() {
         {/* 方案地台 3D 尺寸手柄（与地台同处内容坐标系） */}
         <PlatformSizer3D />
         </group>
-        {/* 机位可视化暂隐藏（机位先隐藏，恢复时取消注释）
+        {/* 机位可视化：机身模型 + 高空视角下的轨迹与标记 */}
         <CameraRig />
         <PrevizCameraMarker />
-        */}
         </group>
       </group>
       {/* 测量标注属于棚内空间坐标，不随集合转向 */}
