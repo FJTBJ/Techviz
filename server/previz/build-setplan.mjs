@@ -300,16 +300,19 @@ function main() {
     // 该轮覆盖的镜头移出待覆盖集，直到待覆盖为空或无新覆盖产生
     let pending = sceneShots.map((s) => s.id);
     // 画面入屏判据（KMOKE-261104 规则）：视锥上沿出屏的镜头无法完整拍摄，
-    // 直接进未覆盖清单（不参与解算、不做单镜兜底），并进入下一轮待覆盖口径
+    // 标记为画面出屏风险并后置到收尾轮次单独成版——最终不留未覆盖镜头
     const arcRange = ringArcRange(ring);
     const frameOutIds = sceneShots.filter((s) => !frameInScreen(s, ring, arcRange)).map((s) => s.id);
     if (frameOutIds.length) {
       const failed = new Set(frameOutIds);
+      // 先从常规轮次剔除（常规轮优先保可完整拍摄的镜头），收尾兜底轮再逐镜成版
       pending = pending.filter((id) => !failed.has(id));
+      const tailPending = sceneShots.filter((s) => failed.has(s.id)).map((s) => s.id);
       for (const sid of frameOutIds) {
         const nm = sceneShots.find((s) => s.id === sid)?.name ?? sid;
-        console.log(`  [画面出屏] ${sid}（${nm}）视锥上沿超出屏高，判不可完整拍摄，不出方案`);
+        console.log(`  [画面出屏] ${sid}（${nm}）视锥上沿超出屏高，标记风险，收尾轮兜底成版`);
       }
+      pending.push(...tailPending);
     }
     const planList = [];
     for (let roundNo = 1; roundNo <= 8 && pending.length; roundNo += 1) {
@@ -410,9 +413,9 @@ function main() {
       setInstanceIds: first ? first.setInstanceIds : [],
       /** 多方案列表（KMOKE-261104 规则四：小场景内多套方案，覆盖镜头互斥） */
       planList,
-      /** 未覆盖镜头 = 轮次后剩余 + 画面出屏不可拍摄的镜头 */
-      pendingShotIds: [...pending, ...frameOutIds],
-      /** 画面出屏镜头清单（视锥上沿超出屏体/缺口，无法完整拍摄） */
+      /** 未覆盖镜头：轮次 + 收尾兜底后理应为空（每个镜头都有方案） */
+      pendingShotIds: pending,
+      /** 画面出屏镜头清单（视锥上沿超出屏高，无法完整拍摄，仅风险标记） */
       frameOutIds,
       /** 灯光约束接口：灯位配置未下发前仅输出规则，不做硬校验 */
       lightRule: lightRuleForRing(ring.diameter),
