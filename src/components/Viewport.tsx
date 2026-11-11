@@ -846,6 +846,13 @@ export function Viewport() {
         dpr={[1, 2]}
         gl={{ antialias: true, preserveDrawingBuffer: true }}
         camera={{ position: [0, 7.2, 8.5], fov: 48, near: 0.1, far: 400 }}
+        onCreated={({ camera }) => {
+          // 默认俯视：Canvas 创建即应用高空机位（onCreated 必定触发，不依赖子树 effect 提交）
+          if (useScene.getState().aerialView) {
+            camera.position.set(0, 34, 30);
+            camera.lookAt(0, 1, 0);
+          }
+        }}
         onPointerMissed={() => {
           if (isGizmoActive()) return;
           selectAsset(null);

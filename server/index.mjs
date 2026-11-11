@@ -424,9 +424,21 @@ const PORT = Number(process.env.PORT) || 8787;
 // 生产部署（Render 等）：托管前端构建产物 dist，非 /api 路径统一回退 index.html
 const DIST_DIR = path.join(__dirname, '..', 'dist');
 if (fs.existsSync(DIST_DIR)) {
-  app.use(express.static(DIST_DIR));
+  // 带内容哈希的构建产物：可长期不可变缓存
+  app.use(
+    '/assets',
+    express.static(path.join(DIST_DIR, 'assets'), { maxAge: '30d', immutable: true }),
+  );
+  // index.html 每次强制校验：改版后浏览器必须拿到新 bundle 引用，不允许滞留旧版本
+  app.get('/', (_req, res) => {
+    res.set('Cache-Control', 'no-cache');
+    res.sendFile(path.join(DIST_DIR, 'index.html'));
+  });
+  app.use(express.static(DIST_DIR, { index: false }));
   app.use((req, res, next) => {
-    if (req.path.startsWith('/api/')) return next();
+    // /assets 过期哈希文件不存在时回退 404（而不是 index.html），避免把 HTML 当 JS 执行
+    if (req.path.startsWith('/api/') || req.path.startsWith('/assets/')) return next();
+    res.set('Cache-Control', 'no-cache');
     res.sendFile(path.join(DIST_DIR, 'index.html'));
   });
 }
