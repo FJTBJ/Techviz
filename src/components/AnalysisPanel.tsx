@@ -12,7 +12,14 @@ export function AnalysisPanel() {
   const selectShot = useScene((s) => s.selectShot);
 
   const result = impact.result;
-  const nameOf = (shotId: string) => previz?.shots.find((s) => s.id === shotId)?.name ?? shotId;
+  const shotCatalog = useScene((s) => s.shotCatalog);
+  /** 镜头显示名：与左侧镜头库一致，优先场记短名，无清单数据时退回全名去尾缀 */
+  const nameOf = (shotId: string) => {
+    const shot = previz?.shots.find((s) => s.id === shotId);
+    if (!shot) return shotId;
+    const entry = shotCatalog?.find((e) => e.key === shot.name);
+    return entry?.short ?? shot.name.replace(/_[A-Za-z]$/, '');
+  };
 
   return (
     <Panel title="AI 影响分析">
