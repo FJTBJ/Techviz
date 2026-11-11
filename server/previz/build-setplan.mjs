@@ -125,7 +125,19 @@ function main() {
   const ringFile = readJson(RING_FILE);
   const people = fs.existsSync(PEOPLE_FILE) ? readJson(PEOPLE_FILE) : null;
   const snapshot = fs.existsSync(SNAPSHOT_FILE) ? readJson(SNAPSHOT_FILE) : null;
-  const snapshotAssets = (snapshot?.assets ?? []).filter((a) => a.kind === 'ue');
+  // 悬空剔除：包围盒底部高于地面 FLOAT_BOTTOM_MAX_M 的构件（梁、悬挂结构等）不参与置景方案
+  const FLOAT_BOTTOM_MAX_M = 0.1;
+  const bottomY = (a) =>
+    (a.position?.[1] ?? 0) + (a.offset?.[1] ?? 0) - (a.size?.[1] ?? 0) / 2;
+  const excludedFloating = [];
+  const snapshotAssets = (snapshot?.assets ?? []).filter((a) => {
+    if (a.kind !== 'ue') return false;
+    if (bottomY(a) > FLOAT_BOTTOM_MAX_M) {
+      excludedFloating.push(a.code);
+      return false;
+    }
+    return true;
+  });
   const classifications = fs.existsSync(CLASSIFICATIONS_FILE) ? (readJson(CLASSIFICATIONS_FILE).shots ?? {}) : {};
   const d = ringFile.derived;
 
@@ -456,6 +468,7 @@ function main() {
   for (const r of excludedRobotArms) {
     console.log(`  剔除 ${r.base}（${r.short ?? '未匹配短名'}）机械臂镜头，不参与方案推导`);
   }
+  console.log(`  悬空剔除 ${excludedFloating.length} 个构件（底部高于地面 ${FLOAT_BOTTOM_MAX_M}m）：${[...new Set(excludedFloating)].join('、')}`);
 
   // 播放时间线：按 master 时间码排布所有镜头，供前端底部时间线使用
   timelineShots.sort((a, b) => a.start - b.start);
